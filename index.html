@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CarAll</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <div>
+      <a class="brand" href="#">
+         <img src="images/Logo.png" alt="CarAll Logo" class="brand__img">
+       </a>
+
+      </div>
+      
+
+      <nav class="nav">
+       <a class="nav__link" href="#list">Elanlar</a>
+       <a class="nav__link" href="#how">Necə işləyir?</a>
+       <a class="nav__link" href="#contact">Əlaqə</a>
+
+       <a class="nav__btn" href="add-listing.html">+ Elan yerləşdir</a>
+      </nav>
+
+    </div>
+  </header>
+
+  <!-- Hero + Filters -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero__head">
+        <p class="hero__sub">Filterləri seç, nəticələr dərhal dəyişəcək.</p>
+      </div>
+
+      <div class="filters">
+        <div class="filters__row">
+          <div class="field">
+            <label class="field__label" for="qCountry">Ölkə</label>
+            <select class="field__control" id="qCountry">
+              <option value="">Hamısı</option>
+              <option value="AZ">Azərbaycan</option>
+              <option value="TR">Türkiyə</option>
+              <option value="GE">Gürcüstan</option>
+              <option value="DE">Almaniya</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="qBrand">Marka</label>
+            <select class="field__control" id="qBrand">
+              <option value="">Hamısı</option>
+              <option value="Mercedes">Mercedes</option>
+              <option value="BMW">BMW</option>
+              <option value="Toyota">Toyota</option>
+              <option value="Hyundai">Hyundai</option>
+              <option value="Kia">Kia</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="qModel">Model</label>
+            <select class="field__control" id="qModel">
+              <option value="">Hamısı</option>
+              <option value="C250">C250</option>
+              <option value="E200">E200</option>
+              <option value="M3">M3</option>
+              <option value="Camry">Camry</option>
+              <option value="Elantra">Elantra</option>
+              <option value="Sportage">Sportage</option>
+              <option value="Rio">Rio</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="qCity">Şəhər</label>
+            <select class="field__control" id="qCity">
+              <option value="">Hamısı</option>
+              <option value="Bakı">Bakı</option>
+              <option value="Sumqayıt">Sumqayıt</option>
+              <option value="Gəncə">Gəncə</option>
+              <option value="İstanbul">İstanbul</option>
+              <option value="Tbilisi">Tbilisi</option>
+              <option value="Berlin">Berlin</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filters__row filters__row--2">
+          <div class="field">
+            <label class="field__label" for="qMinPrice">Min qiymət (₼)</label>
+            <input class="field__control no-spin" id="qMinPrice" type="number" inputmode="numeric" placeholder="məs: 5000" />
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="qMaxPrice">Max qiymət (₼)</label>
+            <input class="field__control no-spin" id="qMaxPrice" type="number" inputmode="numeric" placeholder="məs: 25000" />
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="qYear">İl (min)</label>
+            <select class="field__control" id="qYear">
+              <option value="">Min</option>
+              <option value="2008">2008</option>
+              <option value="2010">2010</option>
+              <option value="2012">2012</option>
+              <option value="2015">2015</option>
+              <option value="2018">2018</option>
+              <option value="2020">2020</option>
+              <option value="2022">2022</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field__label" for="qYearMax">İl (max)</label>
+            <select class="field__control" id="qYearMax">
+              <option value="">Max</option>
+              <option value="2012">2012</option>
+              <option value="2015">2015</option>
+              <option value="2018">2018</option>
+              <option value="2020">2020</option>
+              <option value="2022">2022</option>
+              <option value="2024">2024</option>
+            </select>
+          </div>
+
+
+          <div class="actions">
+            <button class="btn btn--primary" id="btnSearch" type="button">Axtar</button>
+            <button class="btn btn--ghost" id="btnReset" type="button">Sıfırla</button>
+          </div>
+        </div>
+
+        <div class="filters__meta">
+          <div class="meta__left">
+            <span class="meta__hint" id="statusBox">Demo data aktivdir.</span>
+          </div>
+
+          <div class="meta__right">
+            <button class="notifybtn" id="notifyBtn" type="button" title="Mənə bildir">
+              <span class="notifybtn__icon">🔔</span>
+              <span class="notifybtn__text">Mənə bildir</span>
+            </button>
+
+            <label class="meta__label" for="sortBy">Sıralama</label>
+            <select class="sort" id="sortBy">
+              <option value="new">Ən yeni</option>
+              <option value="price_asc">Qiymət: aşağı → yuxarı</option>
+              <option value="price_desc">Qiymət: yuxarı → aşağı</option>
+              <option value="year_desc">İl: yeni → köhnə</option>
+              <option value="year_asc">İl: köhnə → yeni</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="resultline">
+          <span id="resultInfo">Hazırdır.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- List -->
+  <main class="main" id="list">
+    <div class="container">
+      <div class="grid" id="carsGrid"></div>
+    </div>
+  </main>
+
+  <!-- How -->
+  <section class="how" id="how">
+    <div class="container">
+      <h2 class="how__title">Necə işləyir?</h2>
+      <div class="howgrid">
+        <div class="howcard">
+          <div class="howcard__n">1</div>
+          <div class="howcard__t">Filter seç</div>
+          <div class="howcard__d">Ölkə, marka, model, şəhər, il və qiymət aralığı.</div>
+        </div>
+        <div class="howcard">
+          <div class="howcard__n">2</div>
+          <div class="howcard__t">Sırala</div>
+          <div class="howcard__d">Qiymət və ilə görə sıralama et.</div>
+        </div>
+        <div class="howcard">
+          <div class="howcard__n">3</div>
+          <div class="howcard__t">Detala keç</div>
+          <div class="howcard__d">Karta kliklə — istənilən yerindən.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer" id="contact">
+    <div class="container footer__inner">
+      <div class="footer__left">
+        © <span id="yearNow"></span> CarAll
+      </div>
+      <div class="footer__right">
+        <a class="footer__link" href="#">Instagram</a>
+        <a class="footer__link" href="#">WhatsApp</a>
+        <a class="footer__link" href="#">Email</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/script.js"></script>
+</body>
+</html>

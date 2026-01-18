@@ -1,0 +1,518 @@
+/* ===== Reset ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+
+/* ===== Theme ===== */
+:root{
+  --bg:#f2f3f5;
+  --card:#ffffff;
+  --text:#111827;
+  --muted:#6b7280;
+  --line:#e5e7eb;
+  --shadow:0 10px 24px rgba(0,0,0,.06);
+  --primary:#e11d48; /* turbo-red vibe */
+  --primary2:#be123c;
+  --radius:16px;
+}
+
+/* ===== Base ===== */
+html, body { height:100%; }
+body{
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.35;
+  font-size: 16px; /* böyük amma səliqəli */
+}
+
+.container{
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* ===== Topbar ===== */
+/* ===== Header final fix (Turbo-like) ===== */
+.topbar{
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+}
+
+.topbar__inner{
+  height: 76px;                 /* çox hündür olmasın */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.brand{
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  text-decoration: none;
+}
+
+.brand__img{
+  height: 76px   !important  ;            /* logo ölçüsü */
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+
+/* Nav düzəliş */
+.nav{
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 22px;
+  flex: 1 1 auto;
+  white-space: nowrap;
+}
+
+.nav__link{
+  text-decoration: none;        /* alt xətti götür */
+  color: #111827;               /* göy yox */
+  font-weight: 700;
+  font-size: 15px;
+  padding: 10px 8px;
+  border-radius: 10px;
+  opacity: .9;
+}
+
+.nav__link:hover{
+  color: var(--primary);
+  background: rgba(225,29,72,.08);
+}
+
+/* Ekran daralanda nav gizlənsin */
+@media (max-width: 900px){
+  .nav{ display: none; }
+  .topbar__inner{ height: 68px; }
+  .brand__img{ height: 40px; }
+}
+
+/* ===== Hero ===== */
+.hero{
+  padding: 26px 0 14px;
+}
+.hero__head{
+  margin: 6px 0 14px;
+}
+.hero__title{
+  font-size: 38px;
+  font-weight: 900;
+  letter-spacing: -.5px;
+}
+.hero__sub{
+  margin-top: 8px;
+  font-size: 17px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* ===== Filters ===== */
+.filters{
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.filters__row{
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.filters__row--2{
+  margin-top: 12px;
+  grid-template-columns: 0.8fr 0.8fr 0.7fr 0.7fr auto; /* min, max, il(min), il(max), buttons */
+  align-items: end;
+}
+
+
+.field__label{
+  display:block;
+  font-weight: 800;
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0 0 6px;
+}
+
+.field__control{
+  width:100%;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  outline: none;
+  transition: box-shadow .15s ease, border-color .15s ease;
+}
+
+.field__control:focus{
+  border-color: rgba(225,29,72,.45);
+  box-shadow: 0 0 0 4px rgba(225,29,72,.12);
+}
+
+/* remove number arrows */
+.no-spin::-webkit-outer-spin-button,
+.no-spin::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+.no-spin{ -moz-appearance:textfield; }
+
+.actions{
+  display:flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.btn{
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor:pointer;
+  user-select:none;
+}
+.btn--primary{
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+.btn--primary:hover{ background: var(--primary2); border-color: var(--primary2); }
+.btn--ghost{
+  background: #fff;
+}
+.btn--ghost:hover{ border-color: #cbd5e1; }
+
+.filters__meta{
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.meta__hint{
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 14px;
+}
+.meta__right{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+}
+.meta__label{
+  color: var(--muted);
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.sort{
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: #fff;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.resultline{
+  margin-top: 10px;
+  color: var(--text);
+  font-weight: 900;
+  font-size: 16px;
+}
+
+/* ===== Main ===== */
+.main{
+  padding: 16px 0 34px;
+}
+
+/* ===== Grid ===== */
+/* Desktop 4 */
+.grid{
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+/* ===== Card ===== */
+.cardlink{
+  display:block;
+  text-decoration:none;
+  color: inherit;
+}
+
+.card{
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow:hidden;
+  box-shadow: 0 10px 22px rgba(0,0,0,.04);
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  height: 100%; /* grid bərabərlik */
+}
+
+.cardlink:hover .card{
+  transform: translateY(-2px);
+  border-color: rgba(225,29,72,.35);
+  box-shadow: 0 16px 34px rgba(0,0,0,.10);
+}
+img { max-width: 100%; }
+/* Desktop */
+.card__imgwrap{
+  height: 170px;   /* əvvəl 210 idi, onu azaldırıq */
+}
+
+/* Mobil */
+@media (max-width: 980px){
+  .card__imgwrap{ height: 130px; }
+}
+.card__body{
+  padding: 12px 12px 14px;
+}
+
+.brand{
+  display: flex;
+  align-items: center;
+}
+
+.brand__img{
+  height: 38px;        /* desktop üçün ideal */
+  width: auto;
+  object-fit: contain;
+}
+
+/* Mobil */
+@media (max-width: 980px){
+  .brand__img{
+    height: 32px;
+  }
+}
+
+
+.card__imgwrap{
+  position: relative;
+  height: 210px;
+  overflow: hidden;          /* vacib: kənarı kəssin */
+  background: #e5e7eb;
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
+}
+
+/* img həmişə tam doldursun */
+.card__img{
+  display: block;            /* alt boşluğu götürür */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;         /* “cover” = tam örtür */
+  object-position: center;   /* mərkəzdən crop */
+}
+
+
+.badge{
+  position:absolute;
+  left: 12px;
+  bottom: 12px;
+  background: rgba(17,24,39,.72);
+  color:#fff;
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.card__body{
+  padding: 14px 14px 16px;
+}
+
+.card__title{
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -.2px;
+  margin-bottom: 6px;
+}
+
+.card__meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.card__bottom{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+}
+
+.card__price{
+  font-size: 20px;
+  font-weight: 1000;
+  color: var(--primary);
+}
+
+.card__cta{
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--text);
+  opacity: .8;
+}
+
+/* Empty */
+.empty{
+  grid-column: 1 / -1;
+  background: var(--card);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  padding: 22px;
+  text-align:center;
+}
+.empty__t{
+  font-weight: 1000;
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+.empty__d{
+  color: var(--muted);
+  font-weight: 800;
+}
+
+/* How */
+.how{
+  background: var(--card);
+  border-top: 1px solid var(--line);
+  padding: 34px 0;
+}
+.how__title{
+  font-size: 26px;
+  font-weight: 1000;
+  margin-bottom: 14px;
+}
+.howgrid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.howcard{
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+.howcard__n{
+  font-weight: 1000;
+  font-size: 18px;
+  color: var(--primary);
+}
+.howcard__t{
+  margin-top: 6px;
+  font-weight: 1000;
+  font-size: 18px;
+}
+.howcard__d{
+  margin-top: 6px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+/* Footer */
+.footer{
+  background: #0b1220;
+  color: #cbd5e1;
+  padding: 20px 0;
+}
+.footer__inner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.footer__link{
+  color:#cbd5e1;
+  text-decoration:none;
+  font-weight: 900;
+  margin-left: 14px;
+}
+.footer__link:hover{ color:#fff; }
+
+/* ===== Responsive ===== */
+/* Mobil 2 kart yan-yana */
+@media (max-width: 980px){
+  .nav{ display:none; }
+  .hero__title{ font-size: 32px; }
+  .filters__row{ grid-template-columns: repeat(2, 1fr); }
+  .filters__row--2{ grid-template-columns: repeat(2, 1fr); }
+  .actions{ justify-content: stretch; }
+  .btn{ width: 100%; }
+
+  .grid{ grid-template-columns: repeat(2, 1fr); } /* mobil 2 */
+
+  .card__imgwrap{ height: 170px; } /* mobil biraz qısa */
+  .howgrid{ grid-template-columns: 1fr; }
+}
+/* Elan yerləşdir button */
+.nav__btn{
+  margin-left: 8px;
+  padding: 10px 14px;
+  background: var(--primary);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.nav__btn:hover{
+  background: #be123c;
+}
+/* Notify button (Mənə bildir) */
+.notifybtn{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.notifybtn__icon{
+  font-size: 16px;
+  line-height: 1;
+}
+
+.notifybtn:hover{
+  border-color: rgba(225,29,72,.35);
+  box-shadow: 0 10px 18px rgba(0,0,0,.06);
+}
+
+/* Aktiv vəziyyət */
+.notifybtn.is-on{
+  background: rgba(225,29,72,.10);
+  border-color: rgba(225,29,72,.40);
+}
+@media (max-width: 980px){
+  .notifybtn__text{ display:none; } /* tək ikon qalsın */
+  .notifybtn{ padding: 10px; }
+}

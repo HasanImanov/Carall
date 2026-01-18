@@ -1,0 +1,147 @@
+// ===== Demo Cars (JSON yoxdur) =====
+// Şəkillər: Unsplash "source" (car queries) — maşın mövzulu çıxır.
+const CARS = [
+  { id: 101, country: "AZ", city: "Bakı", brand: "Mercedes", model: "C250", year: 2012, price: 23500, mileage: 168000, fuel: "Benzin", gearbox: "Avtomat", img: "https://i.pinimg.com/736x/36/55/e8/3655e8ce7616886c16e169a858b607f0.jpg", link: "details.html?id=101" },
+  { id: 102, country: "AZ", city: "Bakı", brand: "Lada", model: "Niva", year: 2024, price: 98000, mileage: 9000, fuel: "Benzin", gearbox: "Mexanika", img: "https://upload.wikimedia.org/wikipedia/commons/4/4f/Modificated_Lada_Niva_in_Azerbaijan%2C_Baku.jpg", link: "details.html?id=102" },
+  { id: 103, country: "AZ", city: "Gəncə", brand: "Toyota", model: "Camry", year: 2018, price: 29500, mileage: 110000, fuel: "Benzin", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/full/2026%2F01%2F02%2F18%2F28%2F08%2F98354ec0-7781-477a-8d86-63653cbb6fc6%2F80890_Oq4eV_GpJgIhUSVRDVECtQ.jpg", link: "details.html?id=103" },
+  { id: 104, country: "TR", city: "İstanbul", brand: "Hyundai", model: "Elantra", year: 2016, price: 16500, mileage: 145000, fuel: "Benzin", gearbox: "Mexanika", img: "https://turbo.azstatic.com/uploads/full/2025%2F12%2F23%2F16%2F05%2F29%2Fe64d9261-2c82-441e-a8e3-82717b8fd481%2F46971_KGjeHaANgNY5C5WMaOx-rw.jpg", link: "details.html?id=104" },
+  { id: 105, country: "AZ", city: "Sumqayıt", brand: "Kia", model: "Sportage", year: 2020, price: 33000, mileage: 72000, fuel: "Dizel", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/full/2026%2F01%2F02%2F01%2F44%2F11%2F232e36d8-763e-41e1-9227-6684d070c708%2F47032_VIedcJ10dBL8SArtm2Pp_w.jpg", link: "details.html?id=105" },
+  { id: 106, country: "GE", city: "Tbilisi", brand: "Toyota", model: "Camry", year: 2012, price: 13900, mileage: 210000, fuel: "Benzin", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/full/2026%2F01%2F18%2F13%2F30%2F53%2F6763e8f5-9598-417c-92fb-f9e69d952dbc%2F80688_6ALHBx-Sj_lie0bwwRfaUA.jpg", link: "details.html?id=106" },
+  { id: 107, country: "DE", city: "Berlin", brand: "Mercedes", model: "E200", year: 2015, price: 25500, mileage: 155000, fuel: "Dizel", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/f460x343/2026%2F01%2F08%2F14%2F30%2F08%2F0c25a8c4-46dc-499d-bf69-fc195c4b9bd8%2F40131_cs9N9jw19_BxcXbll3L2-w.jpg", link: "details.html?id=107" },
+  { id: 108, country: "AZ", city: "Bakı", brand: "Kia", model: "Rio", year: 2019, price: 17800, mileage: 89000, fuel: "Benzin", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/f460x343/2025%2F04%2F05%2F00%2F50%2F22%2F70cf8846-db44-4c52-ad23-c7c6e3a039e6%2F2746_FhBLeET6_RWLOHbwaKgtUw.jpg", link: "details.html?id=108" },
+  { id: 109, country: "TR", city: "İstanbul", brand: "BMW", model: "M3", year: 2021, price: 72000, mileage: 34000, fuel: "Benzin", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/f460x343/2026%2F01%2F07%2F15%2F21%2F12%2F910bf4c9-7951-4632-a993-3419b74ac3a7%2F29952_uIs1u81mVw5b5UVAxSzhdw.jpg", link: "details.html?id=109" },
+  { id: 110, country: "AZ", city: "Gəncə", brand: "Mercedes", model: "C250", year: 2011, price: 18900, mileage: 192000, fuel: "Benzin", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/f460x343/2026%2F01%2F07%2F13%2F57%2F40%2F0cadf9e6-a19f-4dfb-b9f9-9374f4a6fa82%2F80394_V1XsCKwAYN11B8KxgUC96A.jpg", link: "details.html?id=110" },
+  { id: 111, country: "AZ", city: "Bakı", brand: "Toyota", model: "Camry", year: 2022, price: 44500, mileage: 35000, fuel: "Benzin", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/f460x343/2025%2F11%2F09%2F15%2F36%2F58%2F70879996-b818-4bc2-bebb-004ef00a3fb9%2F4164_q6NjAn_iYobtJzTEf0S02A.jpg", link: "details.html?id=111" },
+  { id: 112, country: "AZ", city: "Sumqayıt", brand: "BMW", model: "M3", year: 2018, price: 63500, mileage: 76000, fuel: "Benzin", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/f460x343/2026%2F01%2F14%2F19%2F47%2F16%2Ff1e60d2c-acaf-43f7-9aa1-936d90583893%2F32503__2jkVr2paaSwA29qtOk0Vw.jpg", link: "details.html?id=112" }
+];
+
+// ===== Elements =====
+const qCountry = document.getElementById("qCountry");
+const qBrand = document.getElementById("qBrand");
+const qModel = document.getElementById("qModel");
+const qCity = document.getElementById("qCity");
+const qMinPrice = document.getElementById("qMinPrice");
+const qMaxPrice = document.getElementById("qMaxPrice");
+const qYear = document.getElementById("qYear");
+
+const btnSearch = document.getElementById("btnSearch");
+const btnReset = document.getElementById("btnReset");
+const sortBy = document.getElementById("sortBy");
+
+const carsGrid = document.getElementById("carsGrid");
+const resultInfo = document.getElementById("resultInfo");
+const statusBox = document.getElementById("statusBox");
+const qYearMax = document.getElementById("qYearMax");
+
+document.getElementById("yearNow").textContent = new Date().getFullYear();
+
+// ===== Helpers =====
+const countryName = (code) => ({
+  AZ: "Azərbaycan",
+  TR: "Türkiyə",
+  GE: "Gürcüstan",
+  DE: "Almaniya"
+}[code] || code);
+
+function money(n){
+  return new Intl.NumberFormat("az-AZ").format(n) + " ₼";
+}
+
+function renderCars(list){
+  if(!list.length){
+    carsGrid.innerHTML = `
+      <div class="empty">
+        <div class="empty__t">Nəticə tapılmadı</div>
+        <div class="empty__d">Filterləri dəyiş və yenidən yoxla.</div>
+      </div>
+    `;
+    return;
+  }
+
+  carsGrid.innerHTML = list.map(car => `
+    <a class="cardlink" href="${car.link}" aria-label="${car.brand} ${car.model} detallar">
+      <article class="card">
+        <div class="card__imgwrap">
+          <img class="card__img" src="${car.img}" alt="${car.brand} ${car.model}">
+          <div class="badge">${countryName(car.country)} • ${car.city}</div>
+        </div>
+
+        <div class="card__body">
+          <div class="card__title">${car.brand} ${car.model}</div>
+          <div class="card__meta">
+            <span>${car.year}</span><span>•</span>
+            <span>${car.mileage.toLocaleString("az-AZ")} km</span><span>•</span>
+            <span>${car.fuel}</span><span>•</span>
+            <span>${car.gearbox}</span>
+          </div>
+
+          <div class="card__bottom">
+            <div class="card__price">${money(car.price)}</div>
+            <div class="card__cta">Detala keç →</div>
+          </div>
+        </div>
+      </article>
+    </a>
+  `).join("");
+}
+
+function applyFilters(){
+  const f = {
+    country: qCountry.value,
+    brand: qBrand.value,
+    model: qModel.value,
+    city: qCity.value,
+    min: qMinPrice.value ? Number(qMinPrice.value) : null,
+    max: qMaxPrice.value ? Number(qMaxPrice.value) : null,
+    year: qYear.value ? Number(qYear.value) : null,
+    yearMax: qYearMax.value ? Number(qYearMax.value) : null,
+
+  };
+
+  let list = CARS.slice();
+
+  if (f.country) list = list.filter(x => x.country === f.country);
+  if (f.brand) list = list.filter(x => x.brand === f.brand);
+  if (f.model) list = list.filter(x => x.model === f.model);
+  if (f.city) list = list.filter(x => x.city === f.city);
+  if (f.year) list = list.filter(x => x.year >= f.year);
+  if (f.min !== null) list = list.filter(x => x.price >= f.min);
+  if (f.max !== null) list = list.filter(x => x.price <= f.max);
+  if (f.yearMax) list = list.filter(x => x.year <= f.yearMax);
+
+
+  const s = sortBy.value;
+  if (s === "price_asc") list.sort((a,b) => a.price - b.price);
+  if (s === "price_desc") list.sort((a,b) => b.price - a.price);
+  if (s === "year_desc") list.sort((a,b) => b.year - a.year);
+  if (s === "year_asc") list.sort((a,b) => a.year - b.year);
+  if (s === "new") list.sort((a,b) => b.id - a.id);
+
+  renderCars(list);
+  resultInfo.textContent = `${list.length} nəticə tapıldı.`;
+  statusBox.textContent = `Demo data: ${CARS.length} elan.`;
+}
+
+function resetAll(){
+  qCountry.value = "";
+  qBrand.value = "";
+  qModel.value = "";
+  qCity.value = "";
+  qMinPrice.value = "";
+  qMaxPrice.value = "";
+  qYear.value = "";
+  qYearMax.value = "";
+  sortBy.value = "new";
+  applyFilters();
+}
+
+// Events
+[qCountry, qBrand, qModel, qCity, qYear, qYearMax].forEach(el => el.addEventListener("change", applyFilters));
+[qMinPrice, qMaxPrice].forEach(el => el.addEventListener("input", applyFilters));
+sortBy.addEventListener("change", applyFilters);
+
+btnSearch.addEventListener("click", applyFilters);
+btnReset.addEventListener("click", resetAll);
+
+// Init
+applyFilters();
