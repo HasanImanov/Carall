@@ -77,7 +77,6 @@ function renderCars(list){
 
           <div class="card__bottom">
             <div class="card__price">${money(car.price)}</div>
-            <div class="card__cta">Detala keç →</div>
           </div>
         </div>
       </article>

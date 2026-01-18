@@ -598,7 +598,7 @@ img { max-width: 100%; }
   }
 
   .card__price{
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
   }
 
@@ -623,7 +623,7 @@ img { max-width: 100%; }
   .footer{
     font-size: 13px;
   }
-  .card__imgwrap{ height: 130px; }  /* bir az artır — zoom hissi azalır */
+  .card__imgwrap{ height: 110px; }  /* bir az artır — zoom hissi azalır */
 
   .card__img{
     width: 100%;
