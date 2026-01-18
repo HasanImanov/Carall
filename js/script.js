@@ -145,3 +145,27 @@ btnReset.addEventListener("click", resetAll);
 
 // Init
 applyFilters();
+
+// hamburger menu
+document.addEventListener("DOMContentLoaded", () => {
+  const hamburgerBtn = document.getElementById("hamburgerBtn");
+  const mobileMenu = document.getElementById("mobileMenu");
+  const mobileMenuClose = document.getElementById("mobileMenuClose");
+  const mobileMenuOverlay = document.getElementById("mobileMenuOverlay");
+
+  console.log("menu bind:", {
+    hamburgerBtn: !!hamburgerBtn,
+    mobileMenu: !!mobileMenu,
+    mobileMenuClose: !!mobileMenuClose,
+    mobileMenuOverlay: !!mobileMenuOverlay
+  });
+
+  if (!hamburgerBtn || !mobileMenu) return;
+
+  const openMenu = () => mobileMenu.classList.add("is-open");
+  const closeMenu = () => mobileMenu.classList.remove("is-open");
+
+  hamburgerBtn.addEventListener("click", openMenu);
+  mobileMenuOverlay && mobileMenuOverlay.addEventListener("click", closeMenu);
+  mobileMenuClose && mobileMenuClose.addEventListener("click", closeMenu);
+});

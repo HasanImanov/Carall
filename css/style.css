@@ -216,6 +216,7 @@ body{
 }
 
 .sort{
+  width: 100%;
   padding: 10px 12px;
   border-radius: 14px;
   border: 1px solid var(--line);
@@ -311,11 +312,11 @@ img { max-width: 100%; }
 
 /* img həmişə tam doldursun */
 .card__img{
-  display: block;            /* alt boşluğu götürür */
-  width: 100%;
+ width: 100%;
   height: 100%;
-  object-fit: cover;         /* “cover” = tam örtür */
-  object-position: center;   /* mərkəzdən crop */
+  display: block;
+  object-fit: cover;
+  object-position: center top;  /* mərkəzdən crop */
 }
 
 
@@ -343,13 +344,14 @@ img { max-width: 100%; }
 }
 
 .card__meta{
-  display:flex;
-  flex-wrap:wrap;
-  gap: 7px;
-  color: var(--muted);
-  font-size: 14px;
-  font-weight: 800;
-  margin-bottom: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  min-height: 42px;     /* ⭐ ƏSAS HƏLL */
+  align-items: center;
+  font-size: 13px;
+  line-height: 1.3;
+  color: #6b7280;
 }
 
 .card__bottom{
@@ -512,7 +514,366 @@ img { max-width: 100%; }
   background: rgba(225,29,72,.10);
   border-color: rgba(225,29,72,.40);
 }
+
+
 @media (max-width: 980px){
   .notifybtn__text{ display:none; } /* tək ikon qalsın */
   .notifybtn{ padding: 10px; }
+}
+/* =========================
+   MOBILE TYPOGRAPHY FIX
+   ========================= */
+@media (max-width: 768px){
+
+  body{
+    font-size: 14px;          /* əsas text */
+  }
+
+  /* ===== Header ===== */
+  .nav__link{
+    font-size: 13px;
+  }
+
+  /* ===== Hero ===== */
+  .hero__title{
+    font-size: 24px;          /* əvvəl 32–38 idi */
+    line-height: 1.2;
+  }
+
+  .hero__sub{
+    font-size: 14px;
+  }
+
+  /* ===== Filter labels ===== */
+  .field__label{
+    font-size: 12px;
+  }
+
+  /* ===== Filter inputs ===== */
+  .field__control{
+    font-size: 14px;
+    padding: 10px 10px;
+  }
+
+  /* ===== Buttons ===== */
+  .btn{
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+
+  /* ===== Result info ===== */
+  .resultline{
+    font-size: 14px;
+  }
+
+  /* ===== Cards ===== */
+  .card__title{
+    font-size: 15px;
+    line-height: 1.25;
+    font-weight: 700;
+  }
+
+  .card__meta{
+    min-height: 38px;
+    font-size: 12px;
+     display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 12px;
+  }
+  .card__meta span:nth-child(2),
+  .card__meta span:nth-child(4),
+  .card__meta span:nth-child(6){
+    display: none !important;
+  }
+  .card__meta span:nth-child(3),
+  .card__meta span:nth-child(7){
+    text-align: right;
+  }
+
+  .badge{
+    font-size: 10px;
+    padding: 4px 4px;
+    max-width: calc(100% - 16px);
+    margin: -10px -10px;
+  }
+
+  .card__price{
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .card__cta{
+    font-size: 12px;
+  }
+
+  /* ===== How section ===== */
+  .how__title{
+    font-size: 20px;
+  }
+
+  .howcard__t{
+    font-size: 15px;
+  }
+
+  .howcard__d{
+    font-size: 13px;
+  }
+
+  /* ===== Footer ===== */
+  .footer{
+    font-size: 13px;
+  }
+  .card__imgwrap{ height: 130px; }  /* bir az artır — zoom hissi azalır */
+
+  .card__img{
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;            /* boşluq YOX */
+    object-position: center 35%;  /* mərkəzi yuxarı çək — “farası” daha çox görsənir */
+  }
+}
+
+@media (max-width: 900px){
+
+  /* desktop nav gizlə */
+  .nav{ display: none !important; }
+
+  /* header layout */
+  .topbar__inner{
+    height: 72px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+  }
+
+  /* logo solda */
+  .brand{
+    flex: 0 0 auto !important;
+  }
+  .brand__img{
+    height: 71px !important;
+  }
+
+  /* sağ tərəf: ortada button + sağda hamburger */
+  .mheader-actions{
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  /* Elan yerləşdir ortada görünsün deyə: max-width veririk */
+  .mheader-add{
+    flex: 0 0 auto;
+    padding: 10px 21px;
+    border-radius: 10px;
+    background: var(--primary);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12px;
+    white-space: nowrap;
+
+    /* bu hissə onu "mərkəzə yaxın" saxlayır */
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  /* hamburger sağda */
+  .hamburger{
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    font-size: 26px;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    line-height: 1;
+  }
+}
+
+/* Desktopda mobile actions gizlə */
+@media (min-width: 901px){
+  .mheader-actions{ display: none !important; }
+}
+.mobilemenu{ pointer-events:none; }
+.mobilemenu.is-open{ pointer-events:auto; }
+.mobilemenu.is-open .mobilemenu__overlay{ opacity: 1; }
+.mobilemenu.is-open .mobilemenu__panel{ transform: translateX(0); }
+
+/* =========================
+   MOBILE MENU (FINAL CSS)
+   ========================= */
+
+/* konteyner */
+.mobilemenu{
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;        /* bağlıykən klik olmasın */
+}
+
+/* overlay */
+.mobilemenu__overlay{
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  opacity: 0;
+  transition: opacity .38s cubic-bezier(.25,.8,.25,1);
+}
+
+/* sağ panel */
+.mobilemenu__panel{
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 82%;
+  max-width: 340px;
+  background: #fff;
+  transform: translateX(110%);
+  transition: transform .38s cubic-bezier(.25,.8,.25,1);
+  box-shadow: -18px 0 40px rgba(0,0,0,.18);
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* close button */
+.mobilemenu__close{
+  align-self: flex-end;
+  width: 42px;
+  height: 42px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  border-radius: 12px;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* nav links */
+.mobilemenu__nav{
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mobilemenu__nav a{
+  text-decoration: none;       /* göy altxətli olmasın */
+  color: #111827;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 10px 10px;
+  border-radius: 12px;
+}
+
+.mobilemenu__nav a:hover{
+  background: rgba(225,29,72,.08);
+  color: #e11d48;
+}
+
+/* Elan yerləşdir button menu içində */
+.mobilemenu__btn{
+  margin-top: 6px;
+  background: #e11d48;
+  color: #fff !important;
+  text-align: center;
+  font-weight: 700;
+}
+
+/* AÇIQ VƏZİYYƏT */
+.mobilemenu.is-open{
+  pointer-events: auto;
+}
+
+.mobilemenu.is-open .mobilemenu__overlay{
+  opacity: 1;
+}
+
+.mobilemenu.is-open .mobilemenu__panel{
+  transform: translateX(0);
+}
+
+/* yalnız mobil */
+@media (min-width: 901px){
+  .mobilemenu{ display:none; }
+}
+/* =========================
+   MOBILE BOTTOM NAV (smaller & clean)
+   ========================= */
+.bnav{ display:none; }
+
+@media (max-width: 900px){
+  .bnav{
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: 10px;
+    height: 56px;                 /* ⬅️ daha alçaq */
+    background: rgba(255,255,255,.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0,0,0,.06);
+    border-radius: 18px;
+    box-shadow: 0 14px 30px rgba(0,0,0,.12);
+    z-index: 9998;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr 66px 1fr 1fr; /* ⬅️ orta zona kiçik */
+    align-items: center;
+    padding: 0 10px;
+  }
+
+  .bnav__item{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap: 3px;
+    text-decoration:none;
+    color:#6b7280;
+    font-weight:600;
+    font-size:10px;               /* ⬅️ daha kiçik */
+    line-height:1;
+  }
+
+  .bnav__ico{
+    width: 19px;                  /* ⬅️ icon ölçüsü */
+    height: 19px;
+  }
+
+  .bnav__item.is-active{
+    color: var(--primary);
+  }
+
+  /* FAB (plus) daha kiçik */
+  .bnav__fab{
+    width: 50px;
+    height: 50px;
+    border-radius: 999px;
+    background: var(--primary);
+    color:#fff;
+    text-decoration:none;
+
+    display:grid;
+    place-items:center;
+
+    transform: translateY(-14px); /* ⬅️ az qaldır */
+    box-shadow: 0 14px 24px rgba(225,29,72,.30);
+  }
+
+  .bnav__plus{
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1;
+    transform: translateY(-1px);
+  }
+
+  /* kontent alt barın altında qalmasın */
+  body{ padding-bottom: 86px; }
 }
