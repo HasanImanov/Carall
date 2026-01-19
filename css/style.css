@@ -84,6 +84,34 @@ body{
   background: rgba(225,29,72,.08);
 }
 
+.nav__link--fav{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+
+  padding:8px 14px;
+  border-radius:999px;
+
+  background: rgba(239,68,68,.08);   /* qırmızı yüngül fon */
+  color:#e11d48;                     /* red-600 */
+
+  font-weight:600;
+  text-decoration:none;
+
+  transition: background 160ms ease, transform 120ms ease;
+}
+
+.nav__link--fav:hover{
+  background: rgba(239,68,68,.14);
+  transform: translateY(-1px);
+}
+
+/* ürək icon */
+.nav__link--fav .fav-ic{
+  font-size:14px;
+  line-height:1;
+  margin-bottom:-5px;
+}
 /* Ekran daralanda nav gizlənsin */
 @media (max-width: 900px){
   .nav{ display: none; }
@@ -235,6 +263,104 @@ body{
 /* ===== Main ===== */
 .main{
   padding: 16px 0 34px;
+}
+.fav-btn{
+  all: unset;
+  box-sizing: border-box;
+
+  position:absolute;
+  top:10px;
+  right:10px;
+  z-index:30;
+
+  width:36px;
+  height:36px;
+  border-radius:999px;
+
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+
+  border:1px solid rgba(255,255,255,.22);
+  background: rgba(17,24,39,.45);
+  backdrop-filter: blur(10px);
+
+  transition: transform 140ms ease, background 140ms ease, border-color 140ms ease;
+}
+
+.fav-btn:hover{ background: rgba(17,24,39,.60); transform: translateY(-1px); }
+.fav-btn:active{ transform: scale(.92); }
+
+.fav-ic{
+  width:18px;
+  height:18px;
+  color: rgba(255,255,255,.95); /* outline stroke currentColor */
+}
+
+.ic-on{ display:none; fill: rgba(239,68,68,.95); }
+.ic-off{ display:block; }
+
+.fav-btn.is-on{
+  border-color: rgba(239,68,68,.55);
+  background: rgba(239,68,68,.18);
+}
+
+.fav-btn.is-on .ic-on{ display:block; }
+.fav-btn.is-on .ic-off{ display:none; }
+
+/* pop animation */
+.fav-btn.pop{ animation: favPop 220ms ease; }
+@keyframes favPop{
+  0%{ transform: scale(1); }
+  50%{ transform: scale(1.12); }
+  100%{ transform: scale(1); }
+}
+/* MOBILE – ürəyi yığcam et */
+@media (max-width: 480px){
+  .fav-btn{
+    width:23px;
+    height:23px;
+    top:6px;
+    right:6px;
+  }
+
+  .fav-ic{
+    width:12px;
+    height:12px;
+  }
+}
+
+/* EXTRA SMALL (çox xırda telefonlar) */
+@media (max-width: 360px){
+  .fav-btn{
+    width:23px;
+    height:23px;
+    top:6px;
+    right:6px;
+  }
+
+  .fav-ic{
+    width:11px;
+    height:11px;
+  }
+}
+/* Seçilmişlər ikon olmadan da nav item kimi dursun */
+.bnav__item--fav{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:0;
+}
+
+/* ikon olmayanda text yuxarı-aşağı düzgün otursun */
+.bnav__item--fav .bnav__text{
+  margin-top:0;      /* səndə text icon altına düşürsə, bunu sıfırlayır */
+  line-height:1;
+}
+
+/* Əgər səndə ikonlu item-lərdə text kiçikdirsə, burada da eyni olsun */
+.bnav__text{
+  font-size: 12px;   /* səndə başqa dəyər varsa, bunu sil */
 }
 
 /* ===== Grid ===== */

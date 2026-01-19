@@ -1,19 +1,24 @@
 // ===== Demo Cars (JSON yoxdur) =====
+const FAV_KEY = "carall_favs_v1";
+
+function loadFavs(){
+  try{
+    const raw = localStorage.getItem(FAV_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return new Set(arr.map(String));
+  }catch(e){
+    return new Set();
+  }
+}
+
+function saveFavs(set){
+  localStorage.setItem(FAV_KEY, JSON.stringify([...set]));
+}
+
+
+
 // Şəkillər: Unsplash "source" (car queries) — maşın mövzulu çıxır.
-const CARS = [
-  { id: 101, country: "AZ", city: "Bakı", brand: "Mercedes", model: "C250", year: 2012, price: 23500, mileage: 168000, fuel: "Benzin", gearbox: "Avtomat", img: "https://i.pinimg.com/736x/36/55/e8/3655e8ce7616886c16e169a858b607f0.jpg", link: "details.html?id=101" },
-  { id: 102, country: "AZ", city: "Bakı", brand: "Lada", model: "Niva", year: 2024, price: 98000, mileage: 9000, fuel: "Benzin", gearbox: "Mexanika", img: "https://upload.wikimedia.org/wikipedia/commons/4/4f/Modificated_Lada_Niva_in_Azerbaijan%2C_Baku.jpg", link: "details.html?id=102" },
-  { id: 103, country: "AZ", city: "Gəncə", brand: "Toyota", model: "Camry", year: 2018, price: 29500, mileage: 110000, fuel: "Benzin", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/full/2026%2F01%2F02%2F18%2F28%2F08%2F98354ec0-7781-477a-8d86-63653cbb6fc6%2F80890_Oq4eV_GpJgIhUSVRDVECtQ.jpg", link: "details.html?id=103" },
-  { id: 104, country: "TR", city: "İstanbul", brand: "Hyundai", model: "Elantra", year: 2016, price: 16500, mileage: 145000, fuel: "Benzin", gearbox: "Mexanika", img: "https://turbo.azstatic.com/uploads/full/2025%2F12%2F23%2F16%2F05%2F29%2Fe64d9261-2c82-441e-a8e3-82717b8fd481%2F46971_KGjeHaANgNY5C5WMaOx-rw.jpg", link: "details.html?id=104" },
-  { id: 105, country: "AZ", city: "Sumqayıt", brand: "Kia", model: "Sportage", year: 2020, price: 33000, mileage: 72000, fuel: "Dizel", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/full/2026%2F01%2F02%2F01%2F44%2F11%2F232e36d8-763e-41e1-9227-6684d070c708%2F47032_VIedcJ10dBL8SArtm2Pp_w.jpg", link: "details.html?id=105" },
-  { id: 106, country: "GE", city: "Tbilisi", brand: "Toyota", model: "Camry", year: 2012, price: 13900, mileage: 210000, fuel: "Benzin", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/full/2026%2F01%2F18%2F13%2F30%2F53%2F6763e8f5-9598-417c-92fb-f9e69d952dbc%2F80688_6ALHBx-Sj_lie0bwwRfaUA.jpg", link: "details.html?id=106" },
-  { id: 107, country: "DE", city: "Berlin", brand: "Mercedes", model: "E200", year: 2015, price: 25500, mileage: 155000, fuel: "Dizel", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/f460x343/2026%2F01%2F08%2F14%2F30%2F08%2F0c25a8c4-46dc-499d-bf69-fc195c4b9bd8%2F40131_cs9N9jw19_BxcXbll3L2-w.jpg", link: "details.html?id=107" },
-  { id: 108, country: "AZ", city: "Bakı", brand: "Kia", model: "Rio", year: 2019, price: 17800, mileage: 89000, fuel: "Benzin", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/f460x343/2025%2F04%2F05%2F00%2F50%2F22%2F70cf8846-db44-4c52-ad23-c7c6e3a039e6%2F2746_FhBLeET6_RWLOHbwaKgtUw.jpg", link: "details.html?id=108" },
-  { id: 109, country: "TR", city: "İstanbul", brand: "BMW", model: "M3", year: 2021, price: 72000, mileage: 34000, fuel: "Benzin", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/f460x343/2026%2F01%2F07%2F15%2F21%2F12%2F910bf4c9-7951-4632-a993-3419b74ac3a7%2F29952_uIs1u81mVw5b5UVAxSzhdw.jpg", link: "details.html?id=109" },
-  { id: 110, country: "AZ", city: "Gəncə", brand: "Mercedes", model: "C250", year: 2011, price: 18900, mileage: 192000, fuel: "Benzin", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/f460x343/2026%2F01%2F07%2F13%2F57%2F40%2F0cadf9e6-a19f-4dfb-b9f9-9374f4a6fa82%2F80394_V1XsCKwAYN11B8KxgUC96A.jpg", link: "details.html?id=110" },
-  { id: 111, country: "AZ", city: "Bakı", brand: "Toyota", model: "Camry", year: 2022, price: 44500, mileage: 35000, fuel: "Benzin", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/f460x343/2025%2F11%2F09%2F15%2F36%2F58%2F70879996-b818-4bc2-bebb-004ef00a3fb9%2F4164_q6NjAn_iYobtJzTEf0S02A.jpg", link: "details.html?id=111" },
-  { id: 112, country: "AZ", city: "Sumqayıt", brand: "BMW", model: "M3", year: 2018, price: 63500, mileage: 76000, fuel: "Benzin", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/f460x343/2026%2F01%2F14%2F19%2F47%2F16%2Ff1e60d2c-acaf-43f7-9aa1-936d90583893%2F32503__2jkVr2paaSwA29qtOk0Vw.jpg", link: "details.html?id=112" }
-];
+
 
 // ===== Elements =====
 const qCountry = document.getElementById("qCountry");
@@ -57,14 +62,41 @@ function renderCars(list){
     `;
     return;
   }
+  const favIds = loadFavs(); // 
 
+  list.forEach(car => {
+    car.fav = favIds.has(String(car.id));
+  });
   carsGrid.innerHTML = list.map(car => `
     <a class="cardlink" href="${car.link}" aria-label="${car.brand} ${car.model} detallar">
       <article class="card">
         <div class="card__imgwrap">
           <img class="card__img" src="${car.img}" alt="${car.brand} ${car.model}">
-          <div class="badge">${countryName(car.country)} • ${car.city}</div>
-        </div>
+
+          <div class="card__top">
+            <button class="fav-btn ${car.fav ? 'is-on' : ''}" type="button" data-id="${car.id}" aria-label="Favorit">
+                <!-- OUTLINE -->
+                <svg class="fav-ic ic-off" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+
+                <!-- FILLED -->
+                <svg class="fav-ic ic-on" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 21.23 4.22 13.45 3.16 12.39a5.5 5.5 0 0 1 7.78-7.78L12 5.67l1.06-1.06a5.5 5.5 0 0 1 7.78 7.78l-1.06 1.06L12 21.23Z"/>
+                </svg>
+              </button>
+
+            <div class="badges">
+              ${car.vip ? `<span class="badge vip">⭐ VIP</span>` : ``}
+              ${car.premium ? `<span class="badge premium">👑 Premium</span>` : ``}
+            </div>
+          </div>
+
+  <!-- location badge -->
+  <div class="badge">${countryName(car.country)} • ${car.city}</div>
+</div>
+
 
         <div class="card__body">
           <div class="card__title">${car.brand} ${car.model}</div>
@@ -168,3 +200,23 @@ document.addEventListener("DOMContentLoaded", () => {
   mobileMenuOverlay && mobileMenuOverlay.addEventListener("click", closeMenu);
   mobileMenuClose && mobileMenuClose.addEventListener("click", closeMenu);
 });
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".fav-btn");
+  if(!btn) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  const id = String(btn.dataset.id);
+
+  const favIds = loadFavs();      // ✅ ən son state
+  if(favIds.has(id)) favIds.delete(id);
+  else favIds.add(id);
+
+  saveFavs(favIds);
+
+  btn.classList.toggle("is-on");
+});
+
+
+
