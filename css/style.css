@@ -483,11 +483,53 @@ img { max-width: 100%; }
 }
 
 .card__bottom{
-  display:flex;
+  margin-top: auto;
+  
   align-items:center;
   justify-content:space-between;
   gap: 10px;
 }
+
+@media (max-width: 640px){
+
+  /* kartı column flex elə */
+  .card{
+    display:flex;
+    flex-direction:column;
+    height:100%;
+  }
+
+  /* body hissəsi elastik olsun */
+  .card__body{
+    display:flex;
+    flex-direction:column;
+    flex:1 1 auto;
+    padding:16px;
+    min-height: 140px; /* <-- paralellik üçün əsas stabilizator */
+  }
+
+  /* title 2 sətrə kilidlə */
+  .card__title{
+    display:-webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow:hidden;
+  }
+
+  /* meta 2 sətrə kilidlə */
+  .card__meta{
+    display:-webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow:hidden;
+  }
+
+  /* bottom-u aşağı itələ */
+  .card__bottom{
+    margin-top:auto;
+  }
+}
+
 
 .card__price{
   font-size: 20px;
