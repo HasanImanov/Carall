@@ -528,6 +528,9 @@ img { max-width: 100%; }
   .card__bottom{
     margin-top:auto;
   }
+  .card__meta span{
+  white-space: nowrap;
+}
 }
 
 
