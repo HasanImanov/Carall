@@ -68,7 +68,7 @@ function renderCars(list){
     car.fav = favIds.has(String(car.id));
   });
   carsGrid.innerHTML = list.map(car => `
-    <a class="cardlink" href="${car.link}" aria-label="${car.brand} ${car.model} detallar">
+    <a class="cardlink" href="details.html?id=${car.id}" aria-label="${car.brand} ${car.model} detallar">
       <article class="card">
         <div class="card__imgwrap">
           <img class="card__img" src="${car.img}" alt="${car.brand} ${car.model}">
@@ -152,6 +152,219 @@ function applyFilters(){
   resultInfo.textContent = `${list.length} nəticə tapıldı.`;
   statusBox.textContent = `Demo data: ${CARS.length} elan.`;
 }
+// ===== LIGHTBOX (zoom + drag + keyboard) =====
+const lbBackdrop = document.createElement("div");
+lbBackdrop.className = "lb-backdrop";
+lbBackdrop.innerHTML = `
+  <div class="lb" role="dialog" aria-modal="true">
+    <div class="lb-count" id="lbCount">1 / 1</div>
+    <div class="lb-zoom" id="lbZoom">100%</div>
+    <button class="lb-close" id="lbClose" aria-label="Bağla">×</button>
+    <button class="lb-btn lb-prev" id="lbPrev" aria-label="Əvvəlki"></button>
+    <div class="lb-viewport" id="lbViewport">
+      <img class="lb-img" id="lbImg" alt="" referrerpolicy="no-referrer" />
+    </div>
+    <button class="lb-btn lb-next" id="lbNext" aria-label="Növbəti"></button>
+  </div>
+`;
+document.body.appendChild(lbBackdrop);
+
+const lb = {
+  backdrop: lbBackdrop,
+  img: lbBackdrop.querySelector("#lbImg"),
+  viewport: lbBackdrop.querySelector("#lbViewport"),
+  count: lbBackdrop.querySelector("#lbCount"),
+  zoomLabel: lbBackdrop.querySelector("#lbZoom"),
+  close: lbBackdrop.querySelector("#lbClose"),
+  prev: lbBackdrop.querySelector("#lbPrev"),
+  next: lbBackdrop.querySelector("#lbNext"),
+};
+
+let lbOpen = false;
+let scale = 1;
+let tx = 0;
+let ty = 0;
+let dragging = false;
+let startX = 0;
+let startY = 0;
+let startTx = 0;
+let startTy = 0;
+
+const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+const applyTransform = () => {
+  lb.img.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+  lb.zoomLabel.textContent = `${Math.round(scale * 100)}%`;
+};
+
+const resetView = () => {
+  scale = 1;
+  tx = 0;
+  ty = 0;
+  applyTransform();
+};
+
+const renderLb = () => {
+  lb.img.src = imgs[idx];
+  lb.count.textContent = `${idx + 1} / ${imgs.length}`;
+  lb.prev.style.display = (idx === 0) ? "none" : "flex";
+  lb.next.style.display = (idx === imgs.length - 1) ? "none" : "flex";
+  resetView();
+};
+
+const openLb = (startIndex) => {
+  idx = clamp(startIndex, 0, imgs.length - 1);
+  lb.backdrop.classList.add("is-open");
+  document.body.style.overflow = "hidden";
+  lbOpen = true;
+  renderLb();
+};
+
+const closeLb = () => {
+  lb.backdrop.classList.remove("is-open");
+  document.body.style.overflow = "";
+  lbOpen = false;
+};
+
+// mainImg klik -> popup
+
+// thumb klik -> popup (CTRL basıb açmaq istəyənlər üçün)
+// thumbsGrid.addEventListener("dblclick", (e) => {
+//   const t = e.target.closest(".thumb");
+//   if (!t) return;
+//   openLb(Number(t.dataset.i));
+// });
+
+// lb.close.addEventListener("click", closeLb);
+// lb.backdrop.addEventListener("click", (e) => {
+//   if (e.target === lb.backdrop) closeLb();
+// });
+
+// lb.prev.addEventListener("click", (e) => {
+//   e.stopPropagation();
+//   if (idx > 0) { idx -= 1; setMain(); renderLb(); }
+// });
+// lb.next.addEventListener("click", (e) => {
+//   e.stopPropagation();
+//   if (idx < imgs.length - 1) { idx += 1; setMain(); renderLb(); }
+// });
+
+// Keyboard: ESC, arrows
+window.addEventListener("keydown", (e) => {
+  if (!lbOpen) return;
+
+  if (e.key === "Escape") closeLb();
+  if (e.key === "ArrowLeft" && idx > 0) { idx -= 1; setMain(); renderLb(); }
+  if (e.key === "ArrowRight" && idx < imgs.length - 1) { idx += 1; setMain(); renderLb(); }
+
+  // Zoom keys: + / -
+  if (e.key === "+" || e.key === "=") { scale = clamp(scale + 0.15, 1, 5); applyTransform(); }
+  if (e.key === "-" || e.key === "_") { scale = clamp(scale - 0.15, 1, 5); applyTransform(); }
+});
+
+// Wheel zoom (mouse)
+lb.viewport.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  const delta = e.deltaY > 0 ? -0.12 : 0.12;
+  const newScale = clamp(scale + delta, 1, 5);
+
+  // Zoom mərkəzi: mouse-un olduğu yer
+  const rect = lb.viewport.getBoundingClientRect();
+  const cx = e.clientX - rect.left;
+  const cy = e.clientY - rect.top;
+
+  // transform: tx,ty dəyişərək cursor altını saxla
+  const k = newScale / scale;
+  tx = cx - k * (cx - tx);
+  ty = cy - k * (cy - ty);
+
+  scale = newScale;
+  applyTransform();
+}, { passive: false });
+
+// Drag (pan)
+lb.viewport.addEventListener("mousedown", (e) => {
+  dragging = true;
+  lb.viewport.classList.add("is-dragging");
+  startX = e.clientX;
+  startY = e.clientY;
+  startTx = tx;
+  startTy = ty;
+});
+window.addEventListener("mousemove", (e) => {
+  if (!dragging || !lbOpen) return;
+  tx = startTx + (e.clientX - startX);
+  ty = startTy + (e.clientY - startY);
+  applyTransform();
+});
+window.addEventListener("mouseup", () => {
+  dragging = false;
+  lb.viewport.classList.remove("is-dragging");
+});
+
+// Double click to zoom in/out
+lb.viewport.addEventListener("dblclick", (e) => {
+  e.preventDefault();
+  if (scale === 1) {
+    scale = 2;
+  } else {
+    scale = 1;
+    tx = 0; ty = 0;
+  }
+  applyTransform();
+});
+
+// Touch pinch zoom (basic)
+let tStartDist = 0;
+let tStartScale = 1;
+let tStartTx = 0;
+let tStartTy = 0;
+
+const dist = (a, b) => Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+
+lb.viewport.addEventListener("touchstart", (e) => {
+  if (!lbOpen) return;
+
+  if (e.touches.length === 1) {
+    // pan
+    dragging = true;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    startTx = tx;
+    startTy = ty;
+  }
+
+  if (e.touches.length === 2) {
+    dragging = false;
+    tStartDist = dist(e.touches[0], e.touches[1]);
+    tStartScale = scale;
+    tStartTx = tx;
+    tStartTy = ty;
+  }
+}, { passive: true });
+
+lb.viewport.addEventListener("touchmove", (e) => {
+  if (!lbOpen) return;
+
+  if (e.touches.length === 1 && dragging) {
+    tx = startTx + (e.touches[0].clientX - startX);
+    ty = startTy + (e.touches[0].clientY - startY);
+    applyTransform();
+  }
+
+  if (e.touches.length === 2) {
+    const d = dist(e.touches[0], e.touches[1]);
+    const k = d / tStartDist;
+    scale = clamp(tStartScale * k, 1, 5);
+    tx = tStartTx;
+    ty = tStartTy;
+    applyTransform();
+  }
+}, { passive: true });
+
+lb.viewport.addEventListener("touchend", () => {
+  dragging = false;
+}, { passive: true });
 
 function resetAll(){
   qCountry.value = "";
@@ -216,6 +429,8 @@ document.addEventListener("click", (e) => {
   saveFavs(favIds);
 
   btn.classList.toggle("is-on");
+  const viewsEl = document.getElementById("viewsCount");
+if (viewsEl) viewsEl.textContent = car.views ?? 0;
 });
 
 
