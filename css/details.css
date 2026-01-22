@@ -619,3 +619,20 @@ body{
   line-height: 1;
   opacity: .75;
 }
+/* main slider overlay images */
+#mainWrap, .mainimg-wrap { position: relative; overflow: hidden; }
+#mainImg, #ghostImg{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 18px;
+}
+#ghostImg{
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(0,0,0);
+}
