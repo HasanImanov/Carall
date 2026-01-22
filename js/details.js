@@ -234,6 +234,9 @@ const setMainAnimated = (fromDir) => {
   // =====================================================================
   // ✅ LIGHTBOX (iPhone-like swipe + normal fit)
   // =====================================================================
+  
+  
+  
   const lbBackdrop = document.createElement("div");
   lbBackdrop.className = "lb-backdrop";
   lbBackdrop.innerHTML = `
@@ -254,7 +257,8 @@ const setMainAnimated = (fromDir) => {
     </div>
   `;
   document.body.appendChild(lbBackdrop);
-
+const favBtn = document.getElementById("favBtn");
+favBtn.dataset.id = car.id;
   const lb = {
     backdrop: lbBackdrop,
     img: lbBackdrop.querySelector("#lbImg"),
@@ -612,3 +616,65 @@ lb.next.addEventListener("click", (e) => {
   renderThumbs();
   setMain();
 })();
+const FAV_KEY = "carall_favs_v1";
+
+function loadFavs(){
+  try{
+    const raw = localStorage.getItem(FAV_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return new Set(arr.map(String));
+  }catch(e){
+    return new Set();
+  }
+}
+ 
+function saveFavs(set){
+  localStorage.setItem(FAV_KEY, JSON.stringify([...set]));
+}
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".fav-btn");
+  if(!btn) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  const id = String(btn.dataset.id);
+
+  const favIds = loadFavs();      // ✅ ən son state
+  if(favIds.has(id)) favIds.delete(id);
+  else favIds.add(id);
+
+  saveFavs(favIds);
+
+  btn.classList.toggle("is-on");
+  
+});
+
+function loadFavsInsert(){
+const favIds = loadFavs(); 
+const list = window.cars || [];// Set və ya Array ola bilər
+const btn = document.getElementById("favBtn");
+if (!btn) return;
+
+const id = String(btn.dataset.id);
+
+list.forEach(car => {
+  const carId = String(car.id);
+
+  // car.fav state-i sync edirik
+  car.fav = favIds.has(carId);
+
+  // yalnız klik olunan maşındırsa
+  if (carId === id) {
+    // əgər favIds içindədirsə → ON
+    if (favIds.has(carId)) {
+      btn.classList.add("is-on");
+    } else {
+      btn.classList.remove("is-on");
+    }
+  }
+});
+
+
+}
+loadFavsInsert();
