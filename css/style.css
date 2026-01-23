@@ -1728,3 +1728,12 @@ img { max-width: 100%; }
     height:44px;
   }
 }
+@media (max-width: 640px){
+  .filters__row--2 .field:has(#qMinPrice),
+  .filters__row--2 .field:has(#qMaxPrice),
+  .filters__row--2 .field:has(#qYear),
+  .filters__row--2 .field:has(#qYearMax){
+    display:none !important;
+  }
+}
+ 

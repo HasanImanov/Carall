@@ -1133,3 +1133,55 @@ document.addEventListener("DOMContentLoaded", () => {
 
   sync();
 });
+// === FINAL: Mobil-də Qiymət/İl həmişə Ətraflı (advGrid) içində qalsın ===
+document.addEventListener("DOMContentLoaded", () => {
+  const advPanel = document.getElementById("advPanel");
+  const advGrid  = document.getElementById("advGrid");
+  if (!advPanel || !advGrid) return;
+
+  const ids = ["qMinPrice", "qMaxPrice", "qYear", "qYearMax"];
+
+  const getFields = () =>
+    ids
+      .map((id) => document.getElementById(id))
+      .map((el) => el?.closest(".field"))
+      .filter(Boolean);
+
+  const fields = getFields();
+  if (!fields.length) return;
+
+  // ilkin yerlər (desktop üçün geri qaytarmaq)
+  const homes = fields.map((f) => ({ el: f, parent: f.parentNode, next: f.nextSibling }));
+
+  const isMobile = () => window.matchMedia("(max-width: 640px)").matches;
+
+  const moveToAdv = () => {
+    // artıq advGrid-dədirsə toxunma
+    fields.forEach((f) => {
+      if (advGrid.contains(f)) return;
+      advGrid.insertBefore(f, advGrid.firstChild);
+    });
+  };
+
+  const moveBack = () => {
+    homes.forEach((h) => {
+      if (!h.parent) return;
+      if (h.next) h.parent.insertBefore(h.el, h.next);
+      else h.parent.appendChild(h.el);
+    });
+  };
+
+  const sync = () => {
+    if (isMobile()) moveToAdv();   // ✅ mobil-də həmişə adv-də qalsın
+    else moveBack();               // ✅ desktop-da köhnə yerində
+  };
+
+  // panel açılıb-bağlananda da, resize olanda da sync et
+  new MutationObserver(sync).observe(advPanel, {
+    attributes: true,
+    attributeFilter: ["class", "hidden"],
+  });
+  window.addEventListener("resize", sync);
+
+  sync();
+});
