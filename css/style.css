@@ -1050,3 +1050,21 @@ img { max-width: 100%; }
   /* kontent alt barın altında qalmasın */
   body{ padding-bottom: 86px; }
 }
+/* ===== Mobile menu smooth open/close ===== */
+#mobileMenu{
+  display: none;
+  transform: translateY(-8px);
+  opacity: 0;
+  transition: opacity 220ms ease, transform 220ms ease;
+  will-change: opacity, transform;
+}
+
+#mobileMenu.is-open{
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+  
+}
+
+/* hidden attribute varsa, yenə də gizlətsin */
+#mobileMenu[hidden]{ display:none !important; }

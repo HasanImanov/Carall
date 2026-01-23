@@ -159,22 +159,7 @@
     }
   });
 
-  // Swipe (mobile) for main image (loop)
-  const mainTrack = mainImg.parentElement; // wrapper (mainimg-wrap)
-
-  const setMainAnimated = (fromDir) => {
-    const w = mainTrack.clientWidth || 360;
-
-    mainTrack.style.transition = "none";
-    mainTrack.style.transform = `translateX(${fromDir * w}px)`;
-
-    requestAnimationFrame(() => {
-      mainTrack.style.transition = "transform 220ms cubic-bezier(.2,.8,.2,1)";
-      mainTrack.style.transform = "translateX(0)";
-    });
-  };
-
-  // ===== Section 2 info (unchanged) =====
+  // ===== Section 2 info =====
   if (carTitle) carTitle.textContent = `${safe(car.brand, "")} ${safe(car.model, "")} ${safe(car.year, "")}`.trim() || "Elan";
 
   if (carSub) {
@@ -226,7 +211,7 @@
   }
 
   // =====================================================================
-  // ✅ LIGHTBOX (iPhone-like swipe + normal fit) + ✅ ZOOM + ✅ SWIPE DOWN CLOSE
+  // ✅ LIGHTBOX (swipe + zoom + swipe-down close) — overlay menunu bloklamasın fix daxil
   // =====================================================================
 
   const lbBackdrop = document.createElement("div");
@@ -239,7 +224,7 @@
       <button class="lb-btn lb-prev" id="lbPrev" aria-label="Əvvəlki"></button>
 
       <div class="lb-viewport" id="lbViewport">
-        <div class="lb-track" id="lbTrack" style="height:100%; width:100%; display:flex; align-items:center; justify-content:center; touch-action: none;">
+        <div class="lb-track" id="lbTrack" style="height:100%; width:100%; display:flex; align-items:center; justify-content:center; touch-action:none;">
           <img class="lb-img" id="lbImg" alt="" referrerpolicy="no-referrer"
                style="max-width:100%; max-height:100%; object-fit:contain;" />
         </div>
@@ -250,12 +235,42 @@
   `;
   document.body.appendChild(lbBackdrop);
 
+
+  // ✅ DEFAULT: overlay heç nəyi bloklamasın (menyu klikləri işləsin)
+lbBackdrop.style.setProperty("display", "none", "important");
+lbBackdrop.style.setProperty("pointer-events", "none", "important");
+const openLb = () => {
+  lbOpen = true;
+
+  lbBackdrop.style.setProperty("display", "block", "important");
+  lbBackdrop.style.setProperty("pointer-events", "auto", "important");
+
+  lb.backdrop.classList.add("is-open");
+  document.body.style.overflow = "hidden";
+
+  renderLb(false);
+  resetZoom();
+};
+
+const closeLb = () => {
+  lbOpen = false;
+
+  lb.backdrop.classList.remove("is-open");
+  document.body.style.overflow = "";
+
+  resetZoom();
+
+  lbBackdrop.style.setProperty("pointer-events", "none", "important");
+  lbBackdrop.style.setProperty("display", "none", "important");
+};
+
+
   const favBtn = document.getElementById("favBtn");
   if (favBtn) favBtn.dataset.id = car.id;
 
   const lb = {
     backdrop: lbBackdrop,
-    box: lbBackdrop.querySelector(".lb"), // ✅ swipe-down üçün
+    box: lbBackdrop.querySelector(".lb"),
     img: lbBackdrop.querySelector("#lbImg"),
     viewport: lbBackdrop.querySelector("#lbViewport"),
     track: lbBackdrop.querySelector("#lbTrack"),
@@ -285,7 +300,6 @@
   let pinchStartDist = 0;
   let pinchStartScale = 1;
 
-  // swipe-down close state (yalnız zScale===1 olanda)
   let isClosingDrag = false;
   let closeStartY = 0;
   let closeDy = 0;
@@ -376,7 +390,6 @@
 
     lb.count.textContent = `${idx + 1} / ${imgs.length}`;
 
-    // loop olduğu üçün düymələr həmişə görünsün
     lb.prev.style.display = "flex";
     lb.next.style.display = "flex";
 
@@ -388,23 +401,21 @@
       trackSet(0, false);
     }
 
-    resetZoom(); // ✅ şəkil dəyişəndə zoom sıfırlansın
+    resetZoom();
   };
 
-  const openLb = () => {
-    lbOpen = true;
-    lb.backdrop.classList.add("is-open");
-    document.body.style.overflow = "hidden";
-    renderLb(false);
-    resetZoom(); // ✅
-  };
+ const openLbSafe = () => {
+  lbBackdrop.style.setProperty("display", "block", "important");
+  lbBackdrop.style.setProperty("pointer-events", "auto", "important");
+  openLb(); // köhnə funksiyanı çağırır
+};
 
-  const closeLb = () => {
-    lbOpen = false;
-    lb.backdrop.classList.remove("is-open");
-    document.body.style.overflow = "";
-    resetZoom(); // ✅
-  };
+const closeLbSafe = () => {
+  closeLb(); // köhnə funksiyanı çağırır
+  lbBackdrop.style.setProperty("pointer-events", "none", "important");
+  lbBackdrop.style.setProperty("display", "none", "important");
+};
+
 
   // ===== Main slider: drag shows next/prev image + tap opens popup =====
   const ghostImg = document.getElementById("ghostImg");
@@ -538,7 +549,7 @@
       mainDidSwipe = false;
       return;
     }
-    openLb(idx);
+    openLb(idx); // parametr versən də problem deyil
   });
 
   lb.close.addEventListener("click", closeLb);
@@ -648,7 +659,7 @@
     (e) => {
       if (!lbOpen) return;
 
-      // ✅ double-tap (yalnız 1 barmaq)
+      // double-tap (yalnız 1 barmaq)
       if (e.touches.length === 1) {
         const now = performance.now();
         const x = e.touches[0].clientX;
@@ -829,11 +840,10 @@
     { passive: true }
   );
 
-  // mouse (desktop drag) — əvvəlki kimi saxladım
+  // mouse (desktop drag) — zoom varsa nav etmə
   let mouseDown = false;
   lb.viewport.addEventListener("mousedown", (e) => {
     if (!lbOpen) return;
-    // zoom varsa mouse drag ilə nav eləməyək
     if (zScale > 1) return;
     mouseDown = true;
     onStart(e.clientX);
@@ -910,3 +920,60 @@ function loadFavsInsert() {
 }
 
 loadFavsInsert();
+// ====================== MOBILE MENU (details page fix) ======================
+(() => {
+  const btn = document.getElementById("hamburgerBtn");
+  const menu = document.getElementById("mobileMenu");
+  if (!btn || !menu) return;
+
+  const isOpen = () => menu.classList.contains("is-open");
+
+  const open = () => {
+    menu.classList.add("is-open");
+    menu.style.display = "block";          // ✅ CSS-dən asılı qalmasın
+    menu.removeAttribute("hidden");
+    btn.setAttribute("aria-expanded", "true");
+  };
+
+  const close = () => {
+    menu.classList.remove("is-open");
+    menu.style.display = "none";           // ✅ tam gizlətsin
+    menu.setAttribute("hidden", "");
+    btn.setAttribute("aria-expanded", "false");
+  };
+
+  const toggle = () => (isOpen() ? close() : open());
+
+  // 1) hamburger toggle
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggle();
+  });
+
+  // 2) menyunun içində link/button klik -> bağla
+  menu.addEventListener("click", (e) => {
+    const a = e.target.closest("a, button");
+    if (!a) return;
+    close();
+  });
+
+  // 3) menu xaricinə klik -> bağla
+  document.addEventListener(
+    "click",
+    (e) => {
+      if (!isOpen()) return;
+      if (e.target.closest("#mobileMenu") || e.target.closest("#hamburgerBtn")) return;
+      close();
+    },
+    true // ✅ capture: hər şeydən əvvəl tutsun
+  );
+
+  // 4) ESC -> bağla
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") close();
+  });
+
+  // default bağlı başlasın
+  close();
+})();
