@@ -160,25 +160,19 @@
   });
 
   // Swipe (mobile) for main image (loop)
- 
+  const mainTrack = mainImg.parentElement; // wrapper (mainimg-wrap)
 
-  
+  const setMainAnimated = (fromDir) => {
+    const w = mainTrack.clientWidth || 360;
 
-const mainTrack = mainImg.parentElement; // wrapper (mainimg-wrap)
+    mainTrack.style.transition = "none";
+    mainTrack.style.transform = `translateX(${fromDir * w}px)`;
 
-const setMainAnimated = (fromDir) => {
-  const w = mainTrack.clientWidth || 360;
-
-  mainTrack.style.transition = "none";
-  mainTrack.style.transform = `translateX(${fromDir * w}px)`;
-
-  requestAnimationFrame(() => {
-    mainTrack.style.transition = "transform 220ms cubic-bezier(.2,.8,.2,1)";
-    mainTrack.style.transform = "translateX(0)";
-  });
-};
-
-
+    requestAnimationFrame(() => {
+      mainTrack.style.transition = "transform 220ms cubic-bezier(.2,.8,.2,1)";
+      mainTrack.style.transform = "translateX(0)";
+    });
+  };
 
   // ===== Section 2 info (unchanged) =====
   if (carTitle) carTitle.textContent = `${safe(car.brand, "")} ${safe(car.model, "")} ${safe(car.year, "")}`.trim() || "Elan";
@@ -232,11 +226,9 @@ const setMainAnimated = (fromDir) => {
   }
 
   // =====================================================================
-  // ✅ LIGHTBOX (iPhone-like swipe + normal fit)
+  // ✅ LIGHTBOX (iPhone-like swipe + normal fit) + ✅ ZOOM + ✅ SWIPE DOWN CLOSE
   // =====================================================================
-  
-  
-  
+
   const lbBackdrop = document.createElement("div");
   lbBackdrop.className = "lb-backdrop";
   lbBackdrop.innerHTML = `
@@ -247,7 +239,7 @@ const setMainAnimated = (fromDir) => {
       <button class="lb-btn lb-prev" id="lbPrev" aria-label="Əvvəlki"></button>
 
       <div class="lb-viewport" id="lbViewport">
-        <div class="lb-track" id="lbTrack" style="height:100%; width:100%; display:flex; align-items:center; justify-content:center; touch-action: pan-y;">
+        <div class="lb-track" id="lbTrack" style="height:100%; width:100%; display:flex; align-items:center; justify-content:center; touch-action: none;">
           <img class="lb-img" id="lbImg" alt="" referrerpolicy="no-referrer"
                style="max-width:100%; max-height:100%; object-fit:contain;" />
         </div>
@@ -257,10 +249,13 @@ const setMainAnimated = (fromDir) => {
     </div>
   `;
   document.body.appendChild(lbBackdrop);
-const favBtn = document.getElementById("favBtn");
-favBtn.dataset.id = car.id;
+
+  const favBtn = document.getElementById("favBtn");
+  if (favBtn) favBtn.dataset.id = car.id;
+
   const lb = {
     backdrop: lbBackdrop,
+    box: lbBackdrop.querySelector(".lb"), // ✅ swipe-down üçün
     img: lbBackdrop.querySelector("#lbImg"),
     viewport: lbBackdrop.querySelector("#lbViewport"),
     track: lbBackdrop.querySelector("#lbTrack"),
@@ -272,6 +267,100 @@ favBtn.dataset.id = car.id;
 
   let lbOpen = false;
 
+  // ==========================================================
+  // ✅ ZOOM (pinch + double tap) + PAN + SWIPE DOWN TO CLOSE
+  // ==========================================================
+  lb.viewport.style.touchAction = "none";
+  lb.track.style.touchAction = "none";
+
+  let zScale = 1;
+  let zTx = 0;
+  let zTy = 0;
+
+  let isPanning = false;
+  let panStartX = 0, panStartY = 0;
+  let panBaseTx = 0, panBaseTy = 0;
+
+  let isPinching = false;
+  let pinchStartDist = 0;
+  let pinchStartScale = 1;
+
+  // swipe-down close state (yalnız zScale===1 olanda)
+  let isClosingDrag = false;
+  let closeStartY = 0;
+  let closeDy = 0;
+
+  let lastTapT = 0;
+  let lastTapX = 0;
+  let lastTapY = 0;
+
+  const clamp2 = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  const maxPan = () => {
+    const vw = lb.viewport.clientWidth || 360;
+    const vh = lb.viewport.clientHeight || 640;
+    const mx = ((zScale - 1) * vw) / 2;
+    const my = ((zScale - 1) * vh) / 2;
+    return { mx, my };
+  };
+
+  function applyZoom(animate = false) {
+    lb.img.style.transition = animate ? "transform 180ms ease" : "none";
+    lb.img.style.transformOrigin = "center center";
+    lb.img.style.transform = `translate3d(${zTx}px, ${zTy}px, 0) scale(${zScale})`;
+  }
+
+  function resetZoom() {
+    zScale = 1;
+    zTx = 0;
+    zTy = 0;
+    applyZoom(false);
+
+    if (lb.box) {
+      lb.box.style.transition = "none";
+      lb.box.style.transform = "translate3d(0,0,0)";
+    }
+    lb.backdrop.style.transition = "none";
+    lb.backdrop.style.opacity = "";
+  }
+
+  function setZoom(newScale, animate = true) {
+    zScale = clamp2(newScale, 1, 4);
+    const { mx, my } = maxPan();
+    zTx = clamp2(zTx, -mx, mx);
+    zTy = clamp2(zTy, -my, my);
+    applyZoom(animate);
+  }
+
+  const dist = (t1, t2) => {
+    const dx = t2.clientX - t1.clientX;
+    const dy = t2.clientY - t1.clientY;
+    return Math.hypot(dx, dy);
+  };
+
+  const handleDoubleTap = (x, y) => {
+    if (zScale === 1) {
+      zScale = 2.5;
+
+      const vw = lb.viewport.clientWidth || 360;
+      const vh = lb.viewport.clientHeight || 640;
+
+      const dx = (vw / 2 - x) * 0.35;
+      const dy = (vh / 2 - y) * 0.35;
+
+      zTx = clamp2(dx, -((zScale - 1) * vw) / 2, ((zScale - 1) * vw) / 2);
+      zTy = clamp2(dy, -((zScale - 1) * vh) / 2, ((zScale - 1) * vh) / 2);
+
+      applyZoom(true);
+    } else {
+      zScale = 1;
+      zTx = 0;
+      zTy = 0;
+      applyZoom(true);
+    }
+  };
+
+  // ===== Lightbox track animation =====
   const trackSet = (x, withAnim) => {
     lb.track.style.transition = withAnim ? "transform 220ms cubic-bezier(.2,.8,.2,1)" : "none";
     lb.track.style.transform = `translate3d(${x}px,0,0)`;
@@ -291,8 +380,6 @@ favBtn.dataset.id = car.id;
     lb.prev.style.display = "flex";
     lb.next.style.display = "flex";
 
-    // “normal” görünsün deyə contain (CSS inline set edilib)
-    // animasiya lazımdırsa, track-i kənardan gətir
     if (animate && fromDir) {
       const w = lb.viewport.clientWidth || 360;
       trackSet(fromDir * w, false);
@@ -300,6 +387,8 @@ favBtn.dataset.id = car.id;
     } else {
       trackSet(0, false);
     }
+
+    resetZoom(); // ✅ şəkil dəyişəndə zoom sıfırlansın
   };
 
   const openLb = () => {
@@ -307,156 +396,150 @@ favBtn.dataset.id = car.id;
     lb.backdrop.classList.add("is-open");
     document.body.style.overflow = "hidden";
     renderLb(false);
+    resetZoom(); // ✅
   };
 
   const closeLb = () => {
     lbOpen = false;
     lb.backdrop.classList.remove("is-open");
     document.body.style.overflow = "";
+    resetZoom(); // ✅
   };
 
-
   // ===== Main slider: drag shows next/prev image + tap opens popup =====
-const ghostImg = document.getElementById("ghostImg");
+  const ghostImg = document.getElementById("ghostImg");
 
-let mainTouchActive = false;
-let mainStartX2 = 0;
-let mainStartY2 = 0;
-let mainDx2 = 0;
-let mainDy2 = 0;
-let mainDidSwipe = false;
+  let mainTouchActive = false;
+  let mainStartX2 = 0;
+  let mainStartY2 = 0;
+  let mainDx2 = 0;
+  let mainDy2 = 0;
+  let mainDidSwipe = false;
 
-const resetMain2 = (animate = true) => {
-  mainImg.style.transition = animate ? "transform 220ms cubic-bezier(.2,.8,.2,1)" : "none";
-  mainImg.style.transform = "translate3d(0,0,0)";
-
-  if (ghostImg) {
-    ghostImg.style.transition = animate ? "transform 220ms cubic-bezier(.2,.8,.2,1), opacity 120ms ease" : "none";
-    ghostImg.style.transform = "translate3d(0,0,0)";
-    ghostImg.style.opacity = "0";
-  }
-};
-
-const setGhost = (dir) => {
-  // dir: +1 -> prev image from left, -1 -> next image from right
-  if (!ghostImg) return;
-  const w = (mainImg.parentElement?.clientWidth || 360);
-
-  const ghostIndex = dir === -1 ? (idx + 1) % imgs.length : (idx - 1 + imgs.length) % imgs.length;
-  ghostImg.src = imgs[ghostIndex];
-  ghostImg.setAttribute("referrerpolicy", "no-referrer");
-  ghostImg.onerror = () => { ghostImg.onerror = null; ghostImg.src = fallbackSvg; };
-
-  ghostImg.style.transition = "none";
-  ghostImg.style.opacity = "1";
-  ghostImg.style.transform = `translate3d(${dir === -1 ? w : -w}px,0,0)`;
-};
-
-const moveDrag = (x) => {
-  mainImg.style.transition = "none";
-  mainImg.style.transform = `translate3d(${x}px,0,0)`;
-
-  if (!ghostImg) return;
-  const w = (mainImg.parentElement?.clientWidth || 360);
-
-  // ghost şəkli əsasın arxasınca “içəri” gəlir
-  // x < 0 -> next (ghost sağdan gəlir), x > 0 -> prev (ghost soldan gəlir)
-  const dir = x < 0 ? -1 : +1;
-  const gx = (dir === -1 ? w + x : -w + x);
-  ghostImg.style.transition = "none";
-  ghostImg.style.transform = `translate3d(${gx}px,0,0)`;
-};
-
-mainImg.addEventListener("touchstart", (e) => {
-  if (!e.touches || e.touches.length !== 1) return;
-
-  mainTouchActive = true;
-  mainDidSwipe = false;
-
-  mainStartX2 = e.touches[0].clientX;
-  mainStartY2 = e.touches[0].clientY;
-  mainDx2 = 0;
-  mainDy2 = 0;
-
-  resetMain2(false);
-}, { passive: true });
-
-mainImg.addEventListener("touchmove", (e) => {
-  if (!mainTouchActive || !e.touches || e.touches.length !== 1) return;
-
-  const x = e.touches[0].clientX;
-  const y = e.touches[0].clientY;
-
-  mainDx2 = x - mainStartX2;
-  mainDy2 = y - mainStartY2;
-
-  if (Math.abs(mainDy2) > Math.abs(mainDx2) * 1.2) return;
-
-  // ilk dəfə horizontal hərəkət başlayanda ghost-u hazırla
-  if (ghostImg && ghostImg.style.opacity !== "1") {
-    setGhost(mainDx2 < 0 ? -1 : +1);
-  }
-
-  moveDrag(mainDx2);
-}, { passive: true });
-
-mainImg.addEventListener("touchend", () => {
-  if (!mainTouchActive) return;
-  mainTouchActive = false;
-
-  const wrap = mainImg.parentElement;
-  const w = wrap ? wrap.clientWidth : 360;
-  const abs = Math.abs(mainDx2);
-
-  if (abs < 12) {
-    resetMain2(true);
-    return;
-  }
-
-  const threshold = w * 0.18;
-  const goNext = mainDx2 < 0;
-
-  if (abs > threshold) {
-    mainDidSwipe = true;
-
-    // çıxış: current kənara, ghost mərkəzə
-    mainImg.style.transition = "transform 220ms cubic-bezier(.2,.8,.2,1)";
-    mainImg.style.transform = `translate3d(${goNext ? -w : w}px,0,0)`;
-
-    if (ghostImg) {
-      ghostImg.style.transition = "transform 220ms cubic-bezier(.2,.8,.2,1)";
-      ghostImg.style.transform = "translate3d(0,0,0)";
-    }
-
-    setTimeout(() => {
-      idx = goNext ? (idx + 1) % imgs.length : (idx - 1 + imgs.length) % imgs.length;
-      setMain(); // mainImg yeni şəkli alır
-
-      resetMain2(false);
-      requestAnimationFrame(() => resetMain2(true));
-    }, 220);
-  } else {
-    // geri qayıt: current mərkəzə, ghost kənara gizlə
-    mainImg.style.transition = "transform 220ms cubic-bezier(.2,.8,.2,1)";
+  const resetMain2 = (animate = true) => {
+    mainImg.style.transition = animate ? "transform 220ms cubic-bezier(.2,.8,.2,1)" : "none";
     mainImg.style.transform = "translate3d(0,0,0)";
 
     if (ghostImg) {
-      const dir = mainDx2 < 0 ? -1 : +1;
-      ghostImg.style.transition = "transform 220ms cubic-bezier(.2,.8,.2,1), opacity 160ms ease";
-      ghostImg.style.transform = `translate3d(${dir === -1 ? w : -w}px,0,0)`;
+      ghostImg.style.transition = animate ? "transform 220ms cubic-bezier(.2,.8,.2,1), opacity 120ms ease" : "none";
+      ghostImg.style.transform = "translate3d(0,0,0)";
       ghostImg.style.opacity = "0";
     }
-  }
-}, { passive: true });
+  };
 
-mainImg.addEventListener("click", () => {
-  if (mainDidSwipe) {
+  const setGhost = (dir) => {
+    if (!ghostImg) return;
+    const w = (mainImg.parentElement?.clientWidth || 360);
+
+    const ghostIndex = dir === -1 ? (idx + 1) % imgs.length : (idx - 1 + imgs.length) % imgs.length;
+    ghostImg.src = imgs[ghostIndex];
+    ghostImg.setAttribute("referrerpolicy", "no-referrer");
+    ghostImg.onerror = () => { ghostImg.onerror = null; ghostImg.src = fallbackSvg; };
+
+    ghostImg.style.transition = "none";
+    ghostImg.style.opacity = "1";
+    ghostImg.style.transform = `translate3d(${dir === -1 ? w : -w}px,0,0)`;
+  };
+
+  const moveDrag = (x) => {
+    mainImg.style.transition = "none";
+    mainImg.style.transform = `translate3d(${x}px,0,0)`;
+
+    if (!ghostImg) return;
+    const w = (mainImg.parentElement?.clientWidth || 360);
+
+    const dir = x < 0 ? -1 : +1;
+    const gx = (dir === -1 ? w + x : -w + x);
+    ghostImg.style.transition = "none";
+    ghostImg.style.transform = `translate3d(${gx}px,0,0)`;
+  };
+
+  mainImg.addEventListener("touchstart", (e) => {
+    if (!e.touches || e.touches.length !== 1) return;
+
+    mainTouchActive = true;
     mainDidSwipe = false;
-    return;
-  }
-  openLb(idx);
-});
 
+    mainStartX2 = e.touches[0].clientX;
+    mainStartY2 = e.touches[0].clientY;
+    mainDx2 = 0;
+    mainDy2 = 0;
+
+    resetMain2(false);
+  }, { passive: true });
+
+  mainImg.addEventListener("touchmove", (e) => {
+    if (!mainTouchActive || !e.touches || e.touches.length !== 1) return;
+
+    const x = e.touches[0].clientX;
+    const y = e.touches[0].clientY;
+
+    mainDx2 = x - mainStartX2;
+    mainDy2 = y - mainStartY2;
+
+    if (Math.abs(mainDy2) > Math.abs(mainDx2) * 1.2) return;
+
+    if (ghostImg && ghostImg.style.opacity !== "1") {
+      setGhost(mainDx2 < 0 ? -1 : +1);
+    }
+
+    moveDrag(mainDx2);
+  }, { passive: true });
+
+  mainImg.addEventListener("touchend", () => {
+    if (!mainTouchActive) return;
+    mainTouchActive = false;
+
+    const wrap = mainImg.parentElement;
+    const w = wrap ? wrap.clientWidth : 360;
+    const abs = Math.abs(mainDx2);
+
+    if (abs < 12) {
+      resetMain2(true);
+      return;
+    }
+
+    const threshold = w * 0.18;
+    const goNext = mainDx2 < 0;
+
+    if (abs > threshold) {
+      mainDidSwipe = true;
+
+      mainImg.style.transition = "transform 220ms cubic-bezier(.2,.8,.2,1)";
+      mainImg.style.transform = `translate3d(${goNext ? -w : w}px,0,0)`;
+
+      if (ghostImg) {
+        ghostImg.style.transition = "transform 220ms cubic-bezier(.2,.8,.2,1)";
+        ghostImg.style.transform = "translate3d(0,0,0)";
+      }
+
+      setTimeout(() => {
+        idx = goNext ? (idx + 1) % imgs.length : (idx - 1 + imgs.length) % imgs.length;
+        setMain();
+
+        resetMain2(false);
+        requestAnimationFrame(() => resetMain2(true));
+      }, 220);
+    } else {
+      mainImg.style.transition = "transform 220ms cubic-bezier(.2,.8,.2,1)";
+      mainImg.style.transform = "translate3d(0,0,0)";
+
+      if (ghostImg) {
+        const dir = mainDx2 < 0 ? -1 : +1;
+        ghostImg.style.transition = "transform 220ms cubic-bezier(.2,.8,.2,1), opacity 160ms ease";
+        ghostImg.style.transform = `translate3d(${dir === -1 ? w : -w}px,0,0)`;
+        ghostImg.style.opacity = "0";
+      }
+    }
+  }, { passive: true });
+
+  mainImg.addEventListener("click", () => {
+    if (mainDidSwipe) {
+      mainDidSwipe = false;
+      return;
+    }
+    openLb(idx);
+  });
 
   lb.close.addEventListener("click", closeLb);
   lb.backdrop.addEventListener("click", (e) => {
@@ -465,19 +548,18 @@ mainImg.addEventListener("click", () => {
 
   // buttons (loop)
   lb.prev.addEventListener("click", (e) => {
-  e.stopPropagation();
-  idx = (idx - 1 + imgs.length) % imgs.length;
-  setMain();
-  renderLb(true, -1); // soldan gəlsin
-});
+    e.stopPropagation();
+    idx = (idx - 1 + imgs.length) % imgs.length;
+    setMain();
+    renderLb(true, -1);
+  });
 
-lb.next.addEventListener("click", (e) => {
-  e.stopPropagation();
-  idx = (idx + 1) % imgs.length;
-  setMain();
-  renderLb(true, +1); // sağdan gəlsin
-});
-
+  lb.next.addEventListener("click", (e) => {
+    e.stopPropagation();
+    idx = (idx + 1) % imgs.length;
+    setMain();
+    renderLb(true, +1);
+  });
 
   // keyboard in popup
   window.addEventListener("keydown", (e) => {
@@ -518,7 +600,6 @@ lb.next.addEventListener("click", (e) => {
     if (!swiping) return;
     dx = clientX - startX;
 
-    // yumuşaldılmış edge hissi (amma loop var, yenə də iPhone feel)
     const w = lb.viewport.clientWidth || 360;
     const damp = 0.95;
     const x = clamp(dx * damp, -w * 0.95, w * 0.95);
@@ -527,7 +608,7 @@ lb.next.addEventListener("click", (e) => {
 
     const now = performance.now();
     const dt = Math.max(1, now - lastT);
-    v = (clientX - lastX) / dt; // px/ms
+    v = (clientX - lastX) / dt;
     lastT = now;
     lastX = clientX;
   };
@@ -543,16 +624,13 @@ lb.next.addEventListener("click", (e) => {
     const shouldChange = abs > w * 0.18 || Math.abs(v) > 0.6;
 
     if (shouldChange) {
-      // swipe out
       const outX = goNext ? -w : w;
       trackSet(outX, true);
 
-      // swap after animation
       setTimeout(() => {
         idx = goNext ? (idx + 1) % imgs.length : (idx - 1 + imgs.length) % imgs.length;
         setMain();
 
-        // new image comes from opposite side
         const fromDir = goNext ? +1 : -1;
         renderLb(false);
         const inX = fromDir * w;
@@ -560,55 +638,215 @@ lb.next.addEventListener("click", (e) => {
         requestAnimationFrame(() => trackSet(0, true));
       }, 220);
     } else {
-      // snap back
       trackSet(0, true);
     }
   };
 
-  // touch events
+  // ✅ touch events (zoom + pan + swipe nav + swipe-down close)
   lb.viewport.addEventListener(
     "touchstart",
     (e) => {
       if (!lbOpen) return;
+
+      // ✅ double-tap (yalnız 1 barmaq)
+      if (e.touches.length === 1) {
+        const now = performance.now();
+        const x = e.touches[0].clientX;
+        const y = e.touches[0].clientY;
+
+        const dt = now - lastTapT;
+        const ddx = Math.abs(x - lastTapX);
+        const ddy = Math.abs(y - lastTapY);
+
+        if (dt < 280 && ddx < 22 && ddy < 22) {
+          e.preventDefault();
+          handleDoubleTap(x, y);
+          lastTapT = 0;
+          return;
+        }
+
+        lastTapT = now;
+        lastTapX = x;
+        lastTapY = y;
+      }
+
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        isPinching = true;
+        isPanning = false;
+        isClosingDrag = false;
+
+        pinchStartDist = dist(e.touches[0], e.touches[1]);
+        pinchStartScale = zScale;
+        return;
+      }
+
       if (e.touches.length !== 1) return;
-      onStart(e.touches[0].clientX);
+
+      const t = e.touches[0];
+      const x = t.clientX;
+      const y = t.clientY;
+
+      // zoom varsa -> pan
+      if (zScale > 1) {
+        e.preventDefault();
+        isPanning = true;
+        isPinching = false;
+        isClosingDrag = false;
+
+        panStartX = x;
+        panStartY = y;
+        panBaseTx = zTx;
+        panBaseTy = zTy;
+        return;
+      }
+
+      // zScale === 1: həm nav, həm swipe-down close
+      isPanning = false;
+      isPinching = false;
+      isClosingDrag = false;
+
+      onStart(x);
+
+      closeStartY = y;
+      closeDy = 0;
     },
-    { passive: true }
+    { passive: false }
   );
 
   lb.viewport.addEventListener(
     "touchmove",
     (e) => {
       if (!lbOpen) return;
-      if (!swiping || e.touches.length !== 1) return;
-      onMove(e.touches[0].clientX);
+
+      // pinch move
+      if (isPinching && e.touches.length === 2) {
+        e.preventDefault();
+        const d = dist(e.touches[0], e.touches[1]);
+        const ratio = d / Math.max(1, pinchStartDist);
+        const nextScale = pinchStartScale * ratio;
+        setZoom(nextScale, false);
+        return;
+      }
+
+      if (e.touches.length !== 1) return;
+      const t = e.touches[0];
+      const x = t.clientX;
+      const y = t.clientY;
+
+      // pan move (zoom > 1)
+      if (isPanning && zScale > 1) {
+        e.preventDefault();
+        const dxp = x - panStartX;
+        const dyp = y - panStartY;
+
+        const { mx, my } = maxPan();
+        zTx = clamp2(panBaseTx + dxp, -mx, mx);
+        zTy = clamp2(panBaseTy + dyp, -my, my);
+        applyZoom(false);
+        return;
+      }
+
+      // zScale === 1: decide nav vs swipe-down close
+      const dy = y - closeStartY;
+      const ddx = x - startX;
+
+      if (!isClosingDrag) {
+        if (dy > 8 && Math.abs(dy) > Math.abs(ddx) * 1.15) {
+          e.preventDefault();
+          isClosingDrag = true;
+          swiping = false;
+          trackSet(0, false);
+        }
+      }
+
+      if (isClosingDrag) {
+        e.preventDefault();
+        closeDy = Math.max(0, dy);
+
+        if (lb.box) {
+          lb.box.style.transition = "none";
+          lb.box.style.transform = `translate3d(0, ${closeDy}px, 0)`;
+        }
+        const vh = lb.viewport.clientHeight || 640;
+        const alpha = clamp2(1 - closeDy / (vh * 0.9), 0.25, 1);
+        lb.backdrop.style.opacity = String(alpha);
+        return;
+      }
+
+      onMove(x);
     },
-    { passive: true }
+    { passive: false }
   );
 
   lb.viewport.addEventListener(
     "touchend",
     () => {
       if (!lbOpen) return;
+
+      if (isPinching) {
+        isPinching = false;
+
+        if (zScale < 1.05) {
+          zScale = 1;
+          zTx = 0;
+          zTy = 0;
+          applyZoom(true);
+        } else {
+          setZoom(zScale, true);
+        }
+        return;
+      }
+
+      if (isPanning) {
+        isPanning = false;
+        setZoom(zScale, true);
+        return;
+      }
+
+      if (isClosingDrag) {
+        isClosingDrag = false;
+
+        const vh = lb.viewport.clientHeight || 640;
+        const threshold = Math.max(120, vh * 0.18);
+
+        if (closeDy > threshold) {
+          lb.backdrop.style.opacity = "";
+          closeLb();
+        } else {
+          if (lb.box) {
+            lb.box.style.transition = "transform 200ms cubic-bezier(.2,.8,.2,1)";
+            lb.box.style.transform = "translate3d(0,0,0)";
+          }
+          lb.backdrop.style.transition = "opacity 200ms ease";
+          lb.backdrop.style.opacity = "";
+        }
+        return;
+      }
+
       onEnd();
     },
     { passive: true }
   );
 
-  // mouse (desktop drag)
+  // mouse (desktop drag) — əvvəlki kimi saxladım
   let mouseDown = false;
   lb.viewport.addEventListener("mousedown", (e) => {
     if (!lbOpen) return;
+    // zoom varsa mouse drag ilə nav eləməyək
+    if (zScale > 1) return;
     mouseDown = true;
     onStart(e.clientX);
   });
   window.addEventListener("mousemove", (e) => {
     if (!lbOpen || !mouseDown) return;
+    if (zScale > 1) return;
     onMove(e.clientX);
   });
   window.addEventListener("mouseup", () => {
     if (!lbOpen || !mouseDown) return;
     mouseDown = false;
+    if (zScale > 1) return;
     onEnd();
   });
 
@@ -616,65 +854,59 @@ lb.next.addEventListener("click", (e) => {
   renderThumbs();
   setMain();
 })();
+
+// ====================== FAVORITES ======================
 const FAV_KEY = "carall_favs_v1";
 
-function loadFavs(){
-  try{
+function loadFavs() {
+  try {
     const raw = localStorage.getItem(FAV_KEY);
     const arr = raw ? JSON.parse(raw) : [];
     return new Set(arr.map(String));
-  }catch(e){
+  } catch (e) {
     return new Set();
   }
 }
- 
-function saveFavs(set){
+
+function saveFavs(set) {
   localStorage.setItem(FAV_KEY, JSON.stringify([...set]));
 }
+
 document.addEventListener("click", (e) => {
   const btn = e.target.closest(".fav-btn");
-  if(!btn) return;
+  if (!btn) return;
 
   e.preventDefault();
   e.stopPropagation();
 
   const id = String(btn.dataset.id);
 
-  const favIds = loadFavs();      // ✅ ən son state
-  if(favIds.has(id)) favIds.delete(id);
+  const favIds = loadFavs();
+  if (favIds.has(id)) favIds.delete(id);
   else favIds.add(id);
 
   saveFavs(favIds);
 
   btn.classList.toggle("is-on");
-  
 });
 
-function loadFavsInsert(){
-const favIds = loadFavs(); 
-const list = window.cars || [];// Set və ya Array ola bilər
-const btn = document.getElementById("favBtn");
-if (!btn) return;
+function loadFavsInsert() {
+  const favIds = loadFavs();
+  const list = window.cars || [];
+  const btn = document.getElementById("favBtn");
+  if (!btn) return;
 
-const id = String(btn.dataset.id);
+  const id = String(btn.dataset.id);
 
-list.forEach(car => {
-  const carId = String(car.id);
+  list.forEach((car) => {
+    const carId = String(car.id);
+    car.fav = favIds.has(carId);
 
-  // car.fav state-i sync edirik
-  car.fav = favIds.has(carId);
-
-  // yalnız klik olunan maşındırsa
-  if (carId === id) {
-    // əgər favIds içindədirsə → ON
-    if (favIds.has(carId)) {
-      btn.classList.add("is-on");
-    } else {
-      btn.classList.remove("is-on");
+    if (carId === id) {
+      if (favIds.has(carId)) btn.classList.add("is-on");
+      else btn.classList.remove("is-on");
     }
-  }
-});
-
-
+  });
 }
+
 loadFavsInsert();
