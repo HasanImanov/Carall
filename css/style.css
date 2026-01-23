@@ -1736,4 +1736,4 @@ img { max-width: 100%; }
     display:none !important;
   }
 }
- 
+ .bnav{ z-index: 99999 !important; position: fixed !important; }

@@ -1185,3 +1185,124 @@ document.addEventListener("DOMContentLoaded", () => {
 
   sync();
 });
+// === Mobile bottom nav "Axtar" → Ətraflı axtarış aç + scroll ===
+document.addEventListener("DOMContentLoaded", () => {
+  const advPanel = document.getElementById("advPanel");
+  const btnAdvanced = document.getElementById("btnAdvanced");
+
+  // bottom nav-dakı "Axtar" linkini tap
+  const mobileSearchBtn = document.querySelector(
+    '.bnav__item[aria-label="Search"]'
+  );
+
+  if (!advPanel || !btnAdvanced || !mobileSearchBtn) return;
+
+  const isMobile = () => window.matchMedia("(max-width: 640px)").matches;
+
+  mobileSearchBtn.addEventListener("click", (e) => {
+    if (!isMobile()) return;
+
+    // default #list scroll-u bir az gecikdirək
+    e.preventDefault();
+
+    const isOpen =
+      advPanel.classList.contains("is-open") &&
+      !advPanel.hasAttribute("hidden");
+
+    // ətraflı açıq deyilsə → aç
+    if (!isOpen) {
+      btnAdvanced.click();
+    }
+
+    // panelin olduğu yerə yumuşaq scroll
+    setTimeout(() => {
+      advPanel.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 150);
+  });
+});
+// === Mobile bottom nav: "Axtar" basanda Ətraflı axtarışa scroll + aç ===
+document.addEventListener("DOMContentLoaded", () => {
+  const advPanel = document.getElementById("advPanel");
+  const btnAdvanced = document.getElementById("btnAdvanced");
+  const filtersTop = document.querySelector(".filters") || btnAdvanced; // scroll target
+
+  if (!advPanel || !btnAdvanced) return;
+
+  // bnav içində "Axtar" text-i olan linki tap
+  const bnavLinks = [...document.querySelectorAll(".bnav a.bnav__item")];
+  const mobileSearchBtn = bnavLinks.find(a =>
+    (a.querySelector(".bnav__text")?.textContent || "").trim().toLowerCase() === "axtar"
+  );
+
+  if (!mobileSearchBtn) return;
+
+  const isMobile = () => window.matchMedia("(max-width: 640px)").matches;
+
+  mobileSearchBtn.addEventListener("click", (e) => {
+    if (!isMobile()) return;
+
+    // #list default scroll-u dayandır
+    e.preventDefault();
+    e.stopPropagation();
+
+    const isOpen =
+      advPanel.classList.contains("is-open") &&
+      !advPanel.hasAttribute("hidden");
+
+    // bağlıdırsa aç
+    if (!isOpen) btnAdvanced.click();
+
+    // panel/filters hissəsinə yumşaq scroll
+    setTimeout(() => {
+      (filtersTop || advPanel).scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+  }, true);
+});
+document.addEventListener("DOMContentLoaded", () => {
+  const flag = localStorage.getItem("carall_open_adv");
+  if (flag !== "1") return;
+
+  localStorage.removeItem("carall_open_adv");
+
+  const advPanel = document.getElementById("advPanel");
+  const btnAdvanced = document.getElementById("btnAdvanced");
+  const target = document.querySelector(".filters") || advPanel;
+
+  if (!advPanel || !btnAdvanced) return;
+
+  // aç
+  btnAdvanced.click();
+
+  // scroll
+  setTimeout(() => {
+    (target || advPanel).scrollIntoView({ behavior:"smooth", block:"start" });
+  }, 120);
+});
+document.addEventListener("DOMContentLoaded", () => {
+  const axtar = document.getElementById("bnavSearch");
+  if (!axtar) return;
+
+  axtar.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopImmediatePropagation(); // ✅ başqa listener-ləri də kəsir
+    location.href = "index.html#adv";
+  }, true); // ✅ capture
+});
+document.addEventListener("DOMContentLoaded", () => {
+  if (location.hash !== "#adv") return;
+
+  const advPanel = document.getElementById("advPanel");
+  const btnAdvanced = document.getElementById("btnAdvanced");
+  if (!advPanel || !btnAdvanced) return;
+
+  const isOpen = advPanel.classList.contains("is-open") && !advPanel.hasAttribute("hidden");
+  if (!isOpen) btnAdvanced.click();
+
+  setTimeout(() => {
+    (document.querySelector(".filters") || advPanel)
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 120);
+});
