@@ -14,3 +14,15 @@ const CARS = [
 ];
 
 window.cars = CARS;
+
+// ✅ missing field-ləri avtomatik tamamla (Turbo.az kimi)
+CARS.forEach(c => {
+  if (!("color" in c))  c.color  = ["Ağ","Qara","Gümüşü","Boz","Göy","Qırmızı"][c.id % 6];
+  if (!("body" in c))   c.body   = ["Sedan","SUV","Hetçbek","Krossover"][c.id % 4];
+  if (!("drive" in c))  c.drive  = ["Ön","Arxa","Tam (4x4)"][c.id % 3];
+  if (!("owners" in c)) c.owners = (c.id % 3) + 1;
+  if (!("seats" in c))  c.seats  = [4,5,7][c.id % 3];
+  if (!("market" in c)) c.market = ["Rəsmi","ABŞ","Avropa","Koreya","Yaponiya"][c.id % 5];
+  if (!("status" in c)) c.status = "Satışda";
+  if (!("features" in c)) c.features = ["ABS","Kondisioner","Park radarı","Arxa kamera"].slice(0, (c.id % 4) + 1);
+});

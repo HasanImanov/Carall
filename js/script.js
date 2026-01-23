@@ -1,59 +1,187 @@
-// ===== Demo Cars (JSON yoxdur) =====
+/* =========================
+   CarAll - FULL script.js
+   Advanced search auto-fill + chips + equipment + filters + menu + favs
+   ========================= */
+
+// ===== Favorites =====
+document.addEventListener("DOMContentLoaded", () => {
+  const advPanel = document.getElementById("advPanel");
+  const btnReset = document.getElementById("btnReset");
+
+  if (!advPanel || !btnReset) return;
+
+  const sync = () => {
+    const isOpen =
+      advPanel.classList.contains("is-open") &&
+      !advPanel.hasAttribute("hidden");
+
+    btnReset.style.marginTop = isOpen ? "10px" : "";
+  };
+
+  // advPanel necə açılıb-bağlanırsa bağlansın — hamısını tut
+  new MutationObserver(sync).observe(advPanel, {
+    attributes: true,
+    attributeFilter: ["class", "hidden"],
+  });
+
+  sync();
+});
+
 const FAV_KEY = "carall_favs_v1";
 
-function loadFavs(){
-  try{
+function loadFavs() {
+  try {
     const raw = localStorage.getItem(FAV_KEY);
     const arr = raw ? JSON.parse(raw) : [];
     return new Set(arr.map(String));
-  }catch(e){
+  } catch (e) {
     return new Set();
   }
 }
-
-function saveFavs(set){
+function saveFavs(set) {
   localStorage.setItem(FAV_KEY, JSON.stringify([...set]));
 }
 
+// ===== Small helpers =====
+const $ = (id) => document.getElementById(id);
+const exists = (x) => x !== null && x !== undefined && String(x).trim() !== "";
 
+const uniq = (arr) => [...new Set(arr.filter(exists))];
 
-// Şəkillər: Unsplash "source" (car queries) — maşın mövzulu çıxır.
+const num = (v) => {
+  if (!exists(v)) return null;
+  const n = Number(String(v).replace(/[^\d.]/g, ""));
+  return Number.isFinite(n) ? n : null;
+};
 
-
-// ===== Elements =====
-const qCountry = document.getElementById("qCountry");
-const qBrand = document.getElementById("qBrand");
-const qModel = document.getElementById("qModel");
-const qCity = document.getElementById("qCity");
-const qMinPrice = document.getElementById("qMinPrice");
-const qMaxPrice = document.getElementById("qMaxPrice");
-const qYear = document.getElementById("qYear");
-
-const btnSearch = document.getElementById("btnSearch");
-const btnReset = document.getElementById("btnReset");
-const sortBy = document.getElementById("sortBy");
-
-const carsGrid = document.getElementById("carsGrid");
-const resultInfo = document.getElementById("resultInfo");
-const statusBox = document.getElementById("statusBox");
-const qYearMax = document.getElementById("qYearMax");
-
-document.getElementById("yearNow").textContent = new Date().getFullYear();
-
-// ===== Helpers =====
-const countryName = (code) => ({
-  AZ: "Azərbaycan",
-  TR: "Türkiyə",
-  GE: "Gürcüstan",
-  DE: "Almaniya"
-}[code] || code);
-
-function money(n){
+function money(n) {
   return new Intl.NumberFormat("az-AZ").format(n) + " ₼";
 }
 
-function renderCars(list){
-  if(!list.length){
+const countryName = (code) =>
+  ({
+    AZ: "Azərbaycan",
+    TR: "Türkiyə",
+    GE: "Gürcüstan",
+    DE: "Almaniya",
+  }[code] || code);
+
+// ===== Elements (existing) =====
+const qCountry  = $("qCountry");
+const qBrand    = $("qBrand");
+const qModel    = $("qModel");
+const qCity     = $("qCity");
+const qMinPrice = $("qMinPrice");
+const qMaxPrice = $("qMaxPrice");
+const qYear     = $("qYear");
+const qYearMax  = $("qYearMax");
+
+const btnSearch = $("btnSearch");
+const btnReset  = $("btnReset");
+const sortBy    = $("sortBy");
+
+const carsGrid   = $("carsGrid");
+const resultInfo = $("resultInfo");
+const statusBox  = $("statusBox");
+
+const yearNowEl = $("yearNow");
+if (yearNowEl) yearNowEl.textContent = new Date().getFullYear();
+
+// ===== Advanced panel elements =====
+const btnAdvanced = $("btnAdvanced");
+const advPanel = $("advPanel");
+const btnAdvancedClose = $("btnAdvancedClose");
+const advApply = $("advApply");
+const advClear = $("advClear");
+const equipChipsWrap = $("equipChips");
+
+// ===== Default lists (Turbo.az style) =====
+const ALL_EQUIPMENTS = [
+  "Yüngül lehimli disklər",
+  "ABS",
+  "Lyuk",
+  "Yağış sensoru",
+  "Mərkəzi qapanma",
+  "Park radarı",
+  "Kondisioner",
+  "Oturacaqların isidilməsi",
+  "Dəri salon",
+  "Ksenon lampalar",
+  "360° kamera",
+  "Arxa görüntü kamerası",
+  "Yan pərdələr",
+  "Oturacaqların ventilyasiyası",
+  "Start/Stop",
+  "Cruise control",
+  "Bluetooth",
+  "Multimedia",
+  "Sükan isidilməsi",
+  "Elektrik güzgülər",
+];
+
+const ALL_BODY_TYPES = [
+  "Sedan",
+  "Hetçbek",
+  "Universal",
+  "SUV",
+  "Krossover",
+  "Pikap",
+  "Kupé",
+  "Kabriolet",
+  "Miniven",
+  "Furqon",
+];
+
+const ALL_DRIVE = ["Ön", "Arxa", "Tam (4x4)"];
+const ALL_FUEL = ["Benzin", "Dizel", "Hibrid", "Elektro", "Qaz"];
+const ALL_GEARBOX = ["Avtomat", "Mexaniki", "Robot", "Variator"];
+const ALL_STATUS = ["Satışda", "Satılıb", "Rezervdə"];
+const ALL_MARKET = ["Rəsmi", "ABŞ", "Avropa", "Koreya", "Yaponiya", "Gürcüstan", "Digər"];
+
+// ===== UI state for chips/toggles =====
+const UI = {
+  condition: "",      // "new" | "used" | ""
+  credit: false,
+  barter: false,
+  noHit: false,       // vuruğu yoxdur
+  notPainted: false,  // rənglənməyib
+  onlyCrashed: false, // yalnız qəzalı
+  selectedEquip: new Set(),
+};
+
+// ===== DOM helpers =====
+function fillSelect(el, values, placeholder = "Hamısı") {
+  if (!el) return;
+  const list = uniq(values).sort((a, b) => String(a).localeCompare(String(b), "az"));
+  el.innerHTML =
+    `<option value="">${placeholder}</option>` +
+    list.map((v) => `<option value="${String(v)}">${String(v)}</option>`).join("");
+}
+
+function fillSelectMinMax(minEl, maxEl, values, minLabel = "Min", maxLabel = "Max") {
+  if (!minEl || !maxEl) return;
+  const list = uniq(values.map((x) => num(x)).filter((x) => x !== null))
+    .sort((a, b) => a - b);
+
+  minEl.innerHTML =
+    `<option value="">${minLabel}</option>` +
+    list.map((v) => `<option value="${v}">${v}</option>`).join("");
+
+  maxEl.innerHTML =
+    `<option value="">${maxLabel}</option>` +
+    list.map((v) => `<option value="${v}">${v}</option>`).join("");
+}
+
+function setChipOn(el, on) {
+  if (!el) return;
+  el.classList.toggle("is-on", !!on);
+}
+
+// ===== Render cards =====
+function renderCars(list) {
+  if (!carsGrid) return;
+
+  if (!list.length) {
     carsGrid.innerHTML = `
       <div class="empty">
         <div class="empty__t">Nəticə tapılmadı</div>
@@ -62,30 +190,27 @@ function renderCars(list){
     `;
     return;
   }
-  const favIds = loadFavs(); // 
 
-  list.forEach(car => {
-    car.fav = favIds.has(String(car.id));
-  });
-  carsGrid.innerHTML = list.map(car => `
+  const favIds = loadFavs();
+  list.forEach((car) => (car.fav = favIds.has(String(car.id))));
+
+  carsGrid.innerHTML = list
+    .map(
+      (car) => `
     <a class="cardlink" href="details.html?id=${car.id}" aria-label="${car.brand} ${car.model} detallar">
       <article class="card">
         <div class="card__imgwrap">
           <img class="card__img" src="${car.img}" alt="${car.brand} ${car.model}">
-
           <div class="card__top">
-            <button class="fav-btn ${car.fav ? 'is-on' : ''}" type="button" data-id="${car.id}" aria-label="Favorit">
-                <!-- OUTLINE -->
-                <svg class="fav-ic ic-off" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-
-                <!-- FILLED -->
-                <svg class="fav-ic ic-on" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 21.23 4.22 13.45 3.16 12.39a5.5 5.5 0 0 1 7.78-7.78L12 5.67l1.06-1.06a5.5 5.5 0 0 1 7.78 7.78l-1.06 1.06L12 21.23Z"/>
-                </svg>
-              </button>
+            <button class="fav-btn ${car.fav ? "is-on" : ""}" type="button" data-id="${car.id}" aria-label="Favorit">
+              <svg class="fav-ic ic-off" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z"
+                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <svg class="fav-ic ic-on" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 21.23 4.22 13.45 3.16 12.39a5.5 5.5 0 0 1 7.78-7.78L12 5.67l1.06-1.06a5.5 5.5 0 0 1 7.78 7.78l-1.06 1.06L12 21.23Z"/>
+              </svg>
+            </button>
 
             <div class="badges">
               ${car.vip ? `<span class="badge vip">⭐ VIP</span>` : ``}
@@ -93,18 +218,16 @@ function renderCars(list){
             </div>
           </div>
 
-  <!-- location badge -->
-  <div class="badge">${countryName(car.country)} • ${car.city}</div>
-</div>
-
+          <div class="badge">${countryName(car.country)} • ${car.city}</div>
+        </div>
 
         <div class="card__body">
           <div class="card__title">${car.brand} ${car.model}</div>
           <div class="card__meta">
             <span>${car.year}</span><span>•</span>
-            <span>${car.mileage.toLocaleString("az-AZ")} km</span><span>•</span>
-            <span>${car.fuel}</span><span>•</span>
-            <span>${car.gearbox}</span>
+            <span>${Number(car.mileage || 0).toLocaleString("az-AZ")} km</span><span>•</span>
+            <span>${car.fuel || ""}</span><span>•</span>
+            <span>${car.gearbox || ""}</span>
           </div>
 
           <div class="card__bottom">
@@ -113,325 +236,900 @@ function renderCars(list){
         </div>
       </article>
     </a>
-  `).join("");
+  `
+    )
+    .join("");
 }
 
-function applyFilters(){
-  const f = {
-    country: qCountry.value,
-    brand: qBrand.value,
-    model: qModel.value,
-    city: qCity.value,
-    min: qMinPrice.value ? Number(qMinPrice.value) : null,
-    max: qMaxPrice.value ? Number(qMaxPrice.value) : null,
-    year: qYear.value ? Number(qYear.value) : null,
-    yearMax: qYearMax.value ? Number(qYearMax.value) : null,
+// ===== Read advanced inputs safely (supports missing) =====
+function getSelectValue(id) {
+  const el = $(id);
+  return el ? el.value : "";
+}
+function getInputNumber(id) {
+  const el = $(id);
+  return el ? num(el.value) : null;
+}
+function hasField(car, key) {
+  return car && Object.prototype.hasOwnProperty.call(car, key);
+}
 
+// ===== Main filter logic =====
+function applyFilters() {
+  if (typeof CARS === "undefined" || !Array.isArray(CARS)) {
+    console.error("CARS tapılmadı (carsdata.js yüklənməyib).");
+    return;
+  }
+
+  // Base filters (existing)
+  const f = {
+    country: qCountry?.value || "",
+    brand: qBrand?.value || "",
+    model: qModel?.value || "",
+    city: qCity?.value || "",
+    minPrice: qMinPrice?.value ? num(qMinPrice.value) : null,
+    maxPrice: qMaxPrice?.value ? num(qMaxPrice.value) : null,
+    yearMin: qYear?.value ? num(qYear.value) : null,
+    yearMax: qYearMax?.value ? num(qYearMax.value) : null,
+  };
+
+  // Additional advanced fields (if you added them in HTML with these IDs)
+  const adv = {
+    color: getSelectValue("qColor"),
+    body: getSelectValue("qBody"),
+    fuel: getSelectValue("qFuel"),
+    drive: getSelectValue("qDrive"),
+    gearbox: getSelectValue("qGearbox"),
+    owners: getSelectValue("qOwners"),
+    seats: getSelectValue("qSeats"),
+    market: getSelectValue("qMarket"),
+    status: getSelectValue("qStatus"),
+
+    volumeMin: getInputNumber("qVolumeMin"),
+    volumeMax: getInputNumber("qVolumeMax"),
+    powerMin: getInputNumber("qPowerMin"),
+    powerMax: getInputNumber("qPowerMax"),
+    mileageMin: getInputNumber("qMileageMin"),
+    mileageMax: getInputNumber("qMileageMax"),
   };
 
   let list = CARS.slice();
 
-  if (f.country) list = list.filter(x => x.country === f.country);
-  if (f.brand) list = list.filter(x => x.brand === f.brand);
-  if (f.model) list = list.filter(x => x.model === f.model);
-  if (f.city) list = list.filter(x => x.city === f.city);
-  if (f.year) list = list.filter(x => x.year >= f.year);
-  if (f.min !== null) list = list.filter(x => x.price >= f.min);
-  if (f.max !== null) list = list.filter(x => x.price <= f.max);
-  if (f.yearMax) list = list.filter(x => x.year <= f.yearMax);
+  // Base filters
+  if (f.country) list = list.filter((x) => x.country === f.country);
+  if (f.brand) list = list.filter((x) => x.brand === f.brand);
+  if (f.model) list = list.filter((x) => x.model === f.model);
+  if (f.city) list = list.filter((x) => x.city === f.city);
 
+  if (f.yearMin !== null) list = list.filter((x) => num(x.year) !== null && num(x.year) >= f.yearMin);
+  if (f.yearMax !== null) list = list.filter((x) => num(x.year) !== null && num(x.year) <= f.yearMax);
 
-  const s = sortBy.value;
-  if (s === "price_asc") list.sort((a,b) => a.price - b.price);
-  if (s === "price_desc") list.sort((a,b) => b.price - a.price);
-  if (s === "year_desc") list.sort((a,b) => b.year - a.year);
-  if (s === "year_asc") list.sort((a,b) => a.year - b.year);
-  if (s === "new") list.sort((a,b) => b.id - a.id);
+  if (f.minPrice !== null) list = list.filter((x) => num(x.price) !== null && num(x.price) >= f.minPrice);
+  if (f.maxPrice !== null) list = list.filter((x) => num(x.price) !== null && num(x.price) <= f.maxPrice);
+
+  // Advanced selects (only if car has that key)
+  if (adv.color) list = list.filter((x) => !hasField(x, "color") ? true : x.color === adv.color);
+  if (adv.body) list = list.filter((x) => !hasField(x, "body") ? true : x.body === adv.body);
+  if (adv.fuel) list = list.filter((x) => !hasField(x, "fuel") ? true : x.fuel === adv.fuel);
+  if (adv.drive) list = list.filter((x) => !hasField(x, "drive") ? true : x.drive === adv.drive);
+  if (adv.gearbox) list = list.filter((x) => !hasField(x, "gearbox") ? true : x.gearbox === adv.gearbox);
+  if (adv.owners) list = list.filter((x) => !hasField(x, "owners") ? true : String(x.owners) === String(adv.owners));
+  if (adv.seats) list = list.filter((x) => !hasField(x, "seats") ? true : String(x.seats) === String(adv.seats));
+  if (adv.market) list = list.filter((x) => !hasField(x, "market") ? true : x.market === adv.market);
+  if (adv.status) list = list.filter((x) => !hasField(x, "status") ? true : x.status === adv.status);
+
+  // Advanced numeric ranges
+  if (adv.volumeMin !== null) list = list.filter((x) => !hasField(x, "volume") ? true : num(x.volume) !== null && num(x.volume) >= adv.volumeMin);
+  if (adv.volumeMax !== null) list = list.filter((x) => !hasField(x, "volume") ? true : num(x.volume) !== null && num(x.volume) <= adv.volumeMax);
+
+  if (adv.powerMin !== null) list = list.filter((x) => !hasField(x, "power") ? true : num(x.power) !== null && num(x.power) >= adv.powerMin);
+  if (adv.powerMax !== null) list = list.filter((x) => !hasField(x, "power") ? true : num(x.power) !== null && num(x.power) <= adv.powerMax);
+
+  if (adv.mileageMin !== null) list = list.filter((x) => !hasField(x, "mileage") ? true : num(x.mileage) !== null && num(x.mileage) >= adv.mileageMin);
+  if (adv.mileageMax !== null) list = list.filter((x) => !hasField(x, "mileage") ? true : num(x.mileage) !== null && num(x.mileage) <= adv.mileageMax);
+
+  // Chips / toggles
+  if (UI.condition === "new") {
+    list = list.filter((x) => !hasField(x, "condition") ? true : x.condition === "new");
+  }
+  if (UI.condition === "used") {
+    list = list.filter((x) => !hasField(x, "condition") ? true : x.condition === "used");
+  }
+
+  if (UI.credit) list = list.filter((x) => !hasField(x, "credit") ? true : !!x.credit);
+  if (UI.barter) list = list.filter((x) => !hasField(x, "barter") ? true : !!x.barter);
+
+  if (UI.noHit) list = list.filter((x) => !hasField(x, "noHit") ? true : !!x.noHit);
+  if (UI.notPainted) list = list.filter((x) => !hasField(x, "notPainted") ? true : !!x.notPainted);
+  if (UI.onlyCrashed) list = list.filter((x) => !hasField(x, "onlyCrashed") ? true : !!x.onlyCrashed);
+
+  // Equipment chips: every selected equipment must be in car.features
+  if (UI.selectedEquip.size) {
+    const need = [...UI.selectedEquip];
+    list = list.filter((car) => {
+      if (!Array.isArray(car.features)) return false;
+      return need.every((eq) => car.features.includes(eq));
+    });
+  }
+
+  // Sorting
+  const s = sortBy?.value || "new";
+  if (s === "price_asc") list.sort((a, b) => a.price - b.price);
+  if (s === "price_desc") list.sort((a, b) => b.price - a.price);
+  if (s === "year_desc") list.sort((a, b) => b.year - a.year);
+  if (s === "year_asc") list.sort((a, b) => a.year - b.year);
+  if (s === "new") list.sort((a, b) => b.id - a.id);
 
   renderCars(list);
-  resultInfo.textContent = `${list.length} nəticə tapıldı.`;
-  statusBox.textContent = `Demo data: ${CARS.length} elan.`;
+  if (resultInfo) resultInfo.textContent = `${list.length} nəticə tapıldı.`;
+  if (statusBox) statusBox.textContent = `Demo data: ${CARS.length} elan.`;
 }
-// ===== LIGHTBOX (zoom + drag + keyboard) =====
-const lbBackdrop = document.createElement("div");
-lbBackdrop.className = "lb-backdrop";
-lbBackdrop.innerHTML = `
-  <div class="lb" role="dialog" aria-modal="true">
-    <div class="lb-count" id="lbCount">1 / 1</div>
-    <div class="lb-zoom" id="lbZoom">100%</div>
-    <button class="lb-close" id="lbClose" aria-label="Bağla">×</button>
-    <button class="lb-btn lb-prev" id="lbPrev" aria-label="Əvvəlki"></button>
-    <div class="lb-viewport" id="lbViewport">
-      <img class="lb-img" id="lbImg" alt="" referrerpolicy="no-referrer" />
-    </div>
-    <button class="lb-btn lb-next" id="lbNext" aria-label="Növbəti"></button>
-  </div>
-`;
-document.body.appendChild(lbBackdrop);
 
-const lb = {
-  backdrop: lbBackdrop,
-  img: lbBackdrop.querySelector("#lbImg"),
-  viewport: lbBackdrop.querySelector("#lbViewport"),
-  count: lbBackdrop.querySelector("#lbCount"),
-  zoomLabel: lbBackdrop.querySelector("#lbZoom"),
-  close: lbBackdrop.querySelector("#lbClose"),
-  prev: lbBackdrop.querySelector("#lbPrev"),
-  next: lbBackdrop.querySelector("#lbNext"),
-};
+function resetAll() {
+  // base
+  if (qCountry) qCountry.value = "";
+  if (qBrand) qBrand.value = "";
+  if (qModel) qModel.value = "";
+  if (qCity) qCity.value = "";
+  if (qMinPrice) qMinPrice.value = "";
+  if (qMaxPrice) qMaxPrice.value = "";
+  if (qYear) qYear.value = "";
+  if (qYearMax) qYearMax.value = "";
+  if (sortBy) sortBy.value = "new";
 
-let lbOpen = false;
-let scale = 1;
-let tx = 0;
-let ty = 0;
-let dragging = false;
-let startX = 0;
-let startY = 0;
-let startTx = 0;
-let startTy = 0;
+  // advanced
+  ["qColor","qBody","qFuel","qDrive","qGearbox","qOwners","qSeats","qMarket","qStatus"].forEach((id) => {
+    const el = $(id);
+    if (el) el.value = "";
+  });
+  ["qVolumeMin","qVolumeMax","qPowerMin","qPowerMax","qMileageMin","qMileageMax"].forEach((id) => {
+    const el = $(id);
+    if (el) el.value = "";
+  });
 
-const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+  // chips state
+  UI.condition = "";
+  UI.credit = false;
+  UI.barter = false;
+  UI.noHit = false;
+  UI.notPainted = false;
+  UI.onlyCrashed = false;
+  UI.selectedEquip.clear();
 
-const applyTransform = () => {
-  lb.img.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
-  lb.zoomLabel.textContent = `${Math.round(scale * 100)}%`;
-};
+  // update UI chips if present
+  updateAllChipUI();
 
-const resetView = () => {
-  scale = 1;
-  tx = 0;
-  ty = 0;
-  applyTransform();
-};
-
-const renderLb = () => {
-  lb.img.src = imgs[idx];
-  lb.count.textContent = `${idx + 1} / ${imgs.length}`;
-  lb.prev.style.display = (idx === 0) ? "none" : "flex";
-  lb.next.style.display = (idx === imgs.length - 1) ? "none" : "flex";
-  resetView();
-};
-
-const openLb = (startIndex) => {
-  idx = clamp(startIndex, 0, imgs.length - 1);
-  lb.backdrop.classList.add("is-open");
-  document.body.style.overflow = "hidden";
-  lbOpen = true;
-  renderLb();
-};
-
-const closeLb = () => {
-  lb.backdrop.classList.remove("is-open");
-  document.body.style.overflow = "";
-  lbOpen = false;
-};
-
-// mainImg klik -> popup
-
-// thumb klik -> popup (CTRL basıb açmaq istəyənlər üçün)
-// thumbsGrid.addEventListener("dblclick", (e) => {
-//   const t = e.target.closest(".thumb");
-//   if (!t) return;
-//   openLb(Number(t.dataset.i));
-// });
-
-// lb.close.addEventListener("click", closeLb);
-// lb.backdrop.addEventListener("click", (e) => {
-//   if (e.target === lb.backdrop) closeLb();
-// });
-
-// lb.prev.addEventListener("click", (e) => {
-//   e.stopPropagation();
-//   if (idx > 0) { idx -= 1; setMain(); renderLb(); }
-// });
-// lb.next.addEventListener("click", (e) => {
-//   e.stopPropagation();
-//   if (idx < imgs.length - 1) { idx += 1; setMain(); renderLb(); }
-// });
-
-// Keyboard: ESC, arrows
-window.addEventListener("keydown", (e) => {
-  if (!lbOpen) return;
-
-  if (e.key === "Escape") closeLb();
-  if (e.key === "ArrowLeft" && idx > 0) { idx -= 1; setMain(); renderLb(); }
-  if (e.key === "ArrowRight" && idx < imgs.length - 1) { idx += 1; setMain(); renderLb(); }
-
-  // Zoom keys: + / -
-  if (e.key === "+" || e.key === "=") { scale = clamp(scale + 0.15, 1, 5); applyTransform(); }
-  if (e.key === "-" || e.key === "_") { scale = clamp(scale - 0.15, 1, 5); applyTransform(); }
-});
-
-// Wheel zoom (mouse)
-lb.viewport.addEventListener("wheel", (e) => {
-  e.preventDefault();
-  const delta = e.deltaY > 0 ? -0.12 : 0.12;
-  const newScale = clamp(scale + delta, 1, 5);
-
-  // Zoom mərkəzi: mouse-un olduğu yer
-  const rect = lb.viewport.getBoundingClientRect();
-  const cx = e.clientX - rect.left;
-  const cy = e.clientY - rect.top;
-
-  // transform: tx,ty dəyişərək cursor altını saxla
-  const k = newScale / scale;
-  tx = cx - k * (cx - tx);
-  ty = cy - k * (cy - ty);
-
-  scale = newScale;
-  applyTransform();
-}, { passive: false });
-
-// Drag (pan)
-lb.viewport.addEventListener("mousedown", (e) => {
-  dragging = true;
-  lb.viewport.classList.add("is-dragging");
-  startX = e.clientX;
-  startY = e.clientY;
-  startTx = tx;
-  startTy = ty;
-});
-window.addEventListener("mousemove", (e) => {
-  if (!dragging || !lbOpen) return;
-  tx = startTx + (e.clientX - startX);
-  ty = startTy + (e.clientY - startY);
-  applyTransform();
-});
-window.addEventListener("mouseup", () => {
-  dragging = false;
-  lb.viewport.classList.remove("is-dragging");
-});
-
-// Double click to zoom in/out
-lb.viewport.addEventListener("dblclick", (e) => {
-  e.preventDefault();
-  if (scale === 1) {
-    scale = 2;
-  } else {
-    scale = 1;
-    tx = 0; ty = 0;
-  }
-  applyTransform();
-});
-
-// Touch pinch zoom (basic)
-let tStartDist = 0;
-let tStartScale = 1;
-let tStartTx = 0;
-let tStartTy = 0;
-
-const dist = (a, b) => Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
-
-lb.viewport.addEventListener("touchstart", (e) => {
-  if (!lbOpen) return;
-
-  if (e.touches.length === 1) {
-    // pan
-    dragging = true;
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
-    startTx = tx;
-    startTy = ty;
-  }
-
-  if (e.touches.length === 2) {
-    dragging = false;
-    tStartDist = dist(e.touches[0], e.touches[1]);
-    tStartScale = scale;
-    tStartTx = tx;
-    tStartTy = ty;
-  }
-}, { passive: true });
-
-lb.viewport.addEventListener("touchmove", (e) => {
-  if (!lbOpen) return;
-
-  if (e.touches.length === 1 && dragging) {
-    tx = startTx + (e.touches[0].clientX - startX);
-    ty = startTy + (e.touches[0].clientY - startY);
-    applyTransform();
-  }
-
-  if (e.touches.length === 2) {
-    const d = dist(e.touches[0], e.touches[1]);
-    const k = d / tStartDist;
-    scale = clamp(tStartScale * k, 1, 5);
-    tx = tStartTx;
-    ty = tStartTy;
-    applyTransform();
-  }
-}, { passive: true });
-
-lb.viewport.addEventListener("touchend", () => {
-  dragging = false;
-}, { passive: true });
-
-function resetAll(){
-  qCountry.value = "";
-  qBrand.value = "";
-  qModel.value = "";
-  qCity.value = "";
-  qMinPrice.value = "";
-  qMaxPrice.value = "";
-  qYear.value = "";
-  qYearMax.value = "";
-  sortBy.value = "new";
   applyFilters();
 }
 
-// Events
-[qCountry, qBrand, qModel, qCity, qYear, qYearMax].forEach(el => el.addEventListener("change", applyFilters));
-[qMinPrice, qMaxPrice].forEach(el => el.addEventListener("input", applyFilters));
-sortBy.addEventListener("change", applyFilters);
-
-btnSearch.addEventListener("click", applyFilters);
-btnReset.addEventListener("click", resetAll);
-
-// Init
-applyFilters();
-
-// hamburger menu
-document.addEventListener("DOMContentLoaded", () => {
-  const hamburgerBtn = document.getElementById("hamburgerBtn");
-  const mobileMenu = document.getElementById("mobileMenu");
-  const mobileMenuClose = document.getElementById("mobileMenuClose");
-  const mobileMenuOverlay = document.getElementById("mobileMenuOverlay");
-
-  console.log("menu bind:", {
-    hamburgerBtn: !!hamburgerBtn,
-    mobileMenu: !!mobileMenu,
-    mobileMenuClose: !!mobileMenuClose,
-    mobileMenuOverlay: !!mobileMenuOverlay
-  });
-
-  if (!hamburgerBtn || !mobileMenu) return;
-
-  const openMenu = () => mobileMenu.classList.add("is-open");
-  const closeMenu = () => mobileMenu.classList.remove("is-open");
-
-  hamburgerBtn.addEventListener("click", openMenu);
-  mobileMenuOverlay && mobileMenuOverlay.addEventListener("click", closeMenu);
-  mobileMenuClose && mobileMenuClose.addEventListener("click", closeMenu);
-});
+// ===== Favorites click =====
 document.addEventListener("click", (e) => {
   const btn = e.target.closest(".fav-btn");
-  if(!btn) return;
+  if (!btn) return;
 
   e.preventDefault();
   e.stopPropagation();
 
-  const id = String(btn.dataset.id);
+  const id = String(btn.dataset.id || "");
+  if (!id) return;
 
-  const favIds = loadFavs();      // ✅ ən son state
-  if(favIds.has(id)) favIds.delete(id);
+  const favIds = loadFavs();
+  if (favIds.has(id)) favIds.delete(id);
   else favIds.add(id);
 
   saveFavs(favIds);
-
   btn.classList.toggle("is-on");
-  const viewsEl = document.getElementById("viewsCount");
-if (viewsEl) viewsEl.textContent = car.views ?? 0;
 });
 
+// ===== Bind filter events (base) =====
+[qCountry, qBrand, qModel, qCity, qYear, qYearMax].forEach((el) => el && el.addEventListener("change", applyFilters));
+[qMinPrice, qMaxPrice].forEach((el) => el && el.addEventListener("input", applyFilters));
+sortBy && sortBy.addEventListener("change", applyFilters);
 
+btnSearch && btnSearch.addEventListener("click", applyFilters);
+btnReset && btnReset.addEventListener("click", resetAll);
 
+// ===== Advanced: auto-fill EVERYTHING =====
+function initAdvancedAutoFill() {
+  if (typeof CARS === "undefined" || !Array.isArray(CARS)) return;
+
+  // base selects already exist
+  if (qCountry) fillSelect(qCountry, CARS.map((c) => c.country), "Ölkə");
+  if (qBrand) fillSelect(qBrand, CARS.map((c) => c.brand), "Marka");
+  if (qCity) fillSelect(qCity, CARS.map((c) => c.city), "Şəhər");
+
+  // brand -> model dependency
+  if (qBrand && qModel) {
+    const fillModels = () => {
+      const b = qBrand.value;
+      const models = CARS.filter((c) => !b || c.brand === b).map((c) => c.model);
+      fillSelect(qModel, models, "Model");
+    };
+    qBrand.addEventListener("change", () => {
+      fillModels();
+      applyFilters();
+    });
+    fillModels();
+  }
+
+  // price/year min-max: if they are inputs, skip; if selects, fill
+  if (qYear && qYearMax && qYear.tagName === "SELECT" && qYearMax.tagName === "SELECT") {
+    fillSelectMinMax(qYear, qYearMax, CARS.map((c) => c.year), "İl, min.", "maks.");
+  }
+  if (qMinPrice && qMaxPrice && qMinPrice.tagName === "SELECT" && qMaxPrice.tagName === "SELECT") {
+    fillSelectMinMax(qMinPrice, qMaxPrice, CARS.map((c) => c.price), "Qiymət, min.", "maks.");
+  }
+
+  // advanced IDs (if exist in your HTML)
+  const qColor = $("qColor");
+  const qBody = $("qBody");
+  const qFuel = $("qFuel");
+  const qDrive = $("qDrive");
+  const qGearbox = $("qGearbox");
+  const qOwners = $("qOwners");
+  const qSeats = $("qSeats");
+  const qMarket = $("qMarket");
+  const qStatus = $("qStatus");
+
+  if (qColor) fillSelect(qColor, CARS.map((c) => c.color), "Rəng");
+  if (qBody) fillSelect(qBody, CARS.map((c) => c.body).concat(ALL_BODY_TYPES), "Ban növü");
+  if (qFuel) fillSelect(qFuel, CARS.map((c) => c.fuel).concat(ALL_FUEL), "Yanacaq növü");
+  if (qDrive) fillSelect(qDrive, CARS.map((c) => c.drive).concat(ALL_DRIVE), "Ötürücü");
+  if (qGearbox) fillSelect(qGearbox, CARS.map((c) => c.gearbox).concat(ALL_GEARBOX), "Sürətlər qutusu");
+  if (qOwners) fillSelect(qOwners, CARS.map((c) => c.owners), "Sahiblərinin sayı");
+  if (qSeats) fillSelect(qSeats, CARS.map((c) => c.seats), "Yerlərin sayı");
+  if (qMarket) fillSelect(qMarket, CARS.map((c) => c.market).concat(ALL_MARKET), "Hansı bazar üçün yığılıb");
+  if (qStatus) fillSelect(qStatus, CARS.map((c) => c.status).concat(ALL_STATUS), "Status");
+
+  // numeric ranges for advanced (if exist)
+  const qVolumeMin = $("qVolumeMin");
+  const qVolumeMax = $("qVolumeMax");
+  const qPowerMin = $("qPowerMin");
+  const qPowerMax = $("qPowerMax");
+  const qMileageMin = $("qMileageMin");
+  const qMileageMax = $("qMileageMax");
+
+  if (qVolumeMin && qVolumeMax && qVolumeMin.tagName === "SELECT" && qVolumeMax.tagName === "SELECT") {
+    fillSelectMinMax(qVolumeMin, qVolumeMax, CARS.map((c) => c.volume), "Həcm (sm³), min.", "maks.");
+  }
+  if (qPowerMin && qPowerMax && qPowerMin.tagName === "SELECT" && qPowerMax.tagName === "SELECT") {
+    fillSelectMinMax(qPowerMin, qPowerMax, CARS.map((c) => c.power), "Güc (a.g.), min.", "maks.");
+  }
+  if (qMileageMin && qMileageMax && qMileageMin.tagName === "SELECT" && qMileageMax.tagName === "SELECT") {
+    fillSelectMinMax(qMileageMin, qMileageMax, CARS.map((c) => c.mileage), "Yürüş (km), min.", "maks.");
+  }
+
+  // bind change/input for advanced fields (so filter updates)
+  [
+    qColor, qBody, qFuel, qDrive, qGearbox, qOwners, qSeats, qMarket, qStatus,
+    qVolumeMin, qVolumeMax, qPowerMin, qPowerMax, qMileageMin, qMileageMax
+  ].forEach((el) => el && el.addEventListener("change", applyFilters));
+
+  [
+    qVolumeMin, qVolumeMax, qPowerMin, qPowerMax, qMileageMin, qMileageMax
+  ].forEach((el) => el && el.tagName === "INPUT" && el.addEventListener("input", applyFilters));
+  function fillSelectEl(el, values, placeholderText) {
+  if (!el) return;
+  const list = [...new Set(values.filter(v => v !== null && v !== undefined && String(v).trim() !== ""))]
+    .sort((a,b) => String(a).localeCompare(String(b), "az"));
+
+  const ph = placeholderText || "Hamısı";
+  el.innerHTML = `<option value="">${ph}</option>` + list.map(v => `<option value="${v}">${v}</option>`).join("");
+}
+
+function initAdvancedAutoFill_NoIds() {
+  const cars = window.CARS || [];
+  if (!cars.length) return;
+
+  const panel = document.getElementById("advPanel") || document;
+  const selects = [...panel.querySelectorAll("select")];
+
+  const getPh = (sel) => {
+    // 1) data-ph varsa
+    if (sel.dataset && sel.dataset.ph) return sel.dataset.ph;
+    // 2) ilk option text
+    const opt = sel.querySelector("option");
+    if (opt && opt.textContent) return opt.textContent.trim();
+    // 3) yaxın label text
+    const lbl = sel.closest(".f")?.querySelector("label");
+    if (lbl) return lbl.textContent.trim();
+    return "";
+  };
+
+  const phIncludes = (ph, words) => words.some(w => ph.toLowerCase().includes(w));
+
+  selects.forEach(sel => {
+    const ph = getPh(sel);
+
+    // Marka
+    if (phIncludes(ph, ["marka"])) {
+      fillSelectEl(sel, cars.map(c => c.brand), "Marka");
+      return;
+    }
+
+    // Model (markadan asılı olma üçün ayrıca handle edəcəyik aşağıda)
+    if (phIncludes(ph, ["model"])) {
+      fillSelectEl(sel, cars.map(c => c.model), "Model");
+      return;
+    }
+
+    // Şəhər
+    if (phIncludes(ph, ["şəhər", "seher"])) {
+      fillSelectEl(sel, cars.map(c => c.city), "Şəhər");
+      return;
+    }
+
+    // Rəng
+    if (phIncludes(ph, ["rəng", "reng"])) {
+      fillSelectEl(sel, cars.map(c => c.color), "Rəng");
+      return;
+    }
+
+    // Ban növü
+    if (phIncludes(ph, ["ban"])) {
+      fillSelectEl(sel, cars.map(c => c.body), "Ban növü");
+      return;
+    }
+
+    // Yanacaq
+    if (phIncludes(ph, ["yanacaq", "fuel"])) {
+      fillSelectEl(sel, cars.map(c => c.fuel), "Yanacaq növü");
+      return;
+    }
+
+    // Ötürücü
+    if (phIncludes(ph, ["ötürücü", "oturucu", "drive"])) {
+      fillSelectEl(sel, cars.map(c => c.drive), "Ötürücü");
+      return;
+    }
+
+    // Sürətlər qutusu
+    if (phIncludes(ph, ["sürətlər", "suretl", "qutu"])) {
+      fillSelectEl(sel, cars.map(c => c.gearbox), "Sürətlər qutusu");
+      return;
+    }
+
+    // Sahiblərinin sayı
+    if (phIncludes(ph, ["sahibl", "sahib"])) {
+      fillSelectEl(sel, cars.map(c => c.owners), "Sahiblərinin sayı");
+      return;
+    }
+
+    // Yerlərin sayı
+    if (phIncludes(ph, ["yerlərin", "yer"])) {
+      fillSelectEl(sel, cars.map(c => c.seats), "Yerlərin sayı");
+      return;
+    }
+
+    // Status
+    if (phIncludes(ph, ["status"])) {
+      fillSelectEl(sel, cars.map(c => c.status), "Status");
+      return;
+    }
+
+    // Bazar
+    if (phIncludes(ph, ["bazar"])) {
+      fillSelectEl(sel, cars.map(c => c.market), "Hansı bazar üçün yığılıb");
+      return;
+    }
+  });
+
+  // ✅ Marka → Model dependency (ID yox, placeholder ilə tapırıq)
+  const brandSel = selects.find(s => (getPh(s).toLowerCase().includes("marka")));
+  const modelSel = selects.find(s => (getPh(s).toLowerCase().includes("model")));
+
+  if (brandSel && modelSel) {
+    const fillModelsByBrand = () => {
+      const b = brandSel.value;
+      const models = cars.filter(c => !b || c.brand === b).map(c => c.model);
+      fillSelectEl(modelSel, models, "Model");
+    };
+    brandSel.addEventListener("change", fillModelsByBrand);
+    fillModelsByBrand();
+  }
+}
+
+// panel açılmadan da doldursun:
+document.addEventListener("DOMContentLoaded", initAdvancedAutoFill_NoIds);
+
+}
+
+// ===== Equipment chips (Turbo.az like) =====
+function initEquipmentChips() {
+  if (!equipChipsWrap) return;
+
+  equipChipsWrap.innerHTML = ALL_EQUIPMENTS.map((name) => `
+    <button type="button" class="chip" data-eq="${name}">${name}</button>
+  `).join("");
+
+  equipChipsWrap.addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    const eq = chip.dataset.eq;
+
+    if (UI.selectedEquip.has(eq)) UI.selectedEquip.delete(eq);
+    else UI.selectedEquip.add(eq);
+
+    chip.classList.toggle("is-on");
+    applyFilters();
+  });
+}
+
+// ===== Chips/toggles (if you have these buttons in HTML) =====
+// Expected IDs (optional):
+// btnCondAll, btnCondNew, btnCondUsed, chipCredit, chipBarter, chipNoHit, chipNotPainted, chipOnlyCrashed
+function updateAllChipUI() {
+  setChipOn($("btnCondAll"), UI.condition === "");
+  setChipOn($("btnCondNew"), UI.condition === "new");
+  setChipOn($("btnCondUsed"), UI.condition === "used");
+
+  setChipOn($("chipCredit"), UI.credit);
+  setChipOn($("chipBarter"), UI.barter);
+  setChipOn($("chipNoHit"), UI.noHit);
+  setChipOn($("chipNotPainted"), UI.notPainted);
+  setChipOn($("chipOnlyCrashed"), UI.onlyCrashed);
+
+  // equipment chips UI already toggles per click, but resetAll uses this:
+  if (equipChipsWrap) {
+    equipChipsWrap.querySelectorAll(".chip").forEach((c) => {
+      c.classList.toggle("is-on", UI.selectedEquip.has(c.dataset.eq));
+    });
+  }
+}
+
+function bindChipsIfExist() {
+  const btnCondAll = $("btnCondAll");
+  const btnCondNew = $("btnCondNew");
+  const btnCondUsed = $("btnCondUsed");
+
+  btnCondAll && btnCondAll.addEventListener("click", () => { UI.condition = ""; updateAllChipUI(); applyFilters(); });
+  btnCondNew && btnCondNew.addEventListener("click", () => { UI.condition = "new"; updateAllChipUI(); applyFilters(); });
+  btnCondUsed && btnCondUsed.addEventListener("click", () => { UI.condition = "used"; updateAllChipUI(); applyFilters(); });
+
+  const chipCredit = $("chipCredit");
+  const chipBarter = $("chipBarter");
+  const chipNoHit = $("chipNoHit");
+  const chipNotPainted = $("chipNotPainted");
+  const chipOnlyCrashed = $("chipOnlyCrashed");
+
+  chipCredit && chipCredit.addEventListener("click", () => { UI.credit = !UI.credit; updateAllChipUI(); applyFilters(); });
+  chipBarter && chipBarter.addEventListener("click", () => { UI.barter = !UI.barter; updateAllChipUI(); applyFilters(); });
+  chipNoHit && chipNoHit.addEventListener("click", () => { UI.noHit = !UI.noHit; updateAllChipUI(); applyFilters(); });
+  chipNotPainted && chipNotPainted.addEventListener("click", () => { UI.notPainted = !UI.notPainted; updateAllChipUI(); applyFilters(); });
+  chipOnlyCrashed && chipOnlyCrashed.addEventListener("click", () => { UI.onlyCrashed = !UI.onlyCrashed; updateAllChipUI(); applyFilters(); });
+
+  updateAllChipUI();
+}
+
+// ===== Advanced panel open/close (smooth friendly) =====
+function initAdvancedPanel() {
+  if (!btnAdvanced || !advPanel) return;
+
+  const open = () => {
+    advPanel.removeAttribute("hidden");
+    advPanel.setAttribute("aria-hidden", "false");
+    requestAnimationFrame(() => advPanel.classList.add("is-open"));
+  };
+
+  const close = () => {
+    advPanel.classList.remove("is-open");
+    advPanel.setAttribute("aria-hidden", "true");
+
+    // transition-friendly hide
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      advPanel.setAttribute("hidden", "");
+      advPanel.removeEventListener("transitionend", onEnd);
+    };
+    const onEnd = () => finish();
+    advPanel.addEventListener("transitionend", onEnd);
+    setTimeout(finish, 220);
+  };
+
+  const toggle = () => (advPanel.classList.contains("is-open") ? close() : open());
+
+  btnAdvanced.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggle();
+  });
+
+  btnAdvancedClose && btnAdvancedClose.addEventListener("click", (e) => {
+    e.preventDefault();
+    close();
+  });
+
+  advApply && advApply.addEventListener("click", () => {
+    btnSearch && btnSearch.click();
+    close();
+  });
+
+  advClear && advClear.addEventListener("click", () => {
+    btnReset && btnReset.click();
+  });
+
+  // outside click -> close
+  document.addEventListener("click", (e) => {
+    if (advPanel.hasAttribute("hidden")) return;
+    if (e.target.closest("#advPanel") || e.target.closest("#btnAdvanced")) return;
+    close();
+  });
+}
+
+// ===== Hamburger menu (open/close) =====
+function initHamburgerMenu() {
+  const hamburgerBtn = $("hamburgerBtn");
+  const mobileMenu = $("mobileMenu");
+  const mobileMenuClose = $("mobileMenuClose");
+  const mobileMenuOverlay = $("mobileMenuOverlay");
+
+  if (!hamburgerBtn || !mobileMenu) return;
+
+  const isOpen = () => mobileMenu.classList.contains("is-open");
+
+  const openMenu = () => {
+    mobileMenu.classList.add("is-open");
+    hamburgerBtn.setAttribute("aria-expanded", "true");
+  };
+  const closeMenu = () => {
+    mobileMenu.classList.remove("is-open");
+    hamburgerBtn.setAttribute("aria-expanded", "false");
+  };
+  const toggleMenu = () => (isOpen() ? closeMenu() : openMenu());
+
+  hamburgerBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleMenu();
+  });
+
+  mobileMenuClose && mobileMenuClose.addEventListener("click", (e) => {
+    e.preventDefault();
+    closeMenu();
+  });
+
+  mobileMenuOverlay && mobileMenuOverlay.addEventListener("click", closeMenu);
+
+  document.addEventListener(
+    "click",
+    (e) => {
+      if (!isOpen()) return;
+      if (e.target.closest("#mobileMenu") || e.target.closest("#hamburgerBtn")) return;
+      closeMenu();
+    },
+    true
+  );
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeMenu();
+  });
+
+  mobileMenu.addEventListener("click", (e) => {
+    const a = e.target.closest("a, button");
+    if (!a) return;
+    closeMenu();
+  });
+}
+
+// ===== Init everything =====
+document.addEventListener("DOMContentLoaded", () => {
+  // 1) auto-fill selects/ranges (full)
+  initAdvancedAutoFill();
+
+  // 2) chips (credit/barter/condition flags) if you have them
+  bindChipsIfExist();
+
+  // 3) equipment chips always (Turbo.az like)
+  initEquipmentChips();
+
+  // 4) advanced panel toggle
+  initAdvancedPanel();
+
+  // 5) hamburger
+  initHamburgerMenu();
+
+  // 6) initial render
+  applyFilters();
+});
+function ensureAdvFields() {
+  const advGrid = document.getElementById("advGrid");
+  if (!advGrid) return;
+
+  // bir dəfə yaratsın
+  if (document.getElementById("qColor")) return;
+
+  const mkSelect = (label, id) => {
+    const wrap = document.createElement("div");
+    wrap.className = "field";
+    wrap.innerHTML = `
+      <label class="field__label" for="${id}">${label}</label>
+      <select class="field__control" id="${id}"></select>
+    `;
+    return wrap;
+  };
+
+  // FULL advanced selects
+  advGrid.appendChild(mkSelect("Rəng", "qColor"));
+  advGrid.appendChild(mkSelect("Ban növü", "qBody"));
+  advGrid.appendChild(mkSelect("Ötürücü", "qDrive"));
+  advGrid.appendChild(mkSelect("Sürətlər qutusu", "qGearbox2"));
+  advGrid.appendChild(mkSelect("Yanacaq növü", "qFuel2"));
+  advGrid.appendChild(mkSelect("Sahiblərinin sayı", "qOwners"));
+  advGrid.appendChild(mkSelect("Yerlərin sayı", "qSeats"));
+  advGrid.appendChild(mkSelect("Hansı bazar üçün yığılıb", "qMarket"));
+  advGrid.appendChild(mkSelect("Status", "qStatus"));
+}
+
+function fillSelect(id, values, ph) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const list = [...new Set(values.filter(v => v != null && String(v).trim() !== ""))]
+    .sort((a,b)=>String(a).localeCompare(String(b),"az"));
+  el.innerHTML = `<option value="">${ph}</option>` + list.map(v => `<option value="${v}">${v}</option>`).join("");
+}
+
+function fillAdvOptions() {
+  const cars = window.CARS || window.cars || [];
+  if (!cars.length) return;
+
+  fillSelect("qColor",  cars.map(c=>c.color),  "Hamısı");
+  fillSelect("qBody",   cars.map(c=>c.body),   "Hamısı");
+  fillSelect("qDrive",  cars.map(c=>c.drive),  "Hamısı");
+
+  // əsas filterlərdə gearbox/fuel var, amma adv üçün ayrıca yaratdıq
+  fillSelect("qGearbox2", cars.map(c=>c.gearbox), "Hamısı");
+  fillSelect("qFuel2",    cars.map(c=>c.fuel),    "Hamısı");
+
+  fillSelect("qOwners", cars.map(c=>c.owners), "Hamısı");
+  fillSelect("qSeats",  cars.map(c=>c.seats),  "Hamısı");
+  fillSelect("qMarket", cars.map(c=>c.market), "Hamısı");
+  fillSelect("qStatus", cars.map(c=>c.status), "Hamısı");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  ensureAdvFields();
+  fillAdvOptions();
+
+  // panel açılıb bağlananda da dolu qalsın
+  const btn = document.getElementById("btnAdvanced");
+  btn?.addEventListener("click", () => {
+    ensureAdvFields();
+    fillAdvOptions();
+  });
+});
+function makeTurboSelect(select, { searchable=true, placeholder="Seçin", clearText="Sıfırla" } = {}) {
+  if (!select || select.dataset.turboized) return;
+  select.dataset.turboized = "1";
+
+  const wrap = document.createElement("div");
+  wrap.className = "tsel";
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "tsel__btn";
+
+  const chev = document.createElement("span");
+  chev.className = "tsel__chev";
+  chev.textContent = "▾";
+
+  const panel = document.createElement("div");
+  panel.className = "tsel__panel";
+
+  const search = document.createElement("div");
+  search.className = "tsel__search";
+
+  const input = document.createElement("input");
+  input.className = "tsel__input";
+  input.type = "text";
+  input.placeholder = placeholder;
+
+  const clearBox = document.createElement("div");
+  clearBox.className = "tsel__clear";
+
+  const clearRow = document.createElement("div");
+  clearRow.className = "tsel__row";
+  clearRow.innerHTML = `<span class="tsel__x">×</span> <span>${clearText}</span>`;
+
+  const list = document.createElement("div");
+  list.className = "tsel__list";
+
+  if (searchable) {
+    search.appendChild(input);
+    panel.appendChild(search);
+  }
+  clearBox.appendChild(clearRow);
+  panel.appendChild(clearBox);
+  panel.appendChild(list);
+
+  // DOM replace: select qalır (hidden), custom üstə çıxır
+  select.parentNode.insertBefore(wrap, select);
+  wrap.appendChild(select);
+  wrap.appendChild(btn);
+  btn.appendChild(chev);
+  wrap.appendChild(panel);
+
+  // hide native select (dəyər dəyişməsi yenə işləyir)
+  select.style.position = "absolute";
+  select.style.opacity = "0";
+  select.style.pointerEvents = "none";
+  select.style.height = "0";
+  select.style.width = "0";
+
+  const getOptions = () => [...select.options].map(o => ({ value: o.value, label: o.textContent }));
+
+  const setBtnLabel = () => {
+    const opts = getOptions();
+    const cur = select.value;
+    const found = opts.find(x => x.value === cur);
+    btn.childNodes[0]?.remove?.(); // safety
+    btn.textContent = found?.label || opts[0]?.label || "";
+    btn.appendChild(chev);
+  };
+
+  const renderList = (q="") => {
+    const qq = q.trim().toLowerCase();
+    const opts = getOptions();
+
+    list.innerHTML = "";
+    opts.forEach(o => {
+      if (qq && !o.label.toLowerCase().includes(qq)) return;
+
+      // ilk option (Hamısı/Min/Max) listdə də görünsün istəyirsənsə saxla:
+      // indi saxlayırıq, çünki Turbo az da göstərir.
+      const row = document.createElement("div");
+      row.className = "tsel__row" + (o.value === select.value ? " is-active" : "");
+      row.textContent = o.label;
+
+      row.addEventListener("click", () => {
+        select.value = o.value;
+        select.dispatchEvent(new Event("change", { bubbles: true }));
+        setBtnLabel();
+        wrap.classList.remove("is-open");
+      });
+
+      list.appendChild(row);
+    });
+  };
+
+  const open = () => {
+    wrap.classList.add("is-open");
+    renderList(input.value);
+    setBtnLabel();
+    if (searchable) {
+      setTimeout(() => { input.focus(); input.select(); }, 0);
+    }
+  };
+  const close = () => wrap.classList.remove("is-open");
+  const toggle = (e) => { e?.stopPropagation(); wrap.classList.contains("is-open") ? close() : open(); };
+
+  btn.addEventListener("click", toggle);
+  document.addEventListener("click", (e) => {
+    if (!wrap.contains(e.target)) close();
+  });
+
+  clearRow.addEventListener("click", (e) => {
+    e.stopPropagation();
+    select.value = "";
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+    input.value = "";
+    setBtnLabel();
+    renderList("");
+    close();
+  });
+
+  input.addEventListener("input", () => renderList(input.value));
+
+  // ESC bağla
+  document.addEventListener("keydown", (e) => {
+    if (!wrap.classList.contains("is-open")) return;
+    if (e.key === "Escape") close();
+  });
+
+  // options sonradan dəyişərsə (səndə marka/model kimi), sync
+  const obs = new MutationObserver(() => {
+    setBtnLabel();
+    renderList(input.value);
+  });
+  obs.observe(select, { childList: true, subtree: true });
+
+  setBtnLabel();
+}
+
+// tətbiq: istəsən yalnız advPanel select-ləri
+function initTurboSelects() {
+  document.querySelectorAll("#advPanel select, .filters select, select.sort")
+    .forEach(sel => makeTurboSelect(sel, { searchable: true, placeholder: "Yazın...", clearText: "Sıfırla" }));
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  initTurboSelects();
+  // Ətraflı panel açılınca yenilər yaranırsa
+  document.getElementById("btnAdvanced")?.addEventListener("click", () => setTimeout(initTurboSelects, 0));
+});
+
+// === BUTTON SWAP: Ətraflı açılınca Axtar/Sıfırla aşağı düşsün ===
+document.addEventListener("DOMContentLoaded", () => {
+  const advPanel = document.getElementById("advPanel");
+  const btnGroup = document.getElementById("topActions");
+  const actions = btnGroup?.closest(".actions");
+
+  if (!advPanel || !btnGroup || !actions) return;
+
+  // ilkin yerini yadda saxla
+  const homeParent = actions;
+  const homeNext = btnGroup.nextSibling;
+
+  const moveDown = () => {
+    advPanel.insertAdjacentElement("afterend", btnGroup);
+  };
+
+  const moveUp = () => {
+    if (homeNext) homeParent.insertBefore(btnGroup, homeNext);
+    else homeParent.appendChild(btnGroup);
+  };
+
+  const sync = () => {
+    const open =
+      advPanel.classList.contains("is-open") &&
+      !advPanel.hasAttribute("hidden");
+
+    if (open) moveDown();
+    else moveUp();
+  };
+
+  // advPanel açılıb–bağlananda avtomatik izləyir
+  new MutationObserver(sync).observe(advPanel, {
+    attributes: true,
+    attributeFilter: ["class", "hidden"],
+  });
+
+  sync();
+});
+// === PATCH v2: adv açılınca btn-group aşağı düşsün + araya spacer qoyulsun ===
+document.addEventListener("DOMContentLoaded", () => {
+  const advPanel = document.getElementById("advPanel");
+  const btnGroup = document.getElementById("topActions");
+  const actions = btnGroup?.closest(".actions");
+
+  if (!advPanel || !btnGroup || !actions) return;
+
+  // ilkin yerini yadda saxla
+  const homeParent = actions;
+  const homeNext = btnGroup.nextSibling;
+
+  // spacer (yalnız aşağıda olanda istifadə edəcəyik)
+  const spacer = document.createElement("div");
+  spacer.className = "adv-actions-spacer";
+
+  const moveDown = () => {
+    // spacer yoxdursa əlavə et
+    if (!spacer.isConnected) advPanel.insertAdjacentElement("afterend", spacer);
+    // btnGroup-u spacer-dən sonra qoy
+    spacer.insertAdjacentElement("afterend", btnGroup);
+  };
+
+  const moveUp = () => {
+    // btnGroup-u geri qaytar
+    if (homeNext) homeParent.insertBefore(btnGroup, homeNext);
+    else homeParent.appendChild(btnGroup);
+
+    // spacer-i sil (yalnız aşağıda lazım idi)
+    if (spacer.isConnected) spacer.remove();
+  };
+
+  const sync = () => {
+    const open = advPanel.classList.contains("is-open") && !advPanel.hasAttribute("hidden");
+    if (open) moveDown();
+    else moveUp();
+  };
+
+  // panel açılıb-bağlananda izləyək
+  new MutationObserver(sync).observe(advPanel, {
+    attributes: true,
+    attributeFilter: ["class", "hidden"],
+  });
+
+  sync();
+});

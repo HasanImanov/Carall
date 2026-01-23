@@ -183,13 +183,52 @@
             </select>
           </div>
 
-
+ 
           <div class="actions">
-            <button class="btn btn--primary" id="btnSearch" type="button">Axtar</button>
-            <button class="btn btn--ghost" id="btnReset" type="button">Sıfırla</button>
-          </div>
-        </div>
+  <button type="button" class="btn-adv" id="btnAdvanced">
+    Ətraflı axtarış <span class="chev">▾</span>
+  </button>
 
+  <div class="btn-group" id="topActions">
+    <button class="btn btn--primary" id="btnSearch">Axtar</button>
+    <button class="btn btn--ghost" id="btnReset">Sıfırla</button>
+  </div>
+</div>
+        </div>
+        <section class="adv" id="advPanel" hidden aria-hidden="true">
+  <div class="adv__inner">
+    <!-- ✅ BURDA: sənin bütün filter input/select-ların olduğu container -->
+    <div class="adv__grid" id="advGrid">
+      <!-- MÖVCUD elementlərini bu grid-in içinə köçür:
+           select, input, button chips və s. -->
+      <!-- Misal: -->
+      <!-- <div class="f"><select ...></select></div> -->
+      <!-- <div class="f"><input ...></div> -->
+    </div>
+
+    <!-- Avadanlıq chips varsa -->
+    <div class="adv__section">
+      <div class="adv__title">Avtomobilin təchizatı</div>
+      <div class="chips" id="equipChips">
+        <!-- sənin chip/buttonların -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Sticky footer -->
+  <div class="adv__footer">
+    <button type="button" class="linkish" id="advClear">Sıfırla</button>
+
+    <button type="button" class="linkish danger" id="btnAdvancedClose">
+      Gizlət <span class="chev up" aria-hidden="true">▴</span>
+    </button>
+
+    <button type="button" class="btn-show" id="advApply">
+      Elanları göstər
+    </button>
+  </div>
+</section>  
+       
         <div class="filters__meta">
           <div class="meta__left">
             <span class="meta__hint" id="statusBox">Demo data aktivdir.</span>

@@ -920,60 +920,24 @@ function loadFavsInsert() {
 }
 
 loadFavsInsert();
-// ====================== MOBILE MENU (details page fix) ======================
-(() => {
-  const btn = document.getElementById("hamburgerBtn");
-  const menu = document.getElementById("mobileMenu");
-  if (!btn || !menu) return;
+document.addEventListener("DOMContentLoaded", () => {
+  const advPanel = document.getElementById("advPanel");
+  const btnGroup = document.querySelector(".actions .btn-group");
 
-  const isOpen = () => menu.classList.contains("is-open");
+  if (!advPanel || !btnGroup) return;
 
-  const open = () => {
-    menu.classList.add("is-open");
-    menu.style.display = "block";          // ✅ CSS-dən asılı qalmasın
-    menu.removeAttribute("hidden");
-    btn.setAttribute("aria-expanded", "true");
+  const sync = () => {
+    const isOpen =
+      advPanel.classList.contains("is-open") &&
+      !advPanel.hasAttribute("hidden");
+
+    btnGroup.classList.toggle("is-adv-open", isOpen);
   };
 
-  const close = () => {
-    menu.classList.remove("is-open");
-    menu.style.display = "none";           // ✅ tam gizlətsin
-    menu.setAttribute("hidden", "");
-    btn.setAttribute("aria-expanded", "false");
-  };
-
-  const toggle = () => (isOpen() ? close() : open());
-
-  // 1) hamburger toggle
-  btn.addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toggle();
+  new MutationObserver(sync).observe(advPanel, {
+    attributes: true,
+    attributeFilter: ["class", "hidden"],
   });
 
-  // 2) menyunun içində link/button klik -> bağla
-  menu.addEventListener("click", (e) => {
-    const a = e.target.closest("a, button");
-    if (!a) return;
-    close();
-  });
-
-  // 3) menu xaricinə klik -> bağla
-  document.addEventListener(
-    "click",
-    (e) => {
-      if (!isOpen()) return;
-      if (e.target.closest("#mobileMenu") || e.target.closest("#hamburgerBtn")) return;
-      close();
-    },
-    true // ✅ capture: hər şeydən əvvəl tutsun
-  );
-
-  // 4) ESC -> bağla
-  window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") close();
-  });
-
-  // default bağlı başlasın
-  close();
-})();
+  sync();
+});
