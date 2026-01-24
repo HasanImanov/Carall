@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CarAll</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/addproduct.css" />
+
+</head>
+<!-- Mobile Bottom Nav -->
+<nav class="bnav" id="bnav">
+  <a class="bnav__item is-active" href="#top" aria-label="Home">
+    <svg class="bnav__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M3 10.5L12 3l9 7.5"></path>
+      <path d="M5 9.5V21h14V9.5"></path>
+    </svg>
+    <span class="bnav__text">Əsas səhifə</span>
+  </a>
+
+  <a class="bnav__item"  id="bnavSearch" href="#list" aria-label="Search">
+    <svg class="bnav__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="7"></circle>
+      <path d="M20 20l-3.5-3.5"></path>
+    </svg>
+    <span class="bnav__text">Axtar</span>
+  </a>
+
+  <a class="bnav__fab" href="addproduct.html" aria-label="Elan yerləşdir">
+    <span class="bnav__plus">+</span>
+  </a>
+
+  <a class="bnav__item" href="favorites.html" aria-label="Favorite">
+  <svg class="bnav__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/>
+  </svg>
+  <span class="bnav__text">Seçilmişlər</span>
+</a>
+
+
+  <a class="bnav__item" href="#contact" aria-label="Profile">
+    <svg class="bnav__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="8" r="3"></circle>
+      <path d="M4 21c1.5-4 14.5-4 16 0"></path>
+    </svg>
+    <span class="bnav__text">Hesab</span>
+  </a>
+</nav>
+
+<body>
+  <!-- Header -->
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <div>
+      <a class="brand" href="index.html">
+         <img src="images/Logo.png" alt="CarAll Logo" class="brand__img">
+       </a>
+      </div>
+      <nav class="nav">
+        <a class="nav__link nav__link--fav" href="favorites.html">
+            <span class="fav-ic">❤</span>
+            <span>Seçilmişlər</span>
+          </a>
+       <a class="nav__link" href="#list">Elanlar</a>
+       <a class="nav__link" href="#how">Necə işləyir?</a>
+       <a class="nav__link" href="#contact">Əlaqə</a>
+
+       <a class="nav__btn" href="addproduct.html">+ Elan yerləşdir</a>
+      </nav>
+        <div class="mheader-actions">
+          <a href="addproduct.html" class="mheader-add">+ Elan yerləşdir</a>
+          <button class="hamburger" id="hamburgerBtn" aria-label="Menu">☰</button>
+        </div>
+    </div>
+  </header>
+  
+  <div class="mobilemenu" id="mobileMenu">
+  <div class="mobilemenu__overlay" id="mobileMenuOverlay"></div>
+
+  <div class="mobilemenu__panel">
+    <button class="mobilemenu__close" id="mobileMenuClose" type="button">✕</button>
+
+    <nav class="mobilemenu__nav">
+      <a href="#list">Elanlar</a>
+      <a href="#how">Necə işləyir?</a>
+      <a href="#contact">Əlaqə</a>
+    </nav>
+  </div>
+</div>
+
+  <main class="wrap">
+  <form id="listingForm" class="card" novalidate>
+
+    <!-- STEPS TOP -->
+    <div class="steps">
+      <div class="steps__dots" aria-hidden="true">
+        <span class="dot is-on"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+      <div class="steps__meta">
+        <span class="steps__count" id="stepCount">1 / 4</span>
+      </div>
+    </div>
+
+    <!-- STEP 1 -->
+    <section class="step is-active" data-step="1">
+      <h2 class="h2">Əsas məlumatlar</h2>
+
+      <div class="grid">
+
+        <!-- MAKE -->
+        <div class="field">
+          <label class="field__lbl">Marka <b>*</b></label>
+
+          <div class="tsel" id="tselMake">
+            <button class="tsel__btn" type="button" id="makeBtn">
+              <span id="makeText">Hamısı</span>
+            </button>
+            <span class="tsel__chev">▾</span>
+
+            <div class="tsel__panel" aria-hidden="true">
+              <div class="tsel__search">
+                <input class="tsel__input" id="makeSearch" type="search" placeholder="Yazın..." autocomplete="off" />
+              </div>
+
+              <div class="tsel__clear">
+                <div class="tsel__row" data-value="">
+                  <span class="tsel__x">×</span> Sıfırla
+                </div>
+              </div>
+
+              <div class="tsel__list" id="makeList"></div>
+            </div>
+          </div>
+
+          <input type="hidden" name="make" id="makeValue" required />
+          <small class="field__err"></small>
+        </div>
+
+        <!-- MODEL -->
+        <div class="field">
+          <label class="field__lbl">Model <b>*</b></label>
+
+          <div class="tsel" id="tselModel">
+            <button class="tsel__btn" type="button" id="modelBtn" disabled>
+              <span id="modelText">Əvvəl marka seç</span>
+            </button>
+            <span class="tsel__chev">▾</span>
+
+            <div class="tsel__panel" aria-hidden="true">
+              <div class="tsel__search">
+                <input class="tsel__input" id="modelSearch" type="search" placeholder="Yazın..." autocomplete="off" />
+              </div>
+
+              <div class="tsel__clear">
+                <div class="tsel__row" data-value="">
+                  <span class="tsel__x">×</span> Sıfırla
+                </div>
+              </div>
+
+              <div class="tsel__list" id="modelList"></div>
+            </div>
+          </div>
+
+          <input type="hidden" name="model" id="modelValue" required />
+          <small class="field__err"></small>
+        </div>
+
+        <!-- YEAR -->
+        <div class="field">
+          <label class="field__lbl">İl <b>*</b></label>
+
+          <div class="tsel" id="tselYear">
+            <button class="tsel__btn" type="button" id="yearBtn">
+              <span id="yearText">Hamısı</span>
+            </button>
+            <span class="tsel__chev">▾</span>
+
+            <div class="tsel__panel" aria-hidden="true">
+              <div class="tsel__search">
+                <input class="tsel__input" id="yearSearch" type="search" placeholder="Yazın..." autocomplete="off" />
+              </div>
+
+              <div class="tsel__clear">
+                <div class="tsel__row" data-value="">
+                  <span class="tsel__x">×</span> Sıfırla
+                </div>
+              </div>
+
+              <div class="tsel__list" id="yearList"></div>
+            </div>
+          </div>
+
+          <input type="hidden" name="year" id="yearValue" required />
+          <small class="field__err"></small>
+        </div>
+
+        <!-- COLOR -->
+        <label class="field">
+          <span class="field__lbl">Rəng</span>
+          <select class="field__inp" name="color" id="colorSelect">
+            <option value="">Seç</option>
+            <option>Ağ</option><option>Qara</option><option>Boz</option><option>Gümüşü</option>
+            <option>Göy</option><option>Qırmızı</option><option>Yaşıl</option><option>Sarı</option>
+            <option>Qəhvəyi</option><option>Bənövşəyi</option><option>Bej</option>
+          </select>
+          <small class="field__err"></small>
+        </label>
+
+      </div>
+
+      <div class="grid">
+
+        <label class="field">
+          <span class="field__lbl">Ban növü</span>
+          <select class="field__inp" name="body">
+            <option value="">Seç</option>
+            <option>Sedan</option><option>SUV</option><option>Hatchback</option>
+            <option>Coupe</option><option>Pickup</option><option>Universal</option><option>Minivan</option>
+          </select>
+          <small class="field__err"></small>
+        </label>
+
+        <label class="field">
+          <span class="field__lbl">Yanacaq <b>*</b></span>
+          <select class="field__inp" name="fuel" required>
+            <option value="">Seç</option>
+            <option>Benzin</option><option>Dizel</option><option>Hibrid</option><option>Elektrik</option><option>Qaz</option>
+          </select>
+          <small class="field__err"></small>
+        </label>
+
+        <label class="field">
+          <span class="field__lbl">Sürətlər qutusu <b>*</b></span>
+          <select class="field__inp" name="gear" required>
+            <option value="">Seç</option>
+            <option>Avtomat</option><option>Mexanika</option><option>Robot</option><option>Variator</option>
+          </select>
+          <small class="field__err"></small>
+        </label>
+
+        <label class="field">
+          <span class="field__lbl">Yürüş (km) <b>*</b></span>
+          <input class="field__inp" name="km" type="number" min="0" placeholder="Məs: 128000" required />
+          <small class="field__err"></small>
+        </label>
+
+      </div>
+    </section>
+
+    <!-- STEP 2 -->
+    <section class="step" data-step="2">
+      <h2 class="h2">Qiymət və şərtlər</h2>
+
+      <div class="grid">
+        <label class="field">
+          <span class="field__lbl">Qiymət <b>*</b></span>
+          <input class="field__inp" name="price" type="number" min="1" placeholder="Məs: 21500" required />
+          <small class="field__err"></small>
+        </label>
+
+        <label class="field">
+          <span class="field__lbl">Valyuta</span>
+          <select class="field__inp" name="currency">
+            <option selected>AZN</option><option>USD</option><option>EUR</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="chips">
+        <label class="chip"><input type="checkbox" name="credit" /> <span>Kredit</span></label>
+        <label class="chip"><input type="checkbox" name="barter" /> <span>Barter</span></label>
+        <label class="chip"><input type="checkbox" name="urgent" /> <span>Təcili</span></label>
+      </div>
+
+      <div class="divider"></div>
+
+      <label class="field">
+        <span class="field__lbl">Qısa təsvir</span>
+        <textarea class="field__inp field__ta" name="desc" rows="5" maxlength="500"
+          placeholder="Məs: Servisdə baxılıb, 2 açar, yağ yeni dəyişib..."></textarea>
+        <small class="field__hint"><span id="descCount">0</span>/500</small>
+      </label>
+    </section>
+
+    <!-- STEP 3 -->
+    <section class="step" data-step="3">
+      <h2 class="h2">Şəkillər</h2>
+      <p class="p">Minimum <b>3</b> şəkil əlavə et. Birincisi cover olacaq.</p>
+
+      <div class="uploader" id="uploader">
+        <input id="photosInput" type="file" accept="image/*" multiple hidden />
+        <button class="btn btn--soft" id="addPhotosBtn" type="button">📸 Şəkil əlavə et</button>
+        <div class="uploader__hint">Desktopda drag&drop edə bilərsən.</div>
+      </div>
+
+      <div class="photos" id="photosGrid"></div>
+      <small class="field__err" id="photosErr"></small>
+    </section>
+
+    <!-- STEP 4 -->
+    <section class="step" data-step="4">
+      <h2 class="h2">Əlaqə</h2>
+
+      <label class="field">
+        <span class="field__lbl">Şəhər <b>*</b></span>
+        <input class="field__inp" name="city" placeholder="Məs: Bakı" required />
+        <small class="field__err"></small>
+      </label>
+
+      <label class="field">
+        <span class="field__lbl">Telefon <b>*</b></span>
+        <input class="field__inp" name="phone" inputmode="tel" placeholder="+994 50 123 45 67" required />
+        <small class="field__err"></small>
+      </label>
+
+      <label class="switch">
+        <input type="checkbox" name="whatsapp" checked />
+        <span class="switch__ui"></span>
+        <span class="switch__lbl">WhatsApp aktiv</span>
+      </label>
+
+      <div class="summary">
+        <div class="summary__h">Yekun</div>
+        <div class="summary__b" id="summaryText">Məlumatları yoxla və elanını yerləşdir.</div>
+      </div>
+    </section>
+
+    <!-- STICKY NAV -->
+    <div class="sticky">
+      <button class="btn btn--soft" id="backBtn" type="button" disabled>Geri</button>
+      <button class="btn" id="nextBtn" type="button">Davam et →</button>
+    </div>
+
+  </form>
+</main>
+
+
+    
+<!-- CUSTOM SELECT MODAL (sənin dizayn kimi) -->
+<div class="modal" id="selectModal" aria-hidden="true">
+  <div class="modal__backdrop" data-modal-close></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet__top">
+      <input class="sheet__search" id="sheetSearch" placeholder="Yazın..." autocomplete="off" />
+    </div>
+    <button class="sheet__reset" id="sheetReset" type="button">
+      <span class="sheet__x">×</span>
+      <span>Sıfırla</span>
+    </button>
+    <div class="sheet__list" id="sheetList"></div>
+  </div>
+</div>
+
+  <!-- How -->
+  <section class="how" id="how">
+    <div class="container">
+      <h2 class="how__title">Necə işləyir?</h2>
+      <div class="howgrid">
+        <div class="howcard">
+          <div class="howcard__n">1</div>
+          <div class="howcard__t">Filter seç</div>
+          <div class="howcard__d">Ölkə, marka, model, şəhər, il və qiymət aralığı.</div>
+        </div>
+        <div class="howcard">
+          <div class="howcard__n">2</div>
+          <div class="howcard__t">Sırala</div>
+          <div class="howcard__d">Qiymət və ilə görə sıralama et.</div>
+        </div>
+        <div class="howcard">
+          <div class="howcard__n">3</div>
+          <div class="howcard__t">Detala keç</div>
+          <div class="howcard__d">Karta kliklə — istənilən yerindən.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer" id="contact">
+    <div class="container footer__inner">
+      <div class="footer__left">
+        © <span id="yearNow"></span> CarAll
+      </div>
+      <div class="footer__right">
+        <a class="footer__link" href="#">Instagram</a>
+        <a class="footer__link" href="#">WhatsApp</a>
+        <a class="footer__link" href="#">Email</a>
+      </div>
+    </div>
+  </footer>
+  <script src="js/carsdata.js"></script>
+  <script src="js/addproduct.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html> 

@@ -1,0 +1,333 @@
+:root{
+  --bg:#f6f7fb;
+  --card:#fff;
+  --text:#0f172a;
+  --muted:#64748b;
+  --line:#e2e8f0;
+  --shadow:0 10px 30px rgba(2,6,23,.08);
+  --radius:16px;
+  --pri:#2563eb;
+  --pri2:#1d4ed8;
+  --danger:#ef4444;
+  --soft:#f1f5f9;
+
+  --sheetW: 360px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  background:var(--bg);
+  color:var(--text);
+}
+
+.topbar{
+  position:sticky;top:0;z-index:20;
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px;
+  background:rgba(246,247,251,.92);
+  backdrop-filter: blur(10px);
+  border-bottom:1px solid rgba(226,232,240,.7);
+}
+.topbar__back{
+  width:38px;height:38px;border-radius:12px;
+  display:grid;place-items:center;
+  background:var(--card);
+  border:1px solid var(--line);
+  text-decoration:none;color:var(--text);
+}
+.topbar__title{flex:1;min-width:0}
+.topbar__h{font-weight:800}
+.topbar__sub{font-size:13px;color:var(--muted);margin-top:2px}
+.topbar__draft{
+  border:1px solid var(--line);
+  background:var(--card);
+  border-radius:12px;
+  padding:10px 12px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.wrap{max-width:640px;margin:14px auto;padding:0 12px 90px}
+.card{
+  background:var(--card);
+  border:1px solid rgba(226,232,240,.85);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:14px;
+}
+
+.steps{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;padding-bottom:10px;margin-bottom:10px;
+  border-bottom:1px solid var(--line);
+}
+.steps__dots{display:flex;gap:6px}
+.dot{width:10px;height:10px;border-radius:999px;background:#dbe3f3}
+.dot.is-on{background:var(--pri)}
+.steps__count{font-size:13px;color:var(--muted);font-weight:750}
+
+.h2{margin:12px 0 10px;font-size:18px}
+.p{margin:6px 0 12px;color:var(--muted);font-size:14px}
+
+.step{display:none;animation:fadeIn .18s ease-out}
+.step.is-active{display:block}
+@keyframes fadeIn{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.grid{display:grid;grid-template-columns:1fr;gap:10px}
+@media (min-width:520px){.grid{grid-template-columns:1fr 1fr}}
+
+.field{display:block}
+.field__lbl{
+  display:block;font-size:13px;color:var(--muted);
+  font-weight:800;margin:8px 0 6px;
+}
+.field__lbl b{color:var(--danger)}
+
+.field__inp{
+  width:100%;
+  padding:12px 12px;
+  border-radius:14px;
+  border:1px solid var(--line);
+  background:#fff;
+  outline:none;
+  font-size:15px;
+}
+.field__inp:focus{border-color:rgba(37,99,235,.5);box-shadow:0 0 0 4px rgba(37,99,235,.12)}
+.field__ta{resize:vertical}
+.field__err{display:block;margin-top:6px;font-size:12px;color:var(--danger);min-height:16px}
+.field__hint{display:block;margin-top:6px;font-size:12px;color:var(--muted)}
+
+.divider{height:1px;background:var(--line);margin:14px 0}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0}
+.chip{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 12px;border-radius:999px;
+  border:1px solid var(--line);
+  background:var(--soft);
+  font-weight:750;
+  cursor:pointer;
+}
+.chip input{accent-color:var(--pri)}
+
+.uploader{
+  border:1px dashed rgba(100,116,139,.45);
+  border-radius:16px;
+  padding:14px;
+  background: linear-gradient(180deg, rgba(37,99,235,.06), transparent);
+}
+.uploader__hint{margin-top:8px;font-size:12px;color:var(--muted)}
+.photos{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-top:12px;
+}
+@media (min-width:520px){.photos{grid-template-columns:repeat(4,1fr)}}
+.ph{
+  position:relative;border-radius:14px;overflow:hidden;
+  border:1px solid var(--line);background:#fff;
+  aspect-ratio:1/1;
+}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph__badge{
+  position:absolute;left:8px;top:8px;
+  background:rgba(15,23,42,.78);color:#fff;
+  padding:6px 8px;border-radius:999px;
+  font-size:11px;font-weight:800;
+}
+.ph__x{
+  position:absolute;right:8px;top:8px;
+  width:32px;height:32px;border-radius:12px;
+  border:none;background:rgba(255,255,255,.9);
+  cursor:pointer;font-weight:900;
+}
+.ph[draggable="true"]{cursor:grab}
+
+.switch{
+  display:flex;align-items:center;gap:10px;
+  margin-top:12px;padding:12px;
+  border:1px solid var(--line);
+  border-radius:14px;background:var(--soft);
+}
+.switch input{display:none}
+.switch__ui{
+  width:46px;height:28px;border-radius:999px;background:#cbd5e1;
+  position:relative;transition:.18s;
+}
+.switch__ui:after{
+  content:"";width:22px;height:22px;border-radius:999px;background:#fff;
+  position:absolute;top:3px;left:3px;transition:.18s;
+}
+.switch input:checked + .switch__ui{background:rgba(37,99,235,.8)}
+.switch input:checked + .switch__ui:after{left:21px}
+.switch__lbl{font-weight:800}
+
+.summary{
+  margin-top:14px;border:1px solid var(--line);
+  background:#fff;border-radius:16px;padding:12px;
+}
+.summary__h{font-weight:900;margin-bottom:6px}
+.summary__b{color:var(--muted);font-size:13px;line-height:1.4}
+
+.sticky{
+  position:sticky;bottom:10px;z-index:10;
+  display:flex;gap:10px;
+  padding-top:12px;margin-top:14px;
+  background: linear-gradient(180deg, transparent, rgba(255,255,255,.92) 35%, rgba(255,255,255,.98));
+  border-top:1px solid rgba(226,232,240,.7);
+}
+.btn{
+  flex:1;border:none;border-radius:14px;
+  padding:12px 14px;font-weight:700;
+  cursor:pointer;
+  background: linear-gradient(180deg, var(--pri), var(--pri2));
+  color:#fff;
+}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn--soft{
+  background:var(--soft);
+  color:var(--text);
+  border:1px solid var(--line);
+}
+
+/* -------- Custom Select button (input kimi) -------- */
+.csel{
+  width:100%;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;
+  padding:12px 12px;
+  border-radius:14px;
+  border:1px solid var(--line);
+  background:#fff;
+  cursor:pointer;
+  font-size:15px;
+}
+.csel__val{font-weight:750;color:var(--text)}
+.csel.is-disabled{background:#f1f5f9;color:#94a3b8;cursor:not-allowed}
+.csel.is-disabled .csel__val{color:#94a3b8}
+.csel__chev{opacity:.6;font-size:14px}
+
+/* -------- Modal dropdown (sənin screenshot kimi) -------- */
+.modal{position:fixed;inset:0;display:none;z-index:60}
+.modal.is-open{display:block}
+.modal__backdrop{
+  position:absolute;inset:0;background:rgba(2,6,23,.35);
+}
+.sheet{
+  position:absolute;
+  left:50%; top:80px;
+  transform:translateX(-50%);
+  width:min(var(--sheetW), calc(100% - 24px));
+  border-radius:18px;
+  background:#fff;
+  box-shadow:0 20px 60px rgba(2,6,23,.25);
+  overflow:hidden;
+}
+.sheet__top{padding:14px}
+.sheet__search{
+  width:100%;
+  padding:12px 12px;
+  border-radius:14px;
+  border:1.5px solid #ef4444;
+  outline:none;
+  font-size:15px;
+}
+.sheet__reset{
+  width:100%;
+  display:flex;align-items:center;gap:10px;
+  padding:14px;
+  border:none;
+  background:#fff;
+  border-top:1px solid var(--line);
+  cursor:pointer;
+  font-weight:900;
+}
+.sheet__x{color:#ef4444;font-size:18px;line-height:1}
+.sheet__list{
+  max-height:420px;
+  overflow:auto;
+  border-top:1px solid var(--line);
+}
+.opt{
+  padding:14px;
+  border-top:1px solid rgba(226,232,240,.6);
+  cursor:pointer;
+  font-weight:850;
+}
+.opt:hover{background:#f8fafc}
+.opt.is-active{
+  background:rgba(239,68,68,.10);
+  color:#ef4444;
+}
+/* addproduct page: dropdown panel card tərəfindən kəsilməsin */
+#listingForm.card{
+  overflow: visible !important;
+}
+
+/* addproduct səhifəsində tsel panel yuxarı çıxsın */
+#listingForm .tsel{
+  position: relative;
+  z-index: 50;
+}
+
+#listingForm .tsel__panel{
+  z-index: 9999;
+}
+/* Dropdown üst qat */
+.tsel{ position:relative; }
+.tsel__panel{ position:absolute; z-index:9999; }
+.addproduct-page .topbar{
+  position: sticky; /* fixed yox, sticky yaxşıdır */
+  top: 0;
+  z-index: 1000;
+}/* addproduct ONLY: dropdown düyməsi 100% ağ olsun */
+.addproduct-page .tsel__btn{
+  background: #fff !important;
+  opacity: 1 !important;
+  position: relative;
+  z-index: 2;
+}
+
+/* panel də ağ və üstdə olsun */
+.addproduct-page .tsel__panel{
+  background: #fff !important;
+  z-index: 9999;
+}
+
+/* form/card da şəffaf olmasın */
+.addproduct-page #listingForm.card{
+  background: #fff !important;
+  opacity: 1 !important;
+}
+
+/* paneli bir az qısa elə (daha az örtəcək) */
+#listingForm .tsel__list{
+  max-height: 240px;  /* 220-260 ideal */
+  overflow: auto;
+}
+
+/* açıq olanda paneldən aşağı olan hissə klik yeməsin */
+#listingForm .tsel.is-open{
+  z-index: 9999;
+}
+.topbar{
+  width: 100%;
+  left: 0;
+  right: 0;
+    z-index: 1000;
+
+}
+
+/* Mobil: header içində container tam en kimi hiss olunsun */
+@media (max-width: 900px){
+  .topbar .container{
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
