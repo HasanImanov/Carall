@@ -302,10 +302,21 @@
       <h2 class="h2">Əlaqə</h2>
 
       <label class="field">
-        <span class="field__lbl">Şəhər <b>*</b></span>
-        <input class="field__inp" name="city" placeholder="Məs: Bakı" required />
-        <small class="field__err"></small>
-      </label>
+  <span class="field__lbl">Şəhər <small>(istəyə bağlı)</small></span>
+  <select class="field__inp" name="city" id="citySelect">
+    <option value="">Şəhəri seç</option>
+    <option>Bakı</option>
+    <option>Sumqayıt</option>
+    <option>Gəncə</option>
+    <option>Mingəçevir</option>
+    <option>Şəki</option>
+    <option>Lənkəran</option>
+    <option>Naxçıvan</option>
+    <option>Xırdalan</option>
+  </select>
+  <small class="field__err"></small>
+</label>
+
 
       <label class="field">
         <span class="field__lbl">Telefon <b>*</b></span>

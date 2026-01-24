@@ -331,3 +331,52 @@ body{
     padding-right: 12px;
   }
 }
+
+.ph{ position: relative; overflow: hidden; border-radius: 18px; }
+
+.ph__badge{
+  position:absolute;
+  left:10px; top:10px;
+  background: rgba(17,24,39,.75);
+  color:#fff;
+  font-weight:800;
+  font-size:12px;
+  padding:6px 10px;
+  border-radius:999px;
+}
+
+.ph__cover{
+  position:absolute;
+  left:10px; top:10px;
+  border:0;
+  cursor:pointer;
+  background: rgba(255,255,255,.92);
+  color:#111827;
+  font-weight:800;
+  font-size:12px;
+  padding:6px 10px;
+  border-radius:999px;
+}
+
+.ph__x{
+  position:absolute;
+  right:10px; top:10px;
+  width:34px; height:34px;
+  border-radius:999px;
+  border:0;
+  cursor:pointer;
+  background: rgba(255,255,255,.92);
+  font-weight:900;
+}
+.ph{ cursor: grab; }
+.ph:active{ cursor: grabbing; }
+
+.ph.is-over{
+  outline: 2px dashed rgba(239,68,68,.7);
+  outline-offset: 4px;
+}
+
+.ph.is-dragging{
+  opacity: .6;
+  transform: scale(.98);
+}

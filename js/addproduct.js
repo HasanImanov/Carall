@@ -54,7 +54,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (stepCount) stepCount.textContent = `${step} / ${steps.length}`;
 
     if (backBtn) backBtn.disabled = step === 1;
-    if (nextBtn) nextBtn.textContent = step === steps.length ? "Elanı yerləşdir ✅" : "Davam et →";
+    if (nextBtn)
+      nextBtn.textContent =
+        step === steps.length ? "Elanı yerləşdir ✅" : "Davam et →";
 
     if (step === 4) renderSummary();
 
@@ -87,7 +89,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const km = form?.elements?.km?.value?.trim?.() ?? "";
       if (!km) {
-        // km input field__err ən yaxın field-də olmalıdır
         const kmEl = form?.elements?.km;
         const field = kmEl?.closest?.(".field");
         const err = field?.querySelector?.(".field__err");
@@ -124,17 +125,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (photosErr) photosErr.textContent = "";
     }
 
-    // Step 4 required
+    // Step 4 required (city optional)
     if (step === 4) {
-      const city = form?.elements?.city?.value?.trim?.() ?? "";
       const phone = form?.elements?.phone?.value?.trim?.() ?? "";
-      if (!city) {
-        const el = form?.elements?.city;
-        const field = el?.closest?.(".field");
-        const err = field?.querySelector?.(".field__err");
-        if (err) err.textContent = "Şəhər mütləqdir.";
-        return false;
-      }
       if (!phone) {
         const el = form?.elements?.phone;
         const field = el?.closest?.(".field");
@@ -172,7 +165,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // FINAL: burada serverə göndərmək istəsən payload hazırlayarıq
     window.location.href = "index.html#list";
   });
 
@@ -207,14 +199,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const panel = wrap?.querySelector?.(".tsel__panel");
 
     if (!wrap || !btn || !text || !search || !list || !hidden || !panel) {
-      console.warn("tsel missing:", { wrapId, btnId, textId, searchId, listId, hiddenId });
+      console.warn("tsel missing:", {
+        wrapId,
+        btnId,
+        textId,
+        searchId,
+        listId,
+        hiddenId,
+      });
       return null;
     }
 
     function setValue(val) {
       hidden.value = val;
       text.textContent = val ? val : emptyText;
-      // clear error on choose
       setErrForHidden(hidden, "");
       if (typeof onPick === "function") onPick(val);
     }
@@ -239,7 +237,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // open/close
     btn.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -261,10 +258,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // search
     search.addEventListener("input", () => render(getItems(), search.value));
 
-    // clear row
     wrap.querySelectorAll(".tsel__clear .tsel__row").forEach((r) => {
       r.addEventListener("click", (e) => {
         e.preventDefault();
@@ -289,7 +284,6 @@ document.addEventListener("DOMContentLoaded", () => {
     hiddenId: "makeValue",
     getItems: () => Object.keys(MAKE_MODELS),
     onPick: () => {
-      // marka dəyişdi -> model sıfırla + aktivləş
       modelCtl?.setValue("");
       if (modelCtl) {
         modelCtl.btn.disabled = !makeCtl.hidden.value;
@@ -321,13 +315,11 @@ document.addEventListener("DOMContentLoaded", () => {
     getItems: () => YEARS,
   });
 
-  // initial model disabled until make selected
   if (modelCtl) {
     modelCtl.btn.disabled = true;
     modelCtl.text.textContent = "Əvvəl marka seç";
   }
 
-  // outside click closes all
   document.addEventListener("click", (e) => {
     if (e.target.closest(".tsel")) return;
     closeAllTsel();
@@ -349,7 +341,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ---------------------------
-  // Photos uploader (min 3)
+  // Photos uploader + cover + reorder (mouse drag)
   // ---------------------------
   const photosInput = document.getElementById("photosInput");
   const addPhotosBtn = document.getElementById("addPhotosBtn");
@@ -370,6 +362,31 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPhotos();
   }
 
+  // Cover = photos[0]
+  function setCoverById(id) {
+    const idx = photos.findIndex((p) => p.id === id);
+    if (idx <= 0) return;
+    const item = photos.splice(idx, 1)[0];
+    photos.unshift(item);
+    renderPhotos();
+  }
+
+  // Reorder by drag
+  let dragId = null;
+
+  function movePhoto(fromId, toId) {
+    if (!fromId || !toId || fromId === toId) return;
+
+    const fromIndex = photos.findIndex((p) => p.id === fromId);
+    const toIndex = photos.findIndex((p) => p.id === toId);
+    if (fromIndex < 0 || toIndex < 0) return;
+
+    const [item] = photos.splice(fromIndex, 1);
+    photos.splice(toIndex, 0, item);
+
+    renderPhotos();
+  }
+
   function renderPhotos() {
     if (!photosGrid) return;
     photosGrid.innerHTML = "";
@@ -377,22 +394,67 @@ document.addEventListener("DOMContentLoaded", () => {
     photos.forEach((p, i) => {
       const el = document.createElement("div");
       el.className = "ph";
+      el.draggable = true;
+      el.dataset.id = p.id;
+
       el.innerHTML = `
         <img src="${p.url}" alt="photo ${i + 1}">
-        ${i === 0 ? `<span class="ph__badge">Cover</span>` : ""}
+        ${
+          i === 0
+            ? `<span class="ph__badge">Cover</span>`
+            : `<button class="ph__cover" type="button">Cover et</button>`
+        }
         <button class="ph__x" type="button" aria-label="Sil">×</button>
       `;
 
+      // delete
       el.querySelector(".ph__x")?.addEventListener("click", () => {
         URL.revokeObjectURL(p.url);
         photos = photos.filter((x) => x.id !== p.id);
         renderPhotos();
       });
 
+      // set cover
+      el.querySelector(".ph__cover")?.addEventListener("click", () => {
+        setCoverById(p.id);
+      });
+
+      // drag handlers
+      el.addEventListener("dragstart", (e) => {
+        dragId = p.id;
+        el.classList.add("is-dragging");
+        e.dataTransfer.effectAllowed = "move";
+      });
+
+      el.addEventListener("dragend", () => {
+        dragId = null;
+        el.classList.remove("is-dragging");
+        el.classList.remove("is-over");
+      });
+
+      el.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        el.classList.add("is-over");
+      });
+
+      el.addEventListener("dragleave", () => {
+        el.classList.remove("is-over");
+      });
+
+      el.addEventListener("drop", (e) => {
+        e.preventDefault();
+        el.classList.remove("is-over");
+        const targetId = el.dataset.id;
+        movePhoto(dragId, targetId);
+      });
+
       photosGrid.appendChild(el);
     });
 
-    if (photosErr) photosErr.textContent = photos.length >= 3 ? "" : photosErr.textContent;
+    if (photosErr) {
+      photosErr.textContent = photos.length >= 3 ? "" : "Minimum 3 şəkil əlavə et.";
+    }
   }
 
   addPhotosBtn?.addEventListener("click", () => photosInput?.click());
@@ -402,12 +464,10 @@ document.addEventListener("DOMContentLoaded", () => {
     photosInput.value = "";
   });
 
-  // drag & drop (optional)
+  // drag & drop upload
   if (uploader) {
     ["dragenter", "dragover"].forEach((evt) => {
-      uploader.addEventListener(evt, (e) => {
-        e.preventDefault();
-      });
+      uploader.addEventListener(evt, (e) => e.preventDefault());
     });
     uploader.addEventListener("drop", (e) => {
       e.preventDefault();
@@ -420,6 +480,4 @@ document.addEventListener("DOMContentLoaded", () => {
   // ---------------------------
   setStep(1);
 
-  // Debug (istəsən sil)
-  console.log("addproduct.js ready ✅");
 });
