@@ -380,3 +380,45 @@ body{
   opacity: .6;
   transform: scale(.98);
 }
+/* =========================
+   PHOTOS — MOBILE TUNING
+   ========================= */
+@media (max-width: 520px){
+
+  /* Cover badge / Cover et daha yığcam */
+  .ph__badge,
+  .ph__cover{
+    left: 8px;
+    top: 8px;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 800;
+    border-radius: 999px;
+  }
+
+  /* Sil (X) düyməsi kiçik */
+  .ph__x{
+    right: 8px;
+    top: 8px;
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+    line-height: 28px;
+  }
+}
+
+/* çox kiçik telefonlar */
+@media (max-width: 360px){
+  .ph__badge,
+  .ph__cover{
+    padding: 4px 7px;
+    font-size: 10px;
+  }
+
+  .ph__x{
+    width: 26px;
+    height: 26px;
+    font-size: 15px;
+    line-height: 26px;
+  }
+}
