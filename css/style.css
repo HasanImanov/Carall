@@ -1737,3 +1737,27 @@ img { max-width: 100%; }
   }
 }
  .bnav{ z-index: 99999 !important; position: fixed !important; }
+/* ===== Desktop Nav Icon Only (Login) ===== */
+.nav__iconlink{
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #111827;
+  text-decoration: none;
+  transition: background .15s ease, color .15s ease, transform .12s ease;
+}
+
+.nav__iconlink svg{
+  width: 20px;
+  height: 20px;
+}
+
+/* hover effekti */
+.nav__iconlink:hover{
+  background: rgba(225,29,72,.10);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
