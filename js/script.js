@@ -4,6 +4,7 @@
    ========================= */
 
 // ===== Favorites =====
+
 document.addEventListener("DOMContentLoaded", () => {
   const advPanel = document.getElementById("advPanel");
   const btnReset = document.getElementById("btnReset");
@@ -1306,3 +1307,43 @@ document.addEventListener("DOMContentLoaded", () => {
       .scrollIntoView({ behavior: "smooth", block: "start" });
   }, 120);
 });
+// ========== DEV AUTH (only for development) ==========
+(function devAuth(){
+  const DEV_MODE = true; // prod olanda false edəcəksən
+
+  if(!DEV_MODE) return;
+
+  const SESSION_KEY = "carall_session_v1";
+  const USERS_KEY   = "carall_users_v1";
+
+  const session = (() => {
+    try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch { return null; }
+  })();
+
+  if(session?.userId) return; // artıq login var
+
+  // DEV user-i users listinə yaz
+  let users = [];
+  try { users = JSON.parse(localStorage.getItem(USERS_KEY) || "[]"); } catch {}
+
+  let devUser = users.find(u => u.id === "DEV_USER");
+  if(!devUser){
+    devUser = {
+      id: "DEV_USER",
+      type: "personal",
+      email: "dev@carall.local",
+      profile: { firstName: "DEV", lastName: "USER" },
+      password: "dev12345",
+      createdAt: Date.now()
+    };
+    users.unshift(devUser);
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  }
+
+  // session yarat
+  localStorage.setItem(SESSION_KEY, JSON.stringify({
+    userId: "DEV_USER",
+    type: "personal",
+    createdAt: Date.now()
+  }));
+})();
