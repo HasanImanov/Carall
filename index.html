@@ -304,6 +304,98 @@
     </div>
   </section>
 
+  <div class="notify-modal" aria-hidden="true">
+  <div class="notify-modal__overlay js-notify-close"></div>
+
+  <div class="notify-modal__box" role="dialog" aria-modal="true">
+    <button class="notify-modal__close js-notify-close" type="button">×</button>
+
+    <!-- Header -->
+    <div class="notify-modal__head">
+      <div class="notify-modal__icon">🔔</div>
+      <div>
+        <h2 class="notify-modal__title">Mənə bildir</h2>
+        <p class="notify-modal__desc">
+          Axtarış kriteriyalarınıza uyğun elan olduqda bildiriş alın
+        </p>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <form class="notify-form">
+      <!-- Email -->
+      <div class="form-row">
+        <label>Gmail ünvanı *</label>
+        <input type="email" placeholder="məs: yeti@gmail.com" required>
+      </div>
+
+      <!-- Filter name -->
+      <div class="form-row">
+        <label>Filter adı *</label>
+        <input type="text" placeholder="məs: Mercedes C-Class 2020–2023" required>
+      </div>
+
+      <div class="form-note">
+        Aşağıdakı filterlərdən ən az birini seçin
+      </div>
+
+      <!-- Grid -->
+      <div class="form-grid">
+        <div class="form-row">
+          <label>Marka</label>
+          <select><option>Hamısı</option></select>
+        </div>
+
+        <div class="form-row">
+          <label>Model</label>
+          <select><option>Hamısı</option></select>
+        </div>
+
+        <div class="form-row">
+          <label>Şəhər</label>
+          <select><option>Hamısı</option></select>
+        </div>
+
+        <div class="form-row">
+          <label>Rəng</label>
+          <select><option>Hamısı</option></select>
+        </div>
+
+        <div class="form-row">
+          <label>Min il</label>
+          <input type="number">
+        </div>
+
+        <div class="form-row">
+          <label>Max il</label>
+          <input type="number">
+        </div>
+
+        <div class="form-row">
+          <label>Min qiymət</label>
+          <input type="number">
+        </div>
+
+        <div class="form-row">
+          <label>Max qiymət</label>
+          <input type="number">
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="notify-modal__footer">
+        <button type="button" class="btn btn--ghost js-notify-close">
+          Ləğv et
+        </button>
+        <button type="submit" class="btn btn--primary">
+          Bildiriş yarat
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
   <!-- Footer -->
   <footer class="footer" id="contact">
     <div class="container footer__inner">

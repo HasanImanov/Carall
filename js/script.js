@@ -1439,3 +1439,49 @@ if (pagerSentinel) {
 
   io.observe(pagerSentinel);
 }
+(function () {
+  const modal = document.querySelector(".notify-modal");
+  const openBtn = document.getElementById("notifyBtn");
+
+  if (!modal || !openBtn) {
+    console.warn("[NotifyModal] modal və ya notifyBtn tapılmadı");
+    return;
+  }
+
+  function openModal() {
+    modal.classList.add("is-open");
+    modal.setAttribute("aria-hidden", "false");
+    document.documentElement.style.overflow = "hidden";
+  }
+
+  function closeModal() {
+    modal.classList.remove("is-open");
+    modal.setAttribute("aria-hidden", "true");
+    document.documentElement.style.overflow = "";
+  }
+
+  // Aç
+  openBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    openModal();
+  });
+
+  // Bağla (overlay, X, Ləğv et)
+  modal.addEventListener("click", (e) => {
+    if (
+      e.target.classList.contains("notify-modal__overlay") ||
+      e.target.classList.contains("notify-modal__close") ||
+      e.target.closest(".js-notify-close")
+    ) {
+      closeModal();
+    }
+  });
+
+  // ESC ilə bağla
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal.classList.contains("is-open")) {
+      closeModal();
+    }
+  });
+})();
+

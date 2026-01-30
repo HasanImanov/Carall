@@ -1797,3 +1797,135 @@ img { max-width: 100%; }
 .list-sentinel.is-loading .list-sentinel__text{
   opacity: .9;
 }
+/* ===== Notify Button ===== */
+.notify-btn{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 14px;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.12);
+  background:#fff;
+  cursor:pointer;
+}
+.notify-btn__icon{ font-size:16px; }
+.notify-btn__text{ font-weight:600; }
+
+/* ===== Modal ===== */
+.notify-modal{
+  position:fixed;
+  inset:0;
+  z-index:999999;
+  display:none;
+}
+.notify-modal.is-open{ display:block; }
+
+.notify-modal__overlay{
+  position:absolute;
+  inset:0;
+  background:rgba(10,15,30,.55);
+  backdrop-filter:blur(6px);
+}
+
+.notify-modal__box{
+  position:relative;
+  width:min(780px, calc(100% - 24px));
+  max-height:90vh;
+  margin:5vh auto;
+  background:#fff;
+  border-radius:18px;
+  overflow:auto;
+  box-shadow:0 30px 80px rgba(0,0,0,.3);
+}
+
+/* Header */
+.notify-modal__head{
+  display:flex;
+  gap:12px;
+  padding:18px;
+  border-bottom:1px solid rgba(0,0,0,.08);
+}
+.notify-modal__icon{
+  width:40px;height:40px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(233,39,84,.12);
+}
+.notify-modal__title{ margin:0; font-size:18px; }
+.notify-modal__desc{ margin-top:4px; font-size:13px; opacity:.7; }
+
+/* Close */
+.notify-modal__close{
+  position:absolute;
+  top:10px;
+  right:12px;
+  width:36px;height:36px;
+  border-radius:10px;
+  border:none;
+  background:#fff;
+  font-size:22px;
+  cursor:pointer;
+}
+
+/* Form */
+.notify-form{ padding:16px 18px 20px; }
+.form-row{ margin-bottom:12px; }
+.form-row label{
+  display:block;
+  font-size:12px;
+  font-weight:600;
+  margin-bottom:6px;
+}
+.form-row input,
+.form-row select{
+  width:100%;
+  height:44px;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.15);
+  padding:0 12px;
+}
+
+.form-note{
+  font-size:12px;
+  padding:10px 12px;
+  border-radius:10px;
+  background:#f3f4f6;
+  margin:10px 0 14px;
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+/* Footer */
+.notify-modal__footer{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  margin-top:10px;
+}
+
+/* Buttons */
+.btn{
+  height:42px;
+  padding:0 16px;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.15);
+  cursor:pointer;
+}
+.btn--primary{
+  background:#e92754;
+  color:#fff;
+  border-color:#e92754;
+}
+.btn--ghost{ background:#fff; }
+
+/* Responsive */
+@media (max-width:720px){
+  .form-grid{ grid-template-columns:1fr; }
+  .notify-modal__box{ margin:3vh auto; }
+}
