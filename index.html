@@ -272,7 +272,12 @@
   <main class="main" id="list">
     <div class="container">
       <div class="grid" id="carsGrid"></div>
-    </div>
+        <div id="pagerSentinel" class="list-sentinel" aria-live="polite">
+            <div class="list-sentinel__inner">
+              <span class="list-sentinel__text" id="sentinelText"></span>
+            </div>
+          </div>
+       </div>
   </main>
 
   <!-- How -->
@@ -313,6 +318,7 @@
     </div>
   </footer>
   <script src="js/carsdata.js"></script>
+  <script src="js/paper.js"></script>
   <script src="js/script.js"></script>
 </body>
 </html>

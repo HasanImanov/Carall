@@ -198,49 +198,80 @@ function renderCars(list) {
   carsGrid.innerHTML = list
     .map(
       (car) => `
-    <a class="cardlink" href="details.html?id=${car.id}" aria-label="${car.brand} ${car.model} detallar">
-      <article class="card">
-        <div class="card__imgwrap">
-          <img class="card__img" src="${car.img}" alt="${car.brand} ${car.model}">
-          <div class="card__top">
-            <button class="fav-btn ${car.fav ? "is-on" : ""}" type="button" data-id="${car.id}" aria-label="Favorit">
-              <svg class="fav-ic ic-off" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z"
-                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <svg class="fav-ic ic-on" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 21.23 4.22 13.45 3.16 12.39a5.5 5.5 0 0 1 7.78-7.78L12 5.67l1.06-1.06a5.5 5.5 0 0 1 7.78 7.78l-1.06 1.06L12 21.23Z"/>
-              </svg>
-            </button>
+        <a
+          class="cardlink"
+          href="details.html?id=${car.id}"
+          aria-label="${car.brand} ${car.model} detallar"
+        >
+          <article class="card">
+            <div class="card__imgwrap">
+              <img
+                class="card__img"
+                src="${car.img}"
+                alt="${car.brand} ${car.model}"
+              >
 
-            <div class="badges">
-              ${car.vip ? `<span class="badge vip">⭐ VIP</span>` : ``}
-              ${car.premium ? `<span class="badge premium">👑 Premium</span>` : ``}
+              <div class="card__top">
+                <button
+                  class="fav-btn ${car.fav ? "is-on" : ""}"
+                  type="button"
+                  data-id="${car.id}"
+                  aria-label="Favorit"
+                >
+                  <svg class="fav-ic ic-off" viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+
+                  <svg class="fav-ic ic-on" viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      d="M12 21.23 4.22 13.45 3.16 12.39a5.5 5.5 0 0 1 7.78-7.78L12 5.67l1.06-1.06a5.5 5.5 0 0 1 7.78 7.78l-1.06 1.06L12 21.23Z"
+                    />
+                  </svg>
+                </button>
+
+                <div class="badges">
+                  ${car.vip ? `<span class="badge vip">⭐ VIP</span>` : ``}
+                  ${car.premium ? `<span class="badge premium">👑 Premium</span>` : ``}
+                </div>
+              </div>
+
+              <div class="badge">
+                ${countryName(car.country)} • ${car.city}
+              </div>
             </div>
-          </div>
 
-          <div class="badge">${countryName(car.country)} • ${car.city}</div>
-        </div>
+            <div class="card__body">
+              <div class="card__title">
+                ${car.brand} ${car.model}
+              </div>
 
-        <div class="card__body">
-          <div class="card__title">${car.brand} ${car.model}</div>
-          <div class="card__meta">
-            <span>${car.year}</span><span>•</span>
-            <span>${Number(car.mileage || 0).toLocaleString("az-AZ")} km</span><span>•</span>
-            <span>${car.fuel || ""}</span><span>•</span>
-            <span>${car.gearbox || ""}</span>
-          </div>
+              <div class="card__meta">
+                <span>${car.year}</span><span>•</span>
+                <span>${Number(car.mileage || 0).toLocaleString("az-AZ")} km</span><span>•</span>
+                <span>${car.fuel || ""}</span><span>•</span>
+                <span>${car.gearbox || ""}</span>
+              </div>
 
-          <div class="card__bottom">
-            <div class="card__price">${money(car.price)}</div>
-          </div>
-        </div>
-      </article>
-    </a>
-  `
+              <div class="card__bottom">
+                <div class="card__price">
+                  ${money(car.price)}
+                </div>
+              </div>
+            </div>
+          </article>
+        </a>
+      `
     )
     .join("");
 }
+
 
 // ===== Read advanced inputs safely (supports missing) =====
 function getSelectValue(id) {
@@ -361,9 +392,20 @@ function applyFilters() {
   if (s === "year_asc") list.sort((a, b) => a.year - b.year);
   if (s === "new") list.sort((a, b) => b.id - a.id);
 
-  renderCars(list);
-  if (resultInfo) resultInfo.textContent = `${list.length} nəticə tapıldı.`;
-  if (statusBox) statusBox.textContent = `Demo data: ${CARS.length} elan.`;
+  // renderCars(list);
+  // if (resultInfo) resultInfo.textContent = `${list.length} nəticə tapıldı.`;
+  //if (statusBox) statusBox.textContent = `Demo data: ${CARS.length} elan.`; 
+  // ✅ Filter nəticəsini pager-ə ver
+FILTERED_CARS = list;
+
+// ✅ Default sort + ilk səhifə (8)
+applyDefaultSort();
+resetPager();
+
+// info yazıları qalır (amma sayını FILTERED_CARS-dan götürürük)
+if (resultInfo) resultInfo.textContent = `${FILTERED_CARS.length} nəticə tapıldı.`;
+if (statusBox) statusBox.textContent = `Demo data: ${ALL_CARS.length} elan.`;
+
 }
 
 function resetAll() {
@@ -1347,3 +1389,53 @@ document.addEventListener("DOMContentLoaded", () => {
     createdAt: Date.now()
   }));
 })();
+const ALL_CARS = [...cars];        // backend/json gələndə də burası dəyişməyəcək
+let FILTERED_CARS = [...ALL_CARS];
+let SORTED_CARS   = [...FILTERED_CARS];
+let VISIBLE_CARS  = [];
+
+// pager state
+let cursor = 0;
+const FIRST = 8;
+const NEXT  = 8;
+// ===== SORT (default: ən yenilər yuxarıda) =====
+function applyDefaultSort() {
+  SORTED_CARS = [...FILTERED_CARS].sort(
+    (a, b) => (b.createdAt || 0) - (a.createdAt || 0)
+  );
+}
+// ===== PAGER =====
+function resetPager() {
+  cursor = 0;
+  VISIBLE_CARS = SORTED_CARS.slice(0, FIRST);
+  cursor = VISIBLE_CARS.length;
+
+  renderCars(VISIBLE_CARS);
+}
+
+function loadMore() {
+  const next = SORTED_CARS.slice(cursor, cursor + NEXT);
+  if (!next.length) return;
+
+  VISIBLE_CARS = VISIBLE_CARS.concat(next);
+  cursor += next.length;
+
+  renderCars(VISIBLE_CARS);
+}
+// ===== INIT =====
+applyDefaultSort();
+resetPager();
+// ===== INFINITE SCROLL =====
+const pagerSentinel = document.querySelector("#pagerSentinel");
+
+if (pagerSentinel) {
+  const io = new IntersectionObserver(
+    ([entry]) => {
+      if (!entry.isIntersecting) return;
+      loadMore();
+    },
+    { rootMargin: "250px 0px" }
+  );
+
+  io.observe(pagerSentinel);
+}

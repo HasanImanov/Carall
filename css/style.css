@@ -1761,3 +1761,39 @@ img { max-width: 100%; }
   color: var(--primary);
   transform: translateY(-1px);
 }
+.just-appended .card{
+  outline: 3px solid #fbbf24;
+  box-shadow: 0 0 0 6px rgba(251,191,36,.25);
+}
+.just-appended{
+  animation: popIn .35s ease-out;
+}
+
+@keyframes popIn{
+  from{ transform: translateY(8px); opacity:.6; }
+  to{ transform: translateY(0); opacity:1; }
+}
+.list-sentinel{
+  width: 100%;
+  padding: 16px 0 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.list-sentinel__inner{
+  min-height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.list-sentinel__text{
+  font-size: 14px;
+  opacity: .75;
+}
+
+/* loading görünüşü üçün kiçik effekt (istəsən sil) */
+.list-sentinel.is-loading .list-sentinel__text{
+  opacity: .9;
+}
