@@ -1942,3 +1942,39 @@ img { max-width: 100%; }
     overflow-y: auto;
   }
 }
+
+/* ===============================
+   Notify modal – MOBILE FIX ONLY
+   =============================== */
+@media (max-width: 768px) {
+
+  /* footer-i biraz yuxarı qaldır */
+  .notify-modal__footer {
+    bottom: 16px; /* çox aşağı qalmasın */
+    z-index: 20;
+
+    background: #fff;
+    padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
+    margin: 10px 12px;
+
+    border-top: 1px solid rgba(0,0,0,.08);
+    border-radius: 14px;
+
+    box-shadow: 0 -8px 24px rgba(0,0,0,.08);
+  }
+
+  /* modal content aşağıda footer altında qalmasın */
+  .notify-modal__box,
+  .notify-modal__body,
+  .notify-modal__form {
+    padding-bottom: 30px;
+  }
+
+  /* buttonlar rahat basılsın */
+  .notify-modal__footer .btn {
+    height: 46px;
+    font-size: 15px;
+  }
+
+}
+

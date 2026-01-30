@@ -341,46 +341,65 @@
 
       <!-- Grid -->
       <div class="form-grid">
-        <div class="form-row">
-          <label>Marka</label>
-          <select><option>Hamısı</option></select>
-        </div>
 
-        <div class="form-row">
-          <label>Model</label>
-          <select><option>Hamısı</option></select>
-        </div>
+  <!-- Marka -->
+  <div class="form-row">
+    <label for="brandSelect">Marka</label>
+    <select id="brandSelect" name="brand">
+      <option value="">Hamısı</option>
+    </select>
+  </div>
 
-        <div class="form-row">
-          <label>Şəhər</label>
-          <select><option>Hamısı</option></select>
-        </div>
+  <!-- Model (marka seçiləndən sonra açılacaq) -->
+  <div class="form-row">
+    <label for="modelSelect">Model</label>
+    <select id="modelSelect" name="model" disabled>
+      <option value="">Hamısı</option>
+    </select>
+  </div>
 
-        <div class="form-row">
-          <label>Rəng</label>
-          <select><option>Hamısı</option></select>
-        </div>
+  <!-- Şəhər -->
+  <div class="form-row">
+    <label for="citySelect">Şəhər</label>
+    <select id="citySelect" name="city">
+      <option value="">Hamısı</option>
+    </select>
+  </div>
 
-        <div class="form-row">
-          <label>Min il</label>
-          <input type="number">
-        </div>
+  <!-- Rəng -->
+  <div class="form-row">
+    <label for="colorSelect">Rəng</label>
+    <select id="colorSelect" name="color">
+      <option value="">Hamısı</option>
+    </select>
+  </div>
 
-        <div class="form-row">
-          <label>Max il</label>
-          <input type="number">
-        </div>
+  <!-- Min il -->
+  <div class="form-row">
+    <label for="minYear">Min il</label>
+    <input id="minYear" name="minYear" type="number" inputmode="numeric" placeholder="məs: 2008">
+  </div>
 
-        <div class="form-row">
-          <label>Min qiymət</label>
-          <input type="number">
-        </div>
+  <!-- Max il -->
+  <div class="form-row">
+    <label for="maxYear">Max il</label>
+    <input id="maxYear" name="maxYear" type="number" inputmode="numeric" placeholder="məs: 2022">
+  </div>
 
-        <div class="form-row">
-          <label>Max qiymət</label>
-          <input type="number">
-        </div>
-      </div>
+  <!-- Min qiymət -->
+  <div class="form-row">
+    <label for="minPrice">Min qiymət</label>
+    <input id="minPrice" name="minPrice" type="number" inputmode="numeric" placeholder="məs: 5000">
+  </div>
+
+  <!-- Max qiymət -->
+  <div class="form-row">
+    <label for="maxPrice">Max qiymət</label>
+    <input id="maxPrice" name="maxPrice" type="number" inputmode="numeric" placeholder="məs: 25000">
+  </div>
+
+</div>
+
 
       <!-- Footer -->
       <div class="notify-modal__footer">

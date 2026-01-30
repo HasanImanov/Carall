@@ -39,3 +39,17 @@ CARS.forEach(c => {
   if (!("status" in c)) c.status = "Satışda";
   if (!("features" in c)) c.features = ["ABS","Kondisioner","Park radarı","Arxa kamera"].slice(0, (c.id % 4) + 1);
 });
+
+const BRAND_MODELS = {
+  "Mercedes-Benz": ["C 200", "C 250", "E 200", "E 300", "S 500", "GLA", "GLC", "GLE", "G-Class"],
+  "BMW": ["320", "520", "530", "X3", "X5", "M3", "M5"],
+  "Toyota": ["Camry", "Corolla", "Prius", "RAV4", "Land Cruiser"],
+  "Hyundai": ["Elantra", "Sonata", "Santa Fe", "Tucson"],
+  "Kia": ["Rio", "Cerato", "Sportage", "Sorento"]
+};
+
+const COLORS = ["Ağ", "Qara", "Gümüşü", "Boz", "Göy", "Qırmızı", "Yaşıl", "Sarı", "Bənövşəyi"];
+const CITIES = ["Bakı", "Sumqayıt", "Gəncə", "Mingəçevir", "Şəki", "Lənkəran", "Naxçıvan", "Quba", "Şamaxı"];
+window.CARALL_BRAND_MODELS = BRAND_MODELS;
+window.CARALL_COLORS = COLORS;
+window.CARALL_CITIES = CITIES;

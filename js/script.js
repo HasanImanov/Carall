@@ -1485,3 +1485,118 @@ if (pagerSentinel) {
   });
 })();
 
+// ====== CarAll - Dynamic filter selects (brand->model + city + color) ======
+
+(function () {
+  const $ = (s, r = document) => r.querySelector(s);
+
+  function fillSelectOptions(selectEl, items, placeholder = "Hamısı") {
+    if (!selectEl) return;
+
+    const esc = (s) => String(s).replaceAll('"', "&quot;");
+
+    const opts = [
+      `<option value="">${placeholder}</option>`,
+      ...(items || []).map((v) => `<option value="${esc(v)}">${v}</option>`),
+    ];
+
+    selectEl.innerHTML = opts.join("");
+  }
+
+  function normalizeBrand(b) {
+    b = (b || "").trim();
+
+    // səndə "Mercedes" gəlirsə, datada "Mercedes-Benz" ola bilər – uyğunlaşdırırıq
+    if (b.toLowerCase() === "mercedes") return "Mercedes-Benz";
+    return b;
+  }
+
+  function getGlobals() {
+    // carData.js-də bunları window-a çıxartmışdıq:
+    // window.CARALL_BRAND_MODELS / window.CARALL_COLORS / window.CARALL_CITIES
+    const BRAND_MODELS = window.CARALL_BRAND_MODELS || window.BRAND_MODELS || {};
+    const COLORS = window.CARALL_COLORS || window.COLORS || [];
+    const CITIES = window.CARALL_CITIES || window.CITIES || [];
+
+    return { BRAND_MODELS, COLORS, CITIES };
+  }
+
+  function initFilterSelects() {
+    const brandSel = $("#brandSelect");
+    const modelSel = $("#modelSelect");
+    const citySel = $("#citySelect");
+    const colorSel = $("#colorSelect");
+
+    const { BRAND_MODELS, COLORS, CITIES } = getGlobals();
+
+    // Debug üçün (istəsən silə bilərsən)
+    // console.log("BRAND_MODELS keys:", Object.keys(BRAND_MODELS));
+    // console.log("COLORS:", COLORS);
+    // console.log("CITIES:", CITIES);
+
+    // 1) Brand select doldur
+    if (brandSel) {
+      const brands = Object.keys(BRAND_MODELS);
+      fillSelectOptions(brandSel, brands, "Hamısı");
+    }
+
+    // 2) City & Color doldur
+    if (citySel) fillSelectOptions(citySel, CITIES, "Hamısı");
+    if (colorSel) fillSelectOptions(colorSel, COLORS, "Hamısı");
+
+    // 3) Model select: brand-ə bağlı
+    function refreshModels() {
+      if (!modelSel) return;
+
+      const b = normalizeBrand(brandSel ? brandSel.value : "");
+      const models = (BRAND_MODELS && BRAND_MODELS[b]) ? BRAND_MODELS[b] : [];
+
+      fillSelectOptions(modelSel, models, "Hamısı");
+      modelSel.disabled = !b; // marka yoxdursa model bağlı qalsın
+    }
+
+    if (brandSel && modelSel) {
+      brandSel.addEventListener("change", refreshModels);
+      refreshModels(); // ilk açılışda da işləsin
+    }
+
+    // 4) Min/Max validasiya (opsional, amma faydalı)
+    const minYear = $("#minYear");
+    const maxYear = $("#maxYear");
+    const minPrice = $("#minPrice");
+    const maxPrice = $("#maxPrice");
+
+    function clampMinMax(minEl, maxEl) {
+      if (!minEl || !maxEl) return;
+      const minV = Number(minEl.value);
+      const maxV = Number(maxEl.value);
+      if (!Number.isNaN(minV) && !Number.isNaN(maxV) && minV > maxV) {
+        // min > max olarsa, max-ı min-ə bərabər edirik
+        maxEl.value = String(minV);
+      }
+    }
+
+    if (minYear && maxYear) {
+      minYear.addEventListener("input", () => clampMinMax(minYear, maxYear));
+      maxYear.addEventListener("input", () => clampMinMax(minYear, maxYear));
+    }
+
+    if (minPrice && maxPrice) {
+      minPrice.addEventListener("input", () => clampMinMax(minPrice, maxPrice));
+      maxPrice.addEventListener("input", () => clampMinMax(minPrice, maxPrice));
+    }
+
+    // 5) Əgər datalar boşdursa xəbərdar et (debug üçün)
+    if (brandSel && Object.keys(BRAND_MODELS).length === 0) {
+      console.warn("[CarAll] BRAND_MODELS boşdur. carData.js əvvəl yüklənməlidir.");
+    }
+    if (citySel && (!Array.isArray(CITIES) || CITIES.length === 0)) {
+      console.warn("[CarAll] CITIES boşdur.");
+    }
+    if (colorSel && (!Array.isArray(COLORS) || COLORS.length === 0)) {
+      console.warn("[CarAll] COLORS boşdur.");
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", initFilterSelects);
+})();
