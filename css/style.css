@@ -1929,3 +1929,16 @@ img { max-width: 100%; }
   .form-grid{ grid-template-columns:1fr; }
   .notify-modal__box{ margin:3vh auto; }
 }
+@media (max-width: 640px){
+  .notify-modal{
+    align-items: flex-start;
+    padding-top: 64px;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .notify-modal__dialog{
+    transform: none;
+    max-height: calc(100dvh - 80px);
+    overflow-y: auto;
+  }
+}
