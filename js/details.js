@@ -85,6 +85,8 @@
       </svg>
     `);
 
+
+    
   let idx = 0;
 
   // ===== Main image render =====
@@ -143,21 +145,23 @@
   });
 
   // Keyboard arrows (page)
-  window.addEventListener("keydown", (e) => {
-    const tag = (document.activeElement?.tagName || "").toLowerCase();
-    if (tag === "input" || tag === "textarea") return;
+ window.addEventListener("keydown", (e) => {
+  if (lbOpen) return; // ✅ lightbox açıqdırsa buranı işlətmə
 
-    if (e.key === "ArrowLeft") {
-      idx = (idx - 1 + imgs.length) % imgs.length;
-      setMain();
-      if (lbOpen) renderLb(true, +1);
-    }
-    if (e.key === "ArrowRight") {
-      idx = (idx + 1) % imgs.length;
-      setMain();
-      if (lbOpen) renderLb(true, -1);
-    }
-  });
+  const tag = (document.activeElement?.tagName || "").toLowerCase();
+  if (tag === "input" || tag === "textarea") return;
+
+  if (e.key === "ArrowLeft") {
+    idx = (idx - 1 + imgs.length) % imgs.length;
+    setMain();
+    // lbOpen false olduğu üçün renderLb çağırmağa ehtiyac yoxdur (istəsən sil)
+  }
+  if (e.key === "ArrowRight") {
+    idx = (idx + 1) % imgs.length;
+    setMain();
+  }
+});
+
 
   // ===== Section 2 info =====
   if (carTitle) carTitle.textContent = `${safe(car.brand, "")} ${safe(car.model, "")} ${safe(car.year, "")}`.trim() || "Elan";

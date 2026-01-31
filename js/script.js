@@ -230,7 +230,7 @@ function renderCars(list, targetEl = null, append = false) {
               </button>
 
               <div class="badges">
-                ${car.adType === 2 ? `<span class="badge vip">⭐ VIP</span>` : ``}
+                ${car.adType === 2 ? `<span class="badge vip">⭐VIP</span>` : ``}
                 ${car.adType === 3 ? `<span class="badge premium">👑</span>` : ``}
               </div>
             </div>
@@ -871,7 +871,9 @@ document.addEventListener("DOMContentLoaded", () => {
   initHamburgerMenu();
 
   // 6) initial render
+  // 6) initial render
   applyFilters();
+  
 });
 function ensureAdvFields() {
   const advGrid = document.getElementById("advGrid");
@@ -1933,4 +1935,81 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Debug üçün istəsən:
   // window.__latestLoadMore = loadMore;
+})();
+document.addEventListener("DOMContentLoaded", () => {
+    const a = document.getElementById("latestMore");
+    if (!a) return;
+
+    a.addEventListener("click", (e) => {
+      // digər JS-lər tutmasın
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
+      // məcburi yönləndir
+      location.href = a.getAttribute("href") || "latest.html";
+    }, true); // ✅ CAPTURE: hamısından əvvəl işləsin
+  });
+  /* =========================
+   CarAll — LATEST SMART GUARD (keeps pagination even if a 5-item script renders first)
+   - latestGrid: allow replace if it improves (list bigger than current DOM)
+   - block only "worse" overwrites
+   - dedupe only on append
+   ========================= */
+(function LATEST_SMART_GUARD(){
+  if (window.__LATEST_SMART_GUARD__) return;
+  window.__LATEST_SMART_GUARD__ = true;
+
+  const orig = window.renderCars;
+  if (typeof orig !== "function") return;
+
+  const seen = new Set();
+
+  function domCount(grid){
+    try { return grid.querySelectorAll(".cardlink").length; } catch { return 0; }
+  }
+
+  window.renderCars = function(list, targetEl = null, append = false){
+    if (append && typeof append === "object") append = !!append.append;
+
+    const grid = targetEl || document.getElementById("carsGrid");
+    const isLatest = grid && grid.id === "latestGrid";
+    if (!isLatest) return orig.apply(this, arguments);
+
+    const incomingLen = Array.isArray(list) ? list.length : 0;
+
+    // ✅ REPLACE (append=false): allow only if it "improves" current grid
+    if (!append) {
+      const cur = domCount(grid);
+
+      // Əgər grid boşdursa -> burax
+      // Əgər incoming daha çoxdursa (məs: 8 gəlib 5-i əvəz edir) -> burax
+      // Əks halda (məs: 5 gəlib 8-i əvəz etmək istəyir) -> BLOK
+      if (cur > 0 && incomingLen > 0 && incomingLen < cur) {
+        console.warn("[LATEST] blocked smaller overwrite:", incomingLen, "<", cur);
+        return;
+      }
+
+      // seen doldur (append-də dup olmasın)
+      seen.clear();
+      (Array.isArray(list) ? list : []).forEach(c => {
+        const id = String(c?.id ?? "");
+        if (id) seen.add(id);
+      });
+
+      return orig.call(this, list, grid, false);
+    }
+
+    // ✅ APPEND: dedupe
+    const safe = (Array.isArray(list) ? list : []).filter(c => {
+      const id = String(c?.id ?? "");
+      if (!id) return false;
+      if (seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
+
+    if (!safe.length) return;
+    return orig.call(this, safe, grid, true);
+  };
 })();

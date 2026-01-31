@@ -51,3 +51,5 @@ const CITIES = ["Bakı", "Sumqayıt", "Gəncə", "Mingəçevir", "Şəki", "Lən
 window.CARALL_BRAND_MODELS = BRAND_MODELS;
 window.CARALL_COLORS = COLORS;
 window.CARALL_CITIES = CITIES;
+
+
