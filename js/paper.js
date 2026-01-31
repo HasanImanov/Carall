@@ -1,274 +1,119 @@
-/* ============================
-   CarAll paper.js (FINAL)
-   - Infinite scroll sentinel
-   - Spinner shows, then fades out after data ends
-   - NO re-render on loadMore (prevents cards swapping)
-   - Based on your current code structure
-   ============================ */
+/* =========================
+   CarAll paper.js (LATEST only) — FINAL (append, no flicker)
+   - #latestGrid + #pagerSentinel
+   - Only adType=1
+   - Wait for ALL_CARS ready
+   - First 8, then 8-8 append
+   - No "Yüklənir…"
+   ========================= */
 
 (function () {
   const PAGE_SIZE = 8;
+  const ROOT_MARGIN = "450px 0px";
+  const THROTTLE_MS = 200;
 
-  // Local state (prefixed to avoid collisions)
-  let __FILTERED = [];
-  let __SORTED = [];
-  let __VISIBLE = [];
+  const grid = document.getElementById("latestGrid");
+  const sentinel = document.getElementById("pagerSentinel");
+  const textEl = document.getElementById("sentinelText");
 
-  let __page = 1;
-  let __hasMore = true;
-  let __isLoading = false;
-  let __io = null;
+  if (!grid || !sentinel) return;
 
-  /* ----------------------------
-     DOM helpers
-  ---------------------------- */
-  function getSentinelEl() {
-    return document.getElementById("pagerSentinel") || document.getElementById("listSentinel");
-  }
-  function getSentinelTextEl() {
-    return document.getElementById("sentinelText");
-  }
-
-  function ensureSpinnerStylesOnce() {
-    if (document.getElementById("carallSpinnerStyles")) return;
-
-    const css = `
-      .carall-spinner{
-        width: 18px;
-        height: 18px;
-        border-radius: 999px;
-        border: 2px solid rgba(0,0,0,.18);
-        border-top-color: rgba(0,0,0,.55);
-        display: inline-block;
-        vertical-align: -3px;
-        margin-right: 8px;
-        animation: carallSpin 0.8s linear infinite;
-      }
-      @keyframes carallSpin { to { transform: rotate(360deg); } }
-
-      .list-sentinel{
-        width: 100%;
-        padding: 16px 0 24px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-      .list-sentinel__inner{
-        min-height: 22px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .list-sentinel__text{
-        font-size: 14px;
-        opacity: .75;
-        display: inline-flex;
-        align-items: center;
-        transition: opacity .35s ease; /* ✅ fade-out */
-      }
-      .list-sentinel__text.is-fading{
-        opacity: 0; /* ✅ yavaş yox olsun */
-      }
-    `;
-
-    const style = document.createElement("style");
-    style.id = "carallSpinnerStyles";
-    style.textContent = css;
-    document.head.appendChild(style);
-  }
-
-  function setSentinelHTMLLoading(textEl) {
-    ensureSpinnerStylesOnce();
-    textEl.classList.remove("is-fading");
-    textEl.innerHTML = `<span class="carall-spinner" aria-hidden="true"></span>Yüklənir…`;
-  }
-
-  function fadeOutAndClear(textEl) {
-    if (!textEl) return;
-    // 2 saniyə gözlə, sonra fade-out, sonra təmizlə
-    setTimeout(() => {
-      textEl.classList.add("is-fading");
-      setTimeout(() => {
-        textEl.classList.remove("is-fading");
-        textEl.innerHTML = ""; // ✅ heç nə qalmasın
-      }, 380); // opacity transition-a uyğun
-    }, 2000);
-  }
-
-  /* ----------------------------
-     Render function resolver
-  ---------------------------- */
-  function getRenderFn() {
-    return window.renderCars || window.RenderCars || (typeof renderCars === "function" ? renderCars : null);
-  }
-
-  /* ----------------------------
-     Data source
-  ---------------------------- */
   function getAllCars() {
-    if (Array.isArray(window.ALL_CARS)) return window.ALL_CARS;
-    if (Array.isArray(window.allCars)) return window.allCars;
-    if (Array.isArray(window.cars)) return window.cars;
-
-    try {
-      const ls = localStorage.getItem("carall_cars_v1");
-      const arr = JSON.parse(ls || "[]");
-      if (Array.isArray(arr)) return arr;
-    } catch {}
-
-    return [];
+    return window.ALL_CARS || window.CARS || window.cars || [];
   }
 
-  function getCreatedTime(car) {
-    const v = car?.createdAt ?? car?.created_at ?? car?.created ?? car?.date ?? 0;
-    const t = new Date(v).getTime();
-    return Number.isFinite(t) ? t : 0;
+  function getTime(car) {
+    return (car && (car.createdAt || car.id || 0)) || 0;
   }
 
-  /* ----------------------------
-     UI
-  ---------------------------- */
-  function updateSentinelUI() {
-    const textEl = getSentinelTextEl();
+  // Spinner OFF
+  function setLoading(_) {
     if (!textEl) return;
-
-    if (__FILTERED.length === 0) {
-      textEl.innerHTML = "";
-      return;
-    }
-
-    if (__isLoading) {
-      setSentinelHTMLLoading(textEl);
-      return;
-    }
-
-    // not loading:
-    // hasMore false olanda "Bitdi" yazmırıq, sadəcə boş saxlayırıq
-    textEl.innerHTML = "";
+    textEl.textContent = "";
+    textEl.style.display = "none";
   }
 
-  /* ----------------------------
-     Pipeline: Filter / Sort
-  ---------------------------- */
-  function applyFilters(all) {
-    __FILTERED = [...all];
-  }
+  let SORTED = [];
+  let cursor = 0;
+  let isLoading = false;
+  let io = null;
+  let lastTs = 0;
 
-  function applySort() {
-    __SORTED = [...__FILTERED].sort((a, b) => getCreatedTime(b) - getCreatedTime(a));
-  }
-
-  function calcVisible(page) {
-    return __SORTED.slice(0, page * PAGE_SIZE);
-  }
-
-  function resetPaging() {
-    __page = 1;
-    __VISIBLE = [];
-    __hasMore = true;
-    __isLoading = false;
-  }
-
-  /* ----------------------------
-     Observer
-  ---------------------------- */
-  function stopObserver() {
-    const sentinel = getSentinelEl();
-    if (__io && sentinel) __io.unobserve(sentinel);
-  }
-
-  function startObserver() {
-    const sentinel = getSentinelEl();
-    if (!sentinel) return;
-
-    if (!__io) {
-      __io = new IntersectionObserver(
-        (entries) => {
-          const e = entries[0];
-          if (!e || !e.isIntersecting) return;
-          loadMore();
-        },
-        { root: null, rootMargin: "1200px 0px", threshold: 0 }
-      );
-    }
-
-    __io.observe(sentinel);
-  }
-
-  /* ----------------------------
-     Render wrapper
-  ---------------------------- */
-  function render(list) {
-    const fn = getRenderFn();
-    if (!fn) return;
-    fn(list);
-  }
-
-  /* ----------------------------
-     Core
-  ---------------------------- */
-  function refreshList() {
+  function reset() {
     const all = getAllCars();
 
-    resetPaging();
-    applyFilters(all);
-    applySort();
+    // ✅ only adType=1
+    SORTED = (Array.isArray(all) ? all : [])
+      .filter(c => String(c.adType) === "1")
+      .slice()
+      .sort((a, b) => getTime(b) - getTime(a));
 
-    if (__FILTERED.length === 0) {
-      __hasMore = false;
-      updateSentinelUI();
-      stopObserver();
-      render([]);
-      return;
-    }
-
-    __VISIBLE = calcVisible(__page);
-
-    // ✅ hasMore-u page ilə hesabla (stabil)
-    __hasMore = (__page * PAGE_SIZE) < __SORTED.length;
-
-    render(__VISIBLE);
-    updateSentinelUI();
-
-    if (__hasMore) startObserver();
-    else stopObserver();
+    cursor = 0;
+    grid.innerHTML = "";
   }
 
-  /* ----------------------------
-     loadMore (UI-only, no render)
-     - Cards yer dəyişməsin deyə render ETMİRİK.
-     - Sadəcə spinner göstər → 2s sonra fade-out → stop
-  ---------------------------- */
   function loadMore() {
-    if (__isLoading) return;
+    const now = Date.now();
+    if (now - lastTs < THROTTLE_MS) return;
+    lastTs = now;
 
-    // data artıq bitibsə: spinner 2s sonra yavaş yox olsun və stop
-    if (!__hasMore) {
-      const textEl = getSentinelTextEl();
-      if (textEl && textEl.innerHTML) fadeOutAndClear(textEl);
-      stopObserver();
+    if (isLoading) return;
+    if (cursor >= SORTED.length) {
+      if (io) io.disconnect();
       return;
     }
 
-    __isLoading = true;
-    updateSentinelUI();
+    isLoading = true;
+    setLoading(true);
 
-    // Burada datanı gətirmirik ki, yuxarı kartlar oynamasın.
-    // Sadəcə "bitdi" kimi qəbul edib spinneri söndürürük.
-    __hasMore = false;
+    const prevCursor = cursor;
+    const next = SORTED.slice(cursor, cursor + PAGE_SIZE);
+    cursor += next.length;
 
-    __isLoading = false;
+    // ✅ first page append=false, next pages append=true
+    const append = prevCursor > 0;
+    renderCars(next, grid, append);
 
-    const textEl = getSentinelTextEl();
-    // Spinner 2s qalsın, sonra fade-out və təmizlə
-    fadeOutAndClear(textEl);
+    isLoading = false;
+    setLoading(false);
 
-    stopObserver();
+    if (cursor >= SORTED.length && io) io.disconnect();
   }
 
-  /* ----------------------------
-     Init
-  ---------------------------- */
-  document.addEventListener("DOMContentLoaded", refreshList);
-  window.refreshListFromDataLayer = refreshList;
+  function startIO() {
+    if (io) io.disconnect();
+
+    io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry || !entry.isIntersecting) return;
+        loadMore();
+      },
+      { rootMargin: ROOT_MARGIN, threshold: 0 }
+    );
+
+    io.observe(sentinel);
+  }
+
+  function init() {
+    if (window.__LATEST_PAPER_INIT__) return;
+    window.__LATEST_PAPER_INIT__ = true;
+
+    setLoading(false);
+    reset();
+    loadMore();  // first 8
+    startIO();   // next pages on scroll
+  }
+
+  // ✅ Wait ALL_CARS ready (this fixes the “first time only 5” issue)
+  document.addEventListener("DOMContentLoaded", () => {
+    const wait = setInterval(() => {
+      const all = getAllCars();
+      if (Array.isArray(all) && all.length > 0) {
+        clearInterval(wait);
+        init();
+      }
+    }, 50);
+
+    setTimeout(() => clearInterval(wait), 8000);
+  });
 })();

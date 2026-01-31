@@ -5,6 +5,7 @@
 
 // ===== Favorites =====
 
+
 document.addEventListener("DOMContentLoaded", () => {
   const advPanel = document.getElementById("advPanel");
   const btnReset = document.getElementById("btnReset");
@@ -81,7 +82,9 @@ const btnSearch = $("btnSearch");
 const btnReset  = $("btnReset");
 const sortBy    = $("sortBy");
 
-const carsGrid   = $("carsGrid");
+const premiumBlock = $("premiumBlock");
+const premiumGrid  = $("premiumGrid");
+const latestGrid   = $("latestGrid");
 const resultInfo = $("resultInfo");
 const statusBox  = $("statusBox");
 
@@ -179,98 +182,89 @@ function setChipOn(el, on) {
 }
 
 // ===== Render cards =====
-function renderCars(list) {
-  if (!carsGrid) return;
+// ===== Render cards (FULL / 3 param) =====
+// usage:
+// renderCars(list, carsGrid, false)     -> replace
+// renderCars(nextChunk, carsGrid, true) -> append (infinite)
+// ===== Render cards (supports target + append, backward compatible) =====
+function renderCars(list, targetEl = null, append = false) {
+  // ✅ adapter: 3-cü parametr həm boolean, həm object ola bilər
+  // renderCars(list, grid, true/false)
+  // renderCars(list, grid, { append: true/false })
+  if (append && typeof append === "object") append = !!append.append;
 
-  if (!list.length) {
-    carsGrid.innerHTML = `
-      <div class="empty">
-        <div class="empty__t">Nəticə tapılmadı</div>
-        <div class="empty__d">Filterləri dəyiş və yenidən yoxla.</div>
-      </div>
-    `;
+  const grid = targetEl || document.getElementById("carsGrid");
+  if (!grid) return;
+
+  if (!Array.isArray(list) || list.length === 0) {
+    if (!append) {
+      grid.innerHTML = `
+        <div class="empty">
+          <div class="empty__t">Nəticə tapılmadı</div>
+          <div class="empty__d">Filterləri dəyiş və yenidən yoxla.</div>
+        </div>
+      `;
+    }
     return;
   }
 
-  const favIds = loadFavs();
-  list.forEach((car) => (car.fav = favIds.has(String(car.id))));
+  const favIds = loadFavs ? loadFavs() : new Set();
 
-  carsGrid.innerHTML = list
-    .map(
-      (car) => `
-        <a
-          class="cardlink"
-          href="details.html?id=${car.id}"
-          aria-label="${car.brand} ${car.model} detallar"
-        >
-          <article class="card">
-            <div class="card__imgwrap">
-              <img
-                class="card__img"
-                src="${car.img}"
-                alt="${car.brand} ${car.model}"
-              >
+  const html = list
+    .map((car) => {
+      const favOn = favIds.has(String(car.id));
+      return `
+      <a class="cardlink" href="details.html?id=${car.id}" aria-label="${car.brand} ${car.model}">
+        <article class="card">
+          <div class="card__imgwrap">
+            <img class="card__img" src="${car.img}" alt="${car.brand} ${car.model}">
+            <div class="card__top">
+              <button class="fav-btn ${favOn ? "is-on" : ""}" type="button" data-id="${car.id}" aria-label="Favorit">
+                <svg class="fav-ic ic-off" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <svg class="fav-ic ic-on" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 21.23 4.22 13.45 3.16 12.39a5.5 5.5 0 0 1 7.78-7.78L12 5.67l1.06-1.06a5.5 5.5 0 0 1 7.78 7.78l-1.06 1.06L12 21.23Z"/>
+                </svg>
+              </button>
 
-              <div class="card__top">
-                <button
-                  class="fav-btn ${car.fav ? "is-on" : ""}"
-                  type="button"
-                  data-id="${car.id}"
-                  aria-label="Favorit"
-                >
-                  <svg class="fav-ic ic-off" viewBox="0 0 24 24" aria-hidden="true">
-                    <path
-                      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-
-                  <svg class="fav-ic ic-on" viewBox="0 0 24 24" aria-hidden="true">
-                    <path
-                      d="M12 21.23 4.22 13.45 3.16 12.39a5.5 5.5 0 0 1 7.78-7.78L12 5.67l1.06-1.06a5.5 5.5 0 0 1 7.78 7.78l-1.06 1.06L12 21.23Z"
-                    />
-                  </svg>
-                </button>
-
-                <div class="badges">
-                  ${car.vip ? `<span class="badge vip">⭐ VIP</span>` : ``}
-                  ${car.premium ? `<span class="badge premium">👑 Premium</span>` : ``}
-                </div>
-              </div>
-
-              <div class="badge">
-                ${countryName(car.country)} • ${car.city}
+              <div class="badges">
+                ${car.adType === 2 ? `<span class="badge vip">⭐ VIP</span>` : ``}
+                ${car.adType === 3 ? `<span class="badge premium">👑 Premium</span>` : ``}
               </div>
             </div>
 
-            <div class="card__body">
-              <div class="card__title">
-                ${car.brand} ${car.model}
-              </div>
+            <div class="badge">${countryName(car.country)} • ${car.city}</div>
+          </div>
 
-              <div class="card__meta">
-                <span>${car.year}</span><span>•</span>
-                <span>${Number(car.mileage || 0).toLocaleString("az-AZ")} km</span><span>•</span>
-                <span>${car.fuel || ""}</span><span>•</span>
-                <span>${car.gearbox || ""}</span>
-              </div>
-
-              <div class="card__bottom">
-                <div class="card__price">
-                  ${money(car.price)}
-                </div>
-              </div>
+          <div class="card__body">
+            <div class="card__title">${car.brand} ${car.model}</div>
+            <div class="card__meta">
+              <span>${car.year}</span><span>•</span>
+              <span>${Number(car.mileage || 0).toLocaleString("az-AZ")} km</span><span>•</span>
+              <span>${car.fuel || ""}</span><span>•</span>
+              <span>${car.gearbox || ""}</span>
             </div>
-          </article>
-        </a>
-      `
-    )
+            <div class="card__bottom">
+              <div class="card__price">${money(car.price)}</div>
+            </div>
+          </div>
+        </article>
+      </a>
+    `;
+    })
     .join("");
+
+  // ✅ append support
+  if (append) grid.insertAdjacentHTML("beforeend", html);
+  else grid.innerHTML = html;
 }
+
+
+
+
+
 
 
 // ===== Read advanced inputs safely (supports missing) =====
@@ -396,14 +390,17 @@ function applyFilters() {
   // if (resultInfo) resultInfo.textContent = `${list.length} nəticə tapıldı.`;
   //if (statusBox) statusBox.textContent = `Demo data: ${CARS.length} elan.`; 
   // ✅ Filter nəticəsini pager-ə ver
-FILTERED_CARS = list;
 
-// ✅ Default sort + ilk səhifə (8)
-applyDefaultSort();
-resetPager();
+// list artıq sort olunub (sənin sort hissən)
+// ✅ əvvəl VIP/Premium, sonra digərləri
+PREMIUM_CARS = list.filter(x => x.vip || x.premium);
+LATEST_CARS  = list.filter(x => !(x.vip || x.premium));
 
-// info yazıları qalır (amma sayını FILTERED_CARS-dan götürürük)
-if (resultInfo) resultInfo.textContent = `${FILTERED_CARS.length} nəticə tapıldı.`;
+// pager cursors sıfırlansın
+resetPagerDual();
+
+// info
+if (resultInfo) resultInfo.textContent = `${list.length} nəticə tapıldı.`;
 if (statusBox) statusBox.textContent = `Demo data: ${ALL_CARS.length} elan.`;
 
 }
@@ -1410,7 +1407,9 @@ function resetPager() {
   VISIBLE_CARS = SORTED_CARS.slice(0, FIRST);
   cursor = VISIBLE_CARS.length;
 
-  renderCars(VISIBLE_CARS);
+ renderCars(VISIBLE_CARS, latestGrid, { append: !reset }); // reset=true olanda replace, sonra append
+
+
 }
 
 function loadMore() {
@@ -1420,24 +1419,27 @@ function loadMore() {
   VISIBLE_CARS = VISIBLE_CARS.concat(next);
   cursor += next.length;
 
-  renderCars(VISIBLE_CARS);
+  renderCars(next, carsGrid, true);
+
 }
 // ===== INIT =====
-applyDefaultSort();
-resetPager();
+// applyDefaultSort();
+// resetPager();
 // ===== INFINITE SCROLL =====
 const pagerSentinel = document.querySelector("#pagerSentinel");
 
 if (pagerSentinel) {
-  const io = new IntersectionObserver(
-    ([entry]) => {
+  // ✅ HOME-da latestGrid varsa onu paper.js idarə edir — burdan stop
+  if (document.getElementById("latestGrid")) {
+    // heç nə etmə
+  } else {
+    const io = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) return;
-      loadMore();
-    },
-    { rootMargin: "250px 0px" }
-  );
+      loadMoreDual();
+    }, { rootMargin: "250px 0px" });
 
-  io.observe(pagerSentinel);
+    io.observe(pagerSentinel);
+  }
 }
 (function () {
   const modal = document.querySelector(".notify-modal");
@@ -1599,4 +1601,336 @@ if (pagerSentinel) {
   }
 
   document.addEventListener("DOMContentLoaded", initFilterSelects);
+})();
+
+function resetPagerDual(){
+  premCursor = 0;
+  lateCursor = 0;
+
+  if (premiumGrid) premiumGrid.innerHTML = "";
+  if (latestGrid)  latestGrid.innerHTML  = "";
+
+  // ilk porsiya: əvvəl premiumdan doldur, çatmasa latestdən tamamla
+  loadChunk(FIRST, { reset: true });
+}
+
+function loadMoreDual(){
+  loadChunk(NEXT, { reset: false });
+}
+
+function loadChunk(count, { reset }){
+  let need = count;
+
+  // 1) Premium/VIP-dən götür
+  const prem = PREMIUM_CARS.slice(premCursor, premCursor + need);
+  if (prem.length){
+    renderCars(prem, premiumGrid, { append: !reset });
+    premCursor += prem.length;
+    need -= prem.length;
+  }
+
+  // 2) Qalanı Son elandan götür
+  if (need > 0){
+    const lat = LATEST_CARS.slice(lateCursor, lateCursor + need);
+    if (lat.length){
+      renderCars(lat, latestGrid); // latest həmişə append
+      lateCursor += lat.length;
+      need -= lat.length;
+    }
+  }
+
+  // Heç nə gəlmirsə: dayan
+  // (istəsən sentinelText-i dəyişərik)
+}
+// =============================
+// HOME: VIP/Premium + Son elanlar render
+// =============================
+// document.addEventListener("DOMContentLoaded", () => {
+//   const premGrid = document.getElementById("premiumGrid");
+//   const lateGrid = document.getElementById("latestGrid");
+
+//   // səndə data hardadısa, burdan götürür:
+//   const ALL = window.ALL_CARS || window.CARS || window.cars || [];
+//   if (!ALL.length) return;
+
+//   // ✅ VIP/Premium: yalnız adType 2 və 3
+//   const vipPremium = ALL.filter(c => c && (c.adType === 2 || c.adType === 3));
+
+//   // ✅ Son elanlar: yenilər yuxarı
+//   const latest = ALL.slice().sort((a,b)=> (b.createdAt || b.id || 0) - (a.createdAt || a.id || 0));
+
+//   // 1) VIP/Premium ilk 8
+//   if (premGrid) renderCars(vipPremium.slice(0, 8), premGrid, false);
+
+//   // 2) Son elanlar ilk 8
+//   if (lateGrid) renderCars(latest.slice(0, 8), lateGrid, false);
+
+//   // Hamısına bax (sadəcə scroll eləsin)
+//   document.getElementById("vipMore")?.addEventListener("click", (e) => {
+//     e.preventDefault();
+//     document.getElementById("vipBlock")?.scrollIntoView({ behavior: "smooth", block:"start" });
+//   });
+
+//   document.getElementById("latestMore")?.addEventListener("click", (e) => {
+//     e.preventDefault();
+//     document.getElementById("latestBlock")?.scrollIntoView({ behavior: "smooth", block:"start" });
+//   });
+// });
+
+// =============================
+// VIP/PREMIUM PAGER (infinite for VIP block)
+// =============================
+document.addEventListener("DOMContentLoaded", () => {
+  const premGrid = document.getElementById("premiumGrid");
+  const vipSentinel = document.getElementById("vipSentinel");
+  const vipText = document.getElementById("vipSentinelText");
+
+  const ALL = window.ALL_CARS || window.CARS || window.cars || [];
+  if (!premGrid || !vipSentinel || !ALL.length) return;
+
+  // yalnız adType source of truth
+  const VIP_ALL = ALL.filter(c => c && (c.adType === 2 || c.adType === 3));
+
+  const FIRST = 8;
+  const NEXT = 8;
+  let cursor = 0;
+
+  function setVipLoading(on) {
+    if (!vipText) return;
+    vipText.innerHTML = on ? "Yüklənir…" : "";
+  }
+
+  function renderFirst() {
+    premGrid.innerHTML = "";
+    cursor = 0;
+
+    const first = VIP_ALL.slice(0, FIRST);
+    cursor = first.length;
+
+    renderCars(first, premGrid, false);
+
+    // əgər hamısı bitibsə sentinel boş qalsın
+    if (cursor >= VIP_ALL.length) {
+      setVipLoading(false);
+      return;
+    }
+
+    setVipLoading(false);
+  }
+
+  function loadMoreVip() {
+    if (cursor >= VIP_ALL.length) return;
+
+    setVipLoading(true);
+
+    // kiçik delay – UX üçün
+    setTimeout(() => {
+      const next = VIP_ALL.slice(cursor, cursor + NEXT);
+      cursor += next.length;
+
+      // ✅ append
+      renderCars(next, premGrid, true);
+
+      setVipLoading(false);
+    }, 150);
+  }
+
+  // start render
+  renderFirst();
+
+  // infinite observer
+  const io = new IntersectionObserver(
+    ([entry]) => {
+      if (!entry || !entry.isIntersecting) return;
+      loadMoreVip();
+    },
+    { rootMargin: "400px 0px" }
+  );
+
+  io.observe(vipSentinel);
+});
+// ===============================
+// HOME FORCE FIX (no renderCars edits)
+// ===============================
+(function HOME_FORCE_FIX(){
+  const latestSel  = "#latestGrid";
+  const premSel    = "#premiumGrid";
+  const vipSel     = "#vipGrid";
+
+  const BATCH_LIMIT = 5; // renderCars hard-limit 5 olsa da, batch-larla dolduracağıq
+  let applying = false;
+  let lastSig = "";
+
+  function qs(s){ return document.querySelector(s); }
+
+  function buckets(allCars){
+    return {
+      latest:  allCars.filter(x => String(x.adType) === "1"),
+      premium: allCars.filter(x => String(x.adType) === "2"),
+      vip:     allCars.filter(x => String(x.adType) === "3"),
+    };
+  }
+
+  // renderCars() 5-dən artıq basmırsa, batch-larla bas
+  function renderCarsInBatches(list, grid, batch = BATCH_LIMIT){
+    if (!grid) return;
+    grid.innerHTML = "";
+    for (let i = 0; i < list.length; i += batch) {
+      const chunk = list.slice(i, i + batch);
+      renderCars(chunk, grid, { append: i > 0 });
+    }
+  }
+
+  function forceRender(){
+    if (applying) return;
+    const allCars = window.ALL_CARS;
+    if (!Array.isArray(allCars) || allCars.length === 0) return;
+
+    const latestGrid = qs(latestSel);
+    const premGrid   = qs(premSel);
+    const vipGrid    = qs(vipSel);
+
+    if (!latestGrid && !premGrid && !vipGrid) return;
+
+    const { latest, premium, vip } = buckets(allCars);
+
+    // signature: data+dom vəziyyəti eynidirsə boşuna təkrar etməsin
+    const sig = [
+      allCars.length,
+      latest.length, premium.length, vip.length,
+      latestGrid ? latestGrid.querySelectorAll(".cardlink").length : -1,
+      premGrid   ? premGrid.querySelectorAll(".cardlink").length   : -1
+    ].join("|");
+
+    if (sig === lastSig) return;
+    lastSig = sig;
+
+    applying = true;
+
+    // Burada köhnə DOM-u öldürürük və düzgün render edirik
+    if (latestGrid) renderCarsInBatches(latest, latestGrid);
+    if (premGrid)   renderCarsInBatches(premium, premGrid);
+    if (vipGrid)    renderCarsInBatches(vip, vipGrid);
+
+    console.log("[HOME_FORCE_FIX] rendered:",
+      "ALL", allCars.length,
+      "latest", latest.length,
+      "premium", premium.length,
+      "vip", vip.length,
+      "DOM latest", latestGrid ? latestGrid.querySelectorAll(".cardlink").length : 0,
+      "DOM premium", premGrid ? premGrid.querySelectorAll(".cardlink").length : 0
+    );
+
+    applying = false;
+  }
+
+  // 1) Data hazır olan kimi render et
+  const wait = setInterval(() => {
+    if (Array.isArray(window.ALL_CARS) && window.ALL_CARS.length) {
+      clearInterval(wait);
+      forceRender();
+    }
+  }, 50);
+  setTimeout(() => clearInterval(wait), 8000);
+
+  // 2) Köhnə kod sonradan DOM-u dəyişsə, yenə düzəlt
+  const obsTargets = [qs(latestSel), qs(premSel), qs(vipSel)].filter(Boolean);
+  if (obsTargets.length) {
+    const mo = new MutationObserver(() => {
+      // debounce kimi: eyni anda çox dəyişiklik gələndə 1 dəfə işləsin
+      setTimeout(forceRender, 0);
+    });
+    obsTargets.forEach(el => mo.observe(el, { childList: true, subtree: true }));
+  }
+
+  // 3) Scroll/resize zamanı köhnə kod “yenidən yazırsa” yenə düzəlt
+  window.addEventListener("scroll", () => setTimeout(forceRender, 0), { passive: true });
+  window.addEventListener("resize", () => setTimeout(forceRender, 0));
+})();
+
+(() => {
+  const latestGrid = document.querySelector("#latestGrid");
+  if (!latestGrid) return; // home deyil
+
+  const PAGE_SIZE = 8;
+
+  let latestList = [];
+  let cursor = 0;
+  let busy = false;
+  const rendered = new Set();
+
+  function getType1List() {
+    // SƏN DEDİN: 2 və 3 premium/vip çıxır, yalnız type=1 qalır
+    return (window.ALL_CARS || []).filter(x => String(x.adType) === "1");
+  }
+
+  function resetAndFirstRender() {
+    latestList = getType1List();
+    cursor = 0;
+    busy = false;
+    rendered.clear();
+
+    latestGrid.innerHTML = "";
+    loadMore(); // ilk 8
+  }
+
+  function loadMore() {
+    if (busy) return;
+    busy = true;
+
+    const chunk = latestList.slice(cursor, cursor + PAGE_SIZE);
+
+    // dedupe by id (təhlükəsizlik)
+    const safe = chunk.filter(c => {
+      const id = String(c.id);
+      if (rendered.has(id)) return false;
+      rendered.add(id);
+      return true;
+    });
+
+    // ilk dəfə append=false, sonra true
+    const isAppend = cursor > 0;
+    renderCars(safe, latestGrid, isAppend);
+
+    cursor += chunk.length;
+    busy = false;
+
+    // istəsən düyməni gizlət:
+    // if (cursor >= latestList.length) moreBtn.style.display = "none";
+  }
+
+  // Data hazır olan kimi işə sal (paper.js gec doldurur deyə)
+  const wait = setInterval(() => {
+    if (Array.isArray(window.ALL_CARS) && window.ALL_CARS.length) {
+      clearInterval(wait);
+      // tək dəfə init
+      if (window.__HOME_LATEST_INIT__) return;
+      window.__HOME_LATEST_INIT__ = true;
+
+      resetAndFirstRender();
+    }
+  }, 50);
+  setTimeout(() => clearInterval(wait), 8000);
+
+  // “Hamısına bax” düyməsini bağla:
+  // 1) Əgər səndə id varsa, buranı birbaşa yaz:
+  const moreBtn =
+    document.querySelector("#latestMore") || // varsa ideal budur
+    (() => {
+      // id yoxdursa: latestGrid-in yaxınlığında "Hamısına bax" tapmağa çalışır
+      const sec = latestGrid.closest("section") || latestGrid.parentElement;
+      if (!sec) return null;
+      return Array.from(sec.querySelectorAll("a,button"))
+        .find(el => (el.textContent || "").trim().toLowerCase().includes("hamısına bax"));
+    })();
+
+  if (moreBtn) {
+    moreBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      loadMore(); // 8-8 artır
+    });
+  }
+
+  // Debug üçün istəsən:
+  // window.__latestLoadMore = loadMore;
 })();

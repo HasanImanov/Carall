@@ -269,16 +269,51 @@
   </section>
 
   <!-- List -->
-  <main class="main" id="list">
-    <div class="container">
-      <div class="grid" id="carsGrid"></div>
-        <div id="pagerSentinel" class="list-sentinel" aria-live="polite">
-            <div class="list-sentinel__inner">
-              <span class="list-sentinel__text" id="sentinelText"></span>
-            </div>
-          </div>
-       </div>
-  </main>
+ <main class="main" id="list">
+  <div class="container">
+
+    <!-- =====================
+         VIP / PREMIUM ELANLAR
+    ====================== -->
+    <section class="home-block" id="vipBlock">
+      <div class="home-block__head">
+        <h2 class="home-block__title">VIP / Premium elanlar</h2>
+        <a href="#" class="home-block__more" id="vipMore">Hamısına bax</a>
+      </div>
+
+      <div class="grid" id="premiumGrid"></div>
+      <div id="vipSentinel" class="list-sentinel" aria-live="polite">
+  <div class="list-sentinel__inner">
+    <span class="list-sentinel__text" id="vipSentinelText"></span>
+  </div>
+</div>
+    </section>
+
+
+    <!-- =====================
+         SON ELANLAR
+    ====================== -->
+    <section class="home-block" id="latestBlock">
+      <div class="home-block__head">
+        <h2 class="home-block__title">Son elanlar</h2>
+        <a href="#" class="home-block__more" id="latestMore">Hamısına bax</a>
+      </div>
+
+      <div class="grid" id="latestGrid"></div>
+
+      <!-- pagination / infinite scroll üçün sentinel -->
+      <div id="pagerSentinel" class="list-sentinel" aria-live="polite">
+        <div class="list-sentinel__inner">
+          <span class="list-sentinel__text" id="sentinelText"></span>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+
+
 
   <!-- How -->
   <section class="how" id="how">

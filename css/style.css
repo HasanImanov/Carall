@@ -1978,3 +1978,29 @@ img { max-width: 100%; }
 
 }
 
+.badges{
+  display: flex;
+  gap: 6px;
+  
+}
+
+.badge.vip{
+  background: linear-gradient(135deg, #e5e7eb, #f9fafb);
+  color: #111827;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.badge.premium{
+  background: linear-gradient(135deg, #f59e0b, #facc15);
+  color: #1f2937;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  letter-spacing: .2px;
+  box-shadow: 0 4px 10px rgba(245, 158, 11, .35);
+}
