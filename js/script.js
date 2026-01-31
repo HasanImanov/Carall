@@ -231,7 +231,7 @@ function renderCars(list, targetEl = null, append = false) {
 
               <div class="badges">
                 ${car.adType === 2 ? `<span class="badge vip">⭐ VIP</span>` : ``}
-                ${car.adType === 3 ? `<span class="badge premium">👑 Premium</span>` : ``}
+                ${car.adType === 3 ? `<span class="badge premium">👑</span>` : ``}
               </div>
             </div>
 
