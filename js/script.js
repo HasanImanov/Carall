@@ -47,6 +47,76 @@ function saveFavs(set) {
 // ===== Small helpers =====
 const $ = (id) => document.getElementById(id);
 const exists = (x) => x !== null && x !== undefined && String(x).trim() !== "";
+// ===== Date helpers (card date label) =====
+function pad2(n){ return String(n).padStart(2, "0"); }
+
+function formatDMY(d){
+  return `${pad2(d.getDate())}.${pad2(d.getMonth()+1)}.${d.getFullYear()}`;
+}
+
+function pickCarDateValue(car){
+  if (!car || typeof car !== "object") return null;
+
+  const keys = [
+    "postedAt","createdAt","updatedAt",
+    "posted_at","created_at","updated_at",
+    "date","publishDate","createdDate"
+  ];
+  for (const k of keys){
+    const v = car[k];
+    if (v !== null && v !== undefined && String(v).trim() !== "") return v;
+  }
+  return null;
+}
+
+function parseCarDate(raw){
+  if (raw === null || raw === undefined) return null;
+
+  // timestamp (seconds or ms)
+  const sraw = String(raw).trim();
+  if (/^\d{10,13}$/.test(sraw)){
+    const n = Number(sraw);
+    const ms = sraw.length === 10 ? n * 1000 : n;
+    const d = new Date(ms);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
+  // dd.MM.yyyy
+  const m1 = sraw.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  if (m1){
+    const dd = Number(m1[1]), mm = Number(m1[2]), yy = Number(m1[3]);
+    const d = new Date(yy, mm-1, dd);
+    if (d.getFullYear()===yy && d.getMonth()===mm-1 && d.getDate()===dd) return d;
+    return null;
+  }
+
+  // YYYY-MM-DD or YYYY/MM/DD
+  const m2 = sraw.match(/^(\d{4})[-/](\d{2})[-/](\d{2})/);
+  if (m2){
+    const yy = Number(m2[1]), mm = Number(m2[2]), dd = Number(m2[3]);
+    const d = new Date(yy, mm-1, dd);
+    if (d.getFullYear()===yy && d.getMonth()===mm-1 && d.getDate()===dd) return d;
+    return null;
+  }
+
+  // ISO / other parseable strings
+  const d = new Date(sraw);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function getCarDateLabel(car){
+  const raw = pickCarDateValue(car);
+  const d = parseCarDate(raw);
+  if (!d) return "—";
+
+  const now = new Date();
+  const sameDay =
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate();
+
+  return sameDay ? "Bu gün" : formatDMY(d);
+}
 
 const uniq = (arr) => [...new Set(arr.filter(exists))];
 
@@ -247,7 +317,10 @@ function renderCars(list, targetEl = null, append = false) {
               <span>${car.gearbox || ""}</span>
             </div>
             <div class="card__bottom">
-              <div class="card__price">${money(car.price)}</div>
+              <div class="card__price-row">
+                <div class="card__price">${money(car.price)}</div>
+                <div class="card__date" title="${getCarDateLabel(car)}">${getCarDateLabel(car)}</div>
+              </div>
             </div>
           </div>
         </article>
@@ -1428,21 +1501,27 @@ function loadMore() {
 // applyDefaultSort();
 // resetPager();
 // ===== INFINITE SCROLL =====
-const pagerSentinel = document.querySelector("#pagerSentinel");
 
-if (pagerSentinel) {
-  // ✅ HOME-da latestGrid varsa onu paper.js idarə edir — burdan stop
-  if (document.getElementById("latestGrid")) {
-    // heç nə etmə
-  } else {
-    const io = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) return;
-      loadMoreDual();
-    }, { rootMargin: "250px 0px" });
 
-    io.observe(pagerSentinel);
-  }
-}
+// if (pagerSentinel) {
+//   const io = new IntersectionObserver(([entry]) => {
+//     if (!entry.isIntersecting) return;
+
+//     // ✅ HOME-da ONLY latest artır
+//     if (document.getElementById("latestGrid")) {
+//       // sənin latest-only IIFE-də loadMore var idi:
+//       // onu window-a çıxarmışdın/çıxarmamısansa aşağıda deyəcəm
+//       if (typeof window.__latestLoadMore === "function") window.__latestLoadMore();
+//       return;
+//     }
+
+//     // digər səhifələrdə dual varsa, onu işlət
+//     if (typeof loadMoreDual === "function") loadMoreDual();
+//     else if (typeof loadMore === "function") loadMore();
+//   }, { rootMargin: "250px 0px" });
+
+// }
+
 (function () {
   const modal = document.querySelector(".notify-modal");
   const openBtn = document.getElementById("notifyBtn");
@@ -2012,4 +2091,58 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!safe.length) return;
     return orig.call(this, safe, grid, true);
   };
+})();
+(function HOME_LATEST_SCROLL_FIX(){
+  if (window.__HOME_LATEST_SCROLL_FIX__) return;
+  window.__HOME_LATEST_SCROLL_FIX__ = true;
+
+  const grid = document.getElementById("latestGrid");
+  const sentinel = document.getElementById("pagerSentinel");
+  if (!grid || !sentinel) return;
+
+  const PAGE = 8;
+  let list = [];
+  let cursor = 0;
+  let busy = false;
+
+  const getAll = () => window.ALL_CARS || window.CARS || window.cars || [];
+
+  const build = () => {
+    const all = getAll();
+    if (!Array.isArray(all) || !all.length) return [];
+    return all
+      .filter(x => String(x?.adType) === "1")
+      .sort((a,b)=> (b.createdAt || b.id || 0) - (a.createdAt || a.id || 0));
+  };
+
+  function renderNext(){
+    if (busy) return;
+    busy = true;
+
+    if (!list.length) list = build();
+
+    const chunk = list.slice(cursor, cursor + PAGE);
+    if (!chunk.length) { busy = false; return; }
+
+    renderCars(chunk, grid, { append: cursor > 0 });
+    cursor += chunk.length;
+
+    busy = false;
+  }
+
+  // first
+  const wait = setInterval(()=>{
+    if (getAll().length){
+      clearInterval(wait);
+      grid.innerHTML = "";
+      list = build();
+      cursor = 0;
+      renderNext();
+    }
+  }, 50);
+  setTimeout(()=>clearInterval(wait), 8000);
+
+  new IntersectionObserver(([e])=>{
+    if (e?.isIntersecting) renderNext();
+  }, { rootMargin:"450px 0px" }).observe(sentinel);
 })();

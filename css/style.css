@@ -2087,3 +2087,22 @@ img { max-width: 100%; }
     display: none;
   }
 }
+
+.card__price-row{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:10px;
+  min-width:0;
+}
+
+.card__date{
+  font-size:12px;
+  color:#6b7280;
+  white-space:nowrap;
+  flex:0 0 auto;
+}
+
+.card__price{
+  min-width:0;
+}
