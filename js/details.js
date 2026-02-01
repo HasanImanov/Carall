@@ -55,7 +55,9 @@
     if (updatedAt) updatedAt.textContent = "Yenilənib: —";
     return;
   }
-
+injectBreadcrumb(car);
+injectSimilarAdsStrict(car, cars);
+injectOwnerActions(car);
   // ===== Images: img first + images[] (unique) =====
   const seen = new Set();
   const imgs = [];
@@ -945,3 +947,602 @@ document.addEventListener("DOMContentLoaded", () => {
 
   sync();
 });
+/* =========================
+   Details breadcrumb (HTML-a toxunmadan)
+   - Gallery section-un ustune insert edir
+   - Marka / model kliklənəndir
+   - Elan № kliklənmir (istəsən edərik)
+   ========================= */
+
+function escapeHtml(str) {
+  return String(str ?? "").replace(/[&<>"']/g, (m) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+  }[m]));
+}
+
+function padId(n, len = 7) {
+  const s = String(n ?? "");
+  return s.length >= len ? s : "0".repeat(len - s.length) + s;
+}
+
+function getBrandModelFromCar(car) {
+  // Səndə field fərqli ola bilər deyə çox variantlı götürürük
+  const brand = (car?.brand || car?.make || car?.marka || "").trim(); 
+  const model = (car?.model || car?.modelName || car?.mod || "").trim();
+
+  if (brand || model) return { brand, model };
+
+  // Fallback: h1#carTitle içindən parse (məs: "Lada Niva 2024")
+  const title = (document.getElementById("carTitle")?.textContent || "").trim();
+  if (!title || title === "—") return { brand: "", model: "" };
+
+  const parts = title.split(/\s+/).filter(Boolean);
+  // minimum ehtimal: ilk söz marka, ikinci söz model
+  return {
+    brand: parts[0] || "",
+    model: parts[1] || ""
+  };
+}
+
+function injectBreadcrumb(car) {
+  // artıq əlavə olunubsa təkrarlama
+  if (document.querySelector(".dcrumb")) return;
+
+  const main = document.querySelector("main.wrap");
+  if (!main) return;
+
+  // Gallery section-u tap (səndə birinci section: <section class="card p16">)
+  const gallerySection = main.querySelector("section.card.p16");
+  if (!gallerySection) return;
+
+  const { brand, model } = getBrandModelFromCar(car);
+  const idTxt = `Elan № ${padId(car?.id, 7)}`;
+
+  // Linklər (indexdə filterlə işləyirsə super olacaq)
+  // İstəməsən, sadəcə "index.html" də edə bilərik.
+  const brandHref = `index.html?brand=${encodeURIComponent(brand)}`;
+  const modelHref = `index.html?brand=${encodeURIComponent(brand)}&model=${encodeURIComponent(model)}`;
+
+  const parts = [];
+
+  // İstədiyin dizilim: MODEL › MARKA › ELAN
+  // (istəsən MARKA › MODEL də edərik)
+  // ✅ DİZİLİM: MARKA › MODEL › ELAN
+if (brand) parts.push(`<a href="${brandHref}">${escapeHtml(brand)}</a>`);
+if (model) parts.push(`<span class="sep">›</span><a href="${modelHref}">${escapeHtml(model)}</a>`);
+
+
+  // Elan № klikli olmasın
+  parts.push(`<span class="sep">›</span><span class="muted">${escapeHtml(idTxt)}</span>`);
+
+  const nav = document.createElement("nav");
+  nav.className = "dcrumb";
+  nav.setAttribute("aria-label", "Breadcrumb");
+  nav.innerHTML = parts.join(" ");
+
+  // Gallery section-un üstüne yerləşdir (HTML-a toxunmadan)
+  gallerySection.parentNode.insertBefore(nav, gallerySection);
+}
+
+
+function fmtPriceAZ(p){
+  if (p === null || p === undefined || p === "") return "—";
+  const n = Number(String(p).replace(/[^\d]/g, ""));
+  return Number.isFinite(n) ? n.toLocaleString("az-AZ") : String(p);
+}
+
+function pickSimilarCars(current, allCars, limit=8){
+  const curId = String(current?.id);
+
+  const score = (c) => {
+    let s = 0;
+    if (!c) return -1;
+    if (String(c.id) === curId) return -999;
+
+    // ən çox: eyni marka+model
+    if ((c.brand||"") === (current.brand||"")) s += 40;
+    if ((c.model||"") === (current.model||"")) s += 60;
+
+    // eyni şəhər / il yaxınlığı / yanacaq
+    if ((c.city||"") === (current.city||"")) s += 10;
+    if ((c.fuel||"") === (current.fuel||"")) s += 6;
+
+    const y1 = Number(c.year), y2 = Number(current.year);
+    if (Number.isFinite(y1) && Number.isFinite(y2)){
+      const d = Math.abs(y1 - y2);
+      s += Math.max(0, 12 - d * 3); // 0..12
+    }
+
+    return s;
+  };
+
+  return (allCars || [])
+    .filter(Boolean)
+    .map(c => ({ c, s: score(c) }))
+    .filter(x => x.s > -100)
+    .sort((a,b) => b.s - a.s)
+    .slice(0, limit)
+    .map(x => x.c);
+}
+
+function injectSimilarAdsStrict(currentCar, allCars){
+  // 1 dəfə əlavə et
+  if (document.getElementById("simSec")) return;
+
+  const main = document.querySelector("main.wrap");
+  if (!main) return;
+
+  const info2 = main.querySelector("section.info2");
+  if (!info2) return;
+
+  const brand = String(currentCar?.brand || "").trim();
+  const model = String(currentCar?.model || "").trim();
+  const curId = String(currentCar?.id);
+
+  // ✅ STRICT: yalnız eyni marka+model
+  const list = (allCars || [])
+    .filter(c => c && String(c.id) !== curId)
+    .filter(c => String(c.brand || "").trim() === brand && String(c.model || "").trim() === model);
+
+  // Section yaradıb info2-dən sonra qoyuruq
+  const sec = document.createElement("section");
+  sec.className = "card simsec";
+  sec.id = "simSec";
+
+  // “Hamısını göstər” — filtrli index
+  const allHref = `index.html?brand=${encodeURIComponent(brand)}&model=${encodeURIComponent(model)}`;
+
+  if (!list.length) {
+    // ✅ Bənzər yoxdursa — mesaj
+    sec.innerHTML = `
+      <div class="simhead">
+        <h2>BƏNZƏR ELANLAR</h2>
+      </div>
+      <div style="padding: 6px 2px 14px; color:#6b7280; font-weight:650;">
+        Bənzər elan yoxdur.
+      </div>
+    `;
+    info2.parentNode.insertBefore(sec, info2.nextSibling);
+    return;
+  }
+
+  // ✅ varsa — neçə dənədisə o qədər render
+  sec.innerHTML = `
+    <div class="simhead">
+      <h2>BƏNZƏR ELANLAR</h2>
+      <a href="${allHref}">Hamısını göstər</a>
+    </div>
+    <div class="simgrid" id="simGrid"></div>
+  `;
+
+  info2.parentNode.insertBefore(sec, info2.nextSibling);
+
+  const grid = sec.querySelector("#simGrid");
+  const fallback = "images/Logo.png";
+
+  grid.innerHTML = list.map(car => {
+    const img = (car.img || (Array.isArray(car.images) ? car.images[0] : "") || fallback);
+    const price = fmtPriceAZ(car.price);
+    const title = `${(car.brand||"")} ${(car.model||"")}`.trim() || "Elan";
+
+    const specs = [
+      car.year,
+      car.engine ? `${car.engine}` : null,
+      car.mileage != null ? `${car.mileage} km` : null
+    ].filter(Boolean).join(", ");
+
+    const meta = [
+      car.city || "",
+      "bu gün"
+    ].filter(Boolean).join(", ");
+
+    return `
+      <a class="simcard" href="details.html?id=${encodeURIComponent(car.id)}">
+        <div class="simfav" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
+        <div class="simimg">
+          <img src="${img}" alt="" loading="lazy"
+            referrerpolicy="no-referrer"
+            onerror="this.onerror=null; this.src='${fallback}'">
+        </div>
+
+        <div class="simbody">
+          <div class="simprice">${price} ₼</div>
+          <div class="simtitle">${escapeHtml(title)}</div>
+          <div class="simspec">${escapeHtml(specs)}</div>
+          <div class="simmeta">${escapeHtml(meta)}</div>
+        </div>
+      </a>
+    `;
+  }).join("");
+}
+
+// helper-lər (səndə varsa təkrar yazma)
+function fmtPriceAZ(p){
+  if (p === null || p === undefined || p === "") return "—";
+  const n = Number(String(p).replace(/[^\d]/g, ""));
+  return Number.isFinite(n) ? n.toLocaleString("az-AZ") : String(p);
+}
+
+// ====================== OWNER + EDIT (Password gated) ======================
+
+// escapeHtml səndə artıq varsa, bunu yazma
+function escapeHtml(str) {
+  return String(str ?? "").replace(/[&<>"']/g, (m) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+  }[m]));
+}
+
+// Demo password verify:
+// 1) car.password / car.pin varsa onu yoxlayır
+// 2) yoxdursa localStorage map: carall_ad_pw_map_v1 { "id":"pin" }
+// function verifyAdPassword(car, inputPw){
+//   const typed = String(inputPw || "").trim();
+
+//   const pw = String(car?.password || car?.pin || "").trim();
+//   if (pw) return typed === pw;
+
+//   try{
+//     const map = JSON.parse(localStorage.getItem("carall_ad_pw_map_v1") || "{}");
+//     const saved = String(map[String(car.id)] || "").trim();
+//     if (!saved) return false;
+//     return typed === saved;
+//   }catch{
+//     return false;
+//   }
+// }
+
+function verifyAdPassword(car, inputPw){
+  // 🚧 DEMO MODE — hamı üçün eyni şifrə
+  return String(inputPw || "").trim() === "1234";
+}
+
+
+function injectEditUI(car){
+  // 1 dəfə
+  if (document.getElementById("editPanel")) return;
+
+  // ✅ Owner bar-ı tap (Düzəliş et düyməsinin olduğu yer)
+  const ownerBar = document.getElementById("ownerBar");
+  if (!ownerBar) return;
+
+  const panel = document.createElement("div");
+  panel.className = "editpanel";
+  panel.id = "editPanel";
+  panel.hidden = true;
+
+  const v = (x) => (x === null || x === undefined ? "" : String(x));
+
+  const curPrice   = v(car?.price);
+  const curCity    = v(car?.city);
+  const curCountry = v(car?.country);
+  const curYear    = v(car?.year);
+  const curMileage = v(car?.mileage);
+  const curFuel    = v(car?.fuel);
+  const curGear    = v(car?.gearbox);
+  const curEngine  = v(car?.engine);
+  const curDesc    = v(car?.description);
+
+  const curFeatures = Array.isArray(car?.features)
+    ? car.features.join(", ")
+    : v(car?.features);
+
+  panel.innerHTML = `
+  <div class="editgrid">
+
+    <div class="editfield">
+      <label>Qiymət (AZN)</label>
+      <input id="ePrice" type="number" min="0" step="50"
+             value="${escapeHtml(curPrice.replace(/[^\d]/g,""))}"
+             placeholder="Məs: 23500" />
+    </div>
+
+    <div class="editfield">
+      <label>Şəhər</label>
+      <select id="eCity">
+        ${["Bakı","Sumqayıt","Gəncə","Mingəçevir","Şirvan","Lənkəran","Naxçıvan","Şəki","Quba","Qəbələ","Xaçmaz"]
+          .map(x => `<option value="${escapeHtml(x)}" ${x===curCity ? "selected":""}>${escapeHtml(x)}</option>`)
+          .join("")}
+        ${curCity && !["Bakı","Sumqayıt","Gəncə","Mingəçevir","Şirvan","Lənkəran","Naxçıvan","Şəki","Quba","Qəbələ","Xaçmaz"].includes(curCity)
+          ? `<option value="${escapeHtml(curCity)}" selected>${escapeHtml(curCity)}</option>` : ""}
+      </select>
+    </div>
+
+    <div class="editfield">
+      <label>İl</label>
+      <select id="eYear">
+        ${Array.from({length: 40}, (_,i) => String(new Date().getFullYear() - i))
+          .map(y => `<option value="${y}" ${y===curYear ? "selected":""}>${y}</option>`)
+          .join("")}
+        ${curYear && !/^\d{4}$/.test(curYear) ? `<option value="${escapeHtml(curYear)}" selected>${escapeHtml(curYear)}</option>` : ""}
+      </select>
+    </div>
+
+    <div class="editfield">
+      <label>Yanacaq</label>
+      <select id="eFuel">
+        ${["Benzin","Dizel","Hibrid","Elektro","Qaz"]
+          .map(x => `<option value="${escapeHtml(x)}" ${x===curFuel ? "selected":""}>${escapeHtml(x)}</option>`)
+          .join("")}
+        ${curFuel && !["Benzin","Dizel","Hibrid","Elektro","Qaz"].includes(curFuel)
+          ? `<option value="${escapeHtml(curFuel)}" selected>${escapeHtml(curFuel)}</option>` : ""}
+      </select>
+    </div>
+
+    <div class="editfield">
+      <label>Sürətlər qutusu</label>
+      <select id="eGearbox">
+        ${["Avtomat","Mexanika","Robot","Variator"]
+          .map(x => `<option value="${escapeHtml(x)}" ${x===curGear ? "selected":""}>${escapeHtml(x)}</option>`)
+          .join("")}
+        ${curGear && !["Avtomat","Mexanika","Robot","Variator"].includes(curGear)
+          ? `<option value="${escapeHtml(curGear)}" selected>${escapeHtml(curGear)}</option>` : ""}
+      </select>
+    </div>
+
+    <div class="editfield">
+      <label>Yürüş (km)</label>
+      <input id="eMileage" type="number" min="0" step="1000"
+             value="${escapeHtml(curMileage.replace(/[^\d]/g,""))}"
+             placeholder="Məs: 125000" />
+    </div>
+
+    <div class="editfield">
+      <label>Ölkə</label>
+      <input id="eCountry" type="text" value="${escapeHtml(curCountry)}" placeholder="Məs: AZ" />
+    </div>
+
+    <div class="editfield">
+      <label>Mühərrik</label>
+      <input id="eEngine" type="text" value="${escapeHtml(curEngine)}" placeholder="Məs: 2.5 L" />
+    </div>
+
+    <div class="editfield" style="grid-column:1/-1;">
+      <label>Avadanlıqlar (vergül ilə)</label>
+      <input id="eFeatures" type="text" value="${escapeHtml(curFeatures)}" placeholder="Məs: ABS, Kamera, Kondisioner" />
+    </div>
+
+    <div class="editfield" style="grid-column:1/-1;">
+      <label>Maşın haqqında</label>
+      <textarea id="eDesc" placeholder="Açıqlama...">${escapeHtml(curDesc)}</textarea>
+    </div>
+
+  </div>
+
+  <div class="editactions">
+    <button class="btnCancel" id="eCancel" type="button">Ləğv et</button>
+    <button class="btnSave" id="eSave" type="button">Yadda saxla</button>
+  </div>
+
+  <div class="editnote">
+    *Hələlik UI preview. Sabah SQL/back-end qoşulanda real yadda saxlanacaq.
+  </div>
+`;
+
+
+  // ✅ Paneli Düzəliş et-in ALTINA qoy
+  ownerBar.insertAdjacentElement("afterend", panel);
+
+  document.getElementById("eCancel")?.addEventListener("click", () => {
+    panel.hidden = true;
+  });
+
+  document.getElementById("eSave")?.addEventListener("click", () => {
+    const price   = String(document.getElementById("ePrice")?.value ?? "").trim();
+const city    = document.getElementById("eCity")?.value ?? "";
+const country = document.getElementById("eCountry")?.value ?? "";
+const year    = document.getElementById("eYear")?.value ?? "";
+const mileage = String(document.getElementById("eMileage")?.value ?? "").trim();
+const fuel    = document.getElementById("eFuel")?.value ?? "";
+const gearbox = document.getElementById("eGearbox")?.value ?? "";
+const engine  = document.getElementById("eEngine")?.value ?? "";
+const desc    = document.getElementById("eDesc")?.value ?? "";
+const feats   = document.getElementById("eFeatures")?.value ?? "";
+
+
+    // car obyektini yenilə (UI üçün)
+    car.price = price;
+    car.city = city;
+    car.country = country;
+    car.year = year;
+    car.mileage = mileage;
+    car.fuel = fuel;
+    car.gearbox = gearbox;
+    car.engine = engine;
+    car.description = desc;
+
+    const featArr = String(feats).split(",").map(x=>x.trim()).filter(Boolean);
+    car.features = featArr;
+
+    // ekranda qiymət
+    const priceEl = document.getElementById("carPrice");
+    if (priceEl) priceEl.textContent = fmtPrice(price);
+
+    // title (brand model year)
+    const titleEl = document.getElementById("carTitle");
+    if (titleEl) titleEl.textContent =
+      `${safe(car.brand,"")} ${safe(car.model,"")} ${safe(year,"")}`.trim() || "Elan";
+
+    // sub
+    const subEl = document.getElementById("carSub");
+    if (subEl){
+      subEl.textContent =
+        [safe(city,""), safe(fuel,""), safe(gearbox,""), mileage ? `${safe(mileage)} km` : ""]
+          .filter(Boolean).join(" • ") || "—";
+    }
+
+    // updated
+    const upd = document.getElementById("updatedAt");
+    if (upd) upd.textContent = "Yenilənib: Bu gün";
+
+    // desc
+    const carDesc = document.getElementById("carDesc");
+    if (carDesc) carDesc.textContent = desc && String(desc).trim()
+      ? desc
+      : "Maşın haqqında məlumat əlavə edilməyib.";
+
+    // specs grid
+    const specsGrid = document.getElementById("specsGrid");
+    if (specsGrid){
+      const specs = [
+        ["Şəhər", city],
+        ["Ölkə", country],
+        ["Marka", car.brand],
+        ["Model", car.model],
+        ["Buraxılış ili", year],
+        ["Yanacaq", fuel],
+        ["Sürətlər qutusu", gearbox],
+        ["Yürüş", mileage ? `${mileage} km` : ""],
+        ["Mühərrik", engine],
+      ];
+
+      specsGrid.innerHTML = specs
+        .filter(([, v]) => v !== undefined && v !== null && String(v).trim() !== "")
+        .map(([k, v]) => `
+          <div class="spec">
+            <div class="k">${escapeHtml(k)}</div>
+            <div class="v">${escapeHtml(v)}</div>
+          </div>
+        `).join("");
+    }
+
+    // features chips
+    const chips = document.getElementById("featuresChips");
+    if (chips){
+      chips.innerHTML = featArr.length
+        ? featArr.map(f => `<span class="chip">${escapeHtml(f)}</span>`).join("")
+        : `<span class="chip">Avadanlıq göstərilməyib</span>`;
+    }
+
+    panel.hidden = true;
+    alert("UI: yadda saxlandı ✅ (sabah SQL qoşulanda real olacaq)");
+  });
+}
+
+
+function injectOwnerActions(car){
+  if (document.getElementById("ownerBar")) return;
+
+  const main = document.querySelector("main.wrap");
+  if (!main) return;
+
+  // 🔽 Avadanlıqlar blokunu tap
+const features = document.getElementById("featuresChips");
+if (!features) return;
+
+// Avadanlıqların olduğu block (ən yaxın .block)
+const featuresBlock = features.closest(".block");
+if (!featuresBlock) return;
+
+// owner bar
+const bar = document.createElement("div");
+bar.className = "ownerbar";
+bar.id = "ownerBar";
+bar.innerHTML = `
+  <button class="btnOwner" id="btnEditOwner" type="button">Düzəliş et</button>
+  <button class="btnOwner btnDanger" id="btnDelOwner" type="button">Sil</button>
+`;
+
+// ✅ Avadanlıqlar bitəndən SONRA əlavə et
+featuresBlock.parentNode.insertBefore(bar, featuresBlock.nextSibling);
+
+
+  // password modal
+  const back = document.createElement("div");
+  back.className = "pwbackdrop";
+  back.id = "pwBackdrop";
+  back.innerHTML = `
+    <div class="pwmodal" role="dialog" aria-modal="true" aria-label="Şifrə təsdiqi">
+      <div class="pwhead">
+        <div class="pwtitle" id="pwTitle">Şifrəni daxil edin</div>
+        <button class="pwclose" id="pwClose" type="button" aria-label="Bağla">×</button>
+      </div>
+
+      <div class="pwfield">
+        <label>Elan şifrəsi</label>
+        <input id="pwInput" type="password" autocomplete="off" placeholder="••••" />
+        <div class="pwerr" id="pwErr">Şifrə yanlışdır.</div>
+      </div>
+
+      <div help="" style="margin-top:10px; font-size:12px; color:#6b7280; font-weight:650;">
+        *Şifrə elan yerləşdiriləndən sonra göndəriləcək.
+      </div>
+
+      <div class="pwactions">
+        <button class="pwbtn pwbtnCancel" id="pwCancel" type="button">Ləğv et</button>
+        <button class="pwbtn pwbtnOk" id="pwOk" type="button">Təsdiqlə</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(back);
+
+  const btnEdit = document.getElementById("btnEditOwner");
+  const btnDel  = document.getElementById("btnDelOwner");
+  const inp     = document.getElementById("pwInput");
+  const err     = document.getElementById("pwErr");
+
+  let pending = null; // "edit" | "delete"
+
+  const openPw = (action) => {
+    pending = action;
+    document.getElementById("pwTitle").textContent =
+      action === "delete" ? "Silmək üçün şifrəni daxil edin" : "Düzəliş üçün şifrəni daxil edin";
+
+    if (inp) inp.value = "";
+    if (err) err.style.display = "none";
+    back.classList.add("is-open");
+    setTimeout(() => inp?.focus(), 0);
+  };
+
+  const closePw = () => {
+    back.classList.remove("is-open");
+    pending = null;
+  };
+
+  btnEdit?.addEventListener("click", () => openPw("edit"));
+  btnDel?.addEventListener("click", () => openPw("delete"));
+
+  back.addEventListener("click", (e) => { if (e.target === back) closePw(); });
+  document.getElementById("pwClose")?.addEventListener("click", closePw);
+  document.getElementById("pwCancel")?.addEventListener("click", closePw);
+
+  document.getElementById("pwOk")?.addEventListener("click", () => {
+    const ok = verifyAdPassword(car, inp?.value);
+    if (!ok){
+      if (err) err.style.display = "block";
+      inp?.focus();
+      return;
+    }
+
+    const action = pending;
+    closePw();
+
+   if (action === "edit") {
+  injectEditUI(car);
+
+  const panel = document.getElementById("editPanel");
+  if (panel) {
+    panel.hidden = false;
+    panel.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  return;
+}
+
+    if (action === "delete") {
+  const yes = confirm("Elanı silmək istədiyinizə əminsiniz?");
+  if (!yes) return;
+  alert("UI: Elan silindi ✅ (sabah SQL qoşulanda real olacaq)");
+  return;
+}
+  });
+
+  inp?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") document.getElementById("pwOk")?.click();
+    if (e.key === "Escape") closePw();
+  });
+}
