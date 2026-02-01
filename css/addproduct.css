@@ -27,7 +27,6 @@ body{
   position:sticky;top:0;z-index:20;
   display:flex;align-items:center;gap:10px;
   padding:12px 14px;
-  background:rgba(246,247,251,.92);
   backdrop-filter: blur(10px);
   border-bottom:1px solid rgba(226,232,240,.7);
 }

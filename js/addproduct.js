@@ -480,4 +480,96 @@ document.addEventListener("DOMContentLoaded", () => {
   // ---------------------------
   setStep(1);
 
+    // ---------------------------
+  // Phone mask: +994 (0XX) XXX-XX-XX
+  // ---------------------------
+  initPhoneMask();
+
+  function initPhoneMask(){
+    const input = form?.elements?.phone; // name="phone"
+    if (!input) return;
+
+    const PREFIX = "+994 ";
+
+    const onlyDigits = (s) => (s || "").replace(/\D/g, "");
+
+    function formatAZ(rawDigits){
+      let d = rawDigits;
+
+      // user +994 yazıbsa, 994-i kəs
+      if (d.startsWith("994")) d = d.slice(3);
+
+      // max 10 rəqəm (0XX XXX XX XX)
+      d = d.slice(0, 10);
+
+      // 0 yoxdursa əlavə et
+      if (d.length > 0 && d[0] !== "0") d = "0" + d;
+      d = d.slice(0, 10);
+
+      const op = d.slice(0, 3);  // 0XX
+      const p1 = d.slice(3, 6);  // XXX
+      const p2 = d.slice(6, 8);  // XX
+      const p3 = d.slice(8, 10); // XX
+
+      let out = PREFIX;
+
+      if (d.length === 0) return out;
+
+      out += "(" + op;
+      if (op.length === 3) out += ") ";
+      else return out;
+
+      out += p1;
+      if (p1.length === 3) out += "-";
+      else return out;
+
+      out += p2;
+      if (p2.length === 2) out += "-";
+      else return out;
+
+      out += p3;
+      return out;
+    }
+
+    function caretEnd(){
+      const len = input.value.length;
+      input.setSelectionRange(len, len);
+    }
+
+    // start value
+    if (!input.value || !input.value.startsWith(PREFIX)) {
+      input.value = PREFIX;
+    }
+
+    input.addEventListener("focus", () => {
+      if (!input.value || !input.value.startsWith(PREFIX)) input.value = PREFIX;
+      caretEnd();
+    });
+
+    input.addEventListener("keydown", (e) => {
+      // prefix silinməsin
+      if (e.key === "Backspace" && input.selectionStart <= PREFIX.length) {
+        e.preventDefault();
+        input.value = PREFIX;
+        caretEnd();
+      }
+    });
+
+    input.addEventListener("input", () => {
+      const digits = onlyDigits(input.value);
+      input.value = formatAZ(digits);
+      caretEnd();
+    });
+
+    input.addEventListener("paste", (e) => {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData("text");
+      const digits = onlyDigits(text);
+      input.value = formatAZ(digits);
+      caretEnd();
+    });
+  }
+
+
+
 });
