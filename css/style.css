@@ -2268,3 +2268,145 @@ img { max-width: 100%; }
     align-items:flex-start;
   }
 }
+
+.subnav{
+  background: #fff;
+  border-top: 1px solid rgba(17,24,39,.06);
+  border-bottom: 1px solid rgba(17,24,39,.08);
+}
+
+.subnav__in{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 10px 16px;
+
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  justify-content: center;
+}
+
+.subnav__a{
+  text-decoration: none;
+  color: #111827;
+  font-weight: 700;
+  font-size: 14px;
+
+  padding: 8px 6px;
+  border-bottom: 2px solid transparent;
+  transition: border-color .15s ease, opacity .15s ease;
+}
+
+.subnav__a:hover{
+  border-bottom-color: rgba(17,24,39,.25);
+}
+
+.subnav__a.is-active{
+  border-bottom-color: rgba(17,24,39,.55);
+}
+
+/* Mobil: hamısı göz qabağında, sürüşür */
+@media (max-width: 640px){
+  .subnav__in{
+    justify-content: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .subnav__in::-webkit-scrollbar{ display:none; }
+
+  .subnav__a{ white-space: nowrap; }
+}
+.subnav__a{
+  position: relative;
+  text-decoration: none;
+  color: #111827;
+  font-weight: 700;
+  font-size: 14px;
+
+  padding: 8px 14px;
+  border-bottom: 2px solid transparent;
+  transition: border-color .15s ease, opacity .15s ease;
+}
+
+/* sağ separator */
+.subnav__a::after{
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 16px;
+  background: rgba(17,24,39,.18);
+}
+
+/* sonuncuda olmasın */
+.subnav__a:last-child::after{
+  display: none;
+}
+
+/* hover effekti */
+.subnav__a:hover{
+  border-bottom-color: rgba(17,24,39,.35);
+}
+
+/* aktiv */
+.subnav__a.is-active{
+  border-bottom-color: rgba(17,24,39,.6);
+}
+
+/* mobil: separator bir az qısa olsun */
+@media (max-width: 640px){
+  /* konteyneri "kart" elə */
+  .subnav{
+    margin: 10px 12px 14px;
+  }
+
+  .subnav__in{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;                  /* aralıq */
+    padding: 12px;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 10px 26px rgba(17,24,39,.08);
+    border: 1px solid rgba(17,24,39,.08);
+  }
+
+  /* item-ları ayrıca "chip-card" elə */
+  .subnav__a{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 12px 10px;
+    text-align: center;
+    font-weight: 800;
+    font-size: 14px;
+    line-height: 1.15;
+    border-radius: 14px;
+
+    background: rgba(17,24,39,.03);
+    border: 1px solid rgba(17,24,39,.08);
+
+    transition: transform .08s ease, background .15s ease, border-color .15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .subnav__a:active{
+    transform: scale(.98);
+    background: rgba(17,24,39,.06);
+    border-color: rgba(17,24,39,.14);
+  }
+
+  /* köhnə border sistemini söndür */
+  .subnav__a{
+    border-bottom: none;
+    border-right: none;
+  }
+  .hero {
+    padding: 0px 0 0px;
+}
+  .subnav__a::after{ display:none; }
+}
