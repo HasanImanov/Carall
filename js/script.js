@@ -2146,3 +2146,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e?.isIntersecting) renderNext();
   }, { rootMargin:"450px 0px" }).observe(sentinel);
 })();
+
+document.addEventListener("DOMContentLoaded", () => {
+  const y = document.getElementById("footerYear");
+  if (y) y.textContent = new Date().getFullYear();
+});
