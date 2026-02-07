@@ -52,4 +52,151 @@ window.CARALL_BRAND_MODELS = BRAND_MODELS;
 window.CARALL_COLORS = COLORS;
 window.CARALL_CITIES = CITIES;
 
+const SALONS = [
+  {
+    "id": 1,
+    "name": "MINI Azerbaijan",
+    "slug": "mini-azerbaijan",
+    "city": "Bakı",
+    "address": "Nəsimi r., A.Salamzadə küç., 33",
+    "description": "MINI avtomobillərinin Azərbaycanda rəsmi idxalçısı Improtex Motors.",
+    "logo": "https://mediapool.bmwgroup.com/cache/P9/201506/P90188506/P90188506-the-new-mini-logo-06-2015-600px.jpg",
+    "carsCount": 3,
+    "phone": "+994501234567",
+    "verified": true
+  },
+  {
+    "id": 2,
+    "name": "Auto Mall",
+    "slug": "auto-mall",
+    "city": "Bakı",
+    "address": "Badamdar qəs., Maşın bazarı",
+    "description": "Şəffaf və etibarlı avtomobil satışı xidməti.",
+    "logo": "https://baza.az/storage/uploads/25/05/89d9cd37-40c7-41d9-bece-55faa4017655.webp",
+    "carsCount": 26,
+    "phone": "+994552223344",
+    "verified": false
+  },
+  {
+    "id": 3,
+    "name": "Kia Azerbaijan",
+    "slug": "kia-azerbaijan",
+    "city": "Bakı",
+    "address": "Nizami r., Babək pr., 43",
+    "description": "Kia markasının Azərbaycanda rəsmi distribütoru.",
+    "logo": "https://www.kiamedia.com/content/images/default/low.jpg",
+    "carsCount": 18,
+    "phone": "+994702223344",
+    "verified": true
+  },
+  {
+    "id": 4,
+    "name": "Eco Auto",
+    "slug": "eco-auto",
+    "city": "Bakı",
+    "address": "Nizami r., Babək pr., 61C",
+    "description": "Yeni və işlənmiş avtomobillərin satışı.",
+    "logo": "https://img.freepik.com/premium-vector/eco-car-logo-design_17005-393.jpg",
+    "carsCount": 12,
+    "phone": "+994505556677",
+    "verified": false
+  },
+  {
+    "id": 5,
+    "name": "XPENG Azerbaijan",
+    "slug": "xpeng-azerbaijan",
+    "city": "Bakı",
+    "address": "Babək pr., 74",
+    "description": "XPENG brendinin Azərbaycanda rəsmi distribütoru.",
+    "logo": "https://logowik.com/content/uploads/images/xpeng-motors8320.jpg",
+    "carsCount": 10,
+    "phone": "+994707778899",
+    "verified": true
+  },
+  {
+    "id": 6,
+    "name": "AzCar Motors",
+    "slug": "azcar-motors",
+    "city": "Bakı",
+    "address": "Nərimanov r., Azadlıq pr., 116",
+    "description": "Geniş model seçimi və sərfəli təkliflər.",
+    "logo": "https://dz9pgqdzwctgj.cloudfront.net/dealers/186/dealer-cover/d9f16afc-411d-4661-9b2c-7c913e3e2e5b/az-car-logo.svg",
+    "carsCount": 40,
+    "phone": "+994512223344",
+    "verified": false
+  },
+  {
+    "id": 7,
+    "name": "Premium Cars Baku",
+    "slug": "premium-cars-baku",
+    "city": "Bakı",
+    "address": "Xətai r., Nobel pr.",
+    "description": "Premium sinif avtomobillər.",
+    "logo": "https://img.freepik.com/premium-vector/luxury-car-logo-design-luxury-car-logo-design-template_995817-389.jpg",
+    "carsCount": 22,
+    "phone": "+994555551212",
+    "verified": true
+  },
+  {
+    "id": 8,
+    "name": "Ganja Auto",
+    "slug": "ganja-auto",
+    "city": "Gəncə",
+    "address": "Mərkəz küç.",
+    "description": "Gəncə şəhərində etibarlı avtosalon.",
+    "logo": "https://www.shutterstock.com/image-vector/auto-car-dealership-logo-emblem-600nw-2494083137.jpg",
+    "carsCount": 15,
+    "phone": "+994703334455",
+    "verified": false
+  },
+  {
+    "id": 9,
+    "name": "Sumqayit Motors",
+    "slug": "sumqayit-motors",
+    "city": "Sumqayıt",
+    "address": "Sülh pr.",
+    "description": "Sumqayıt üzrə avtomobil satışı.",
+    "logo": "https://www.avtovitrin.com/images/showrooms/36213847.png",
+    "carsCount": 9,
+    "phone": "+994502229999",
+    "verified": false
+  },
+  {
+    "id": 10,
+    "name": "Elite Auto",
+    "slug": "elite-auto",
+    "city": "Bakı",
+    "address": "Yasamal r.",
+    "description": "Elit avtomobil modelləri.",
+    "logo": "https://dcassetcdn.com/design_img/2685068/19317/19317_14565868_2685068_93f44f76_image.jpg",
+    "carsCount": 17,
+    "phone": "+994705551010",
+    "verified": true
+  },
+  {
+    "id": 11,
+    "name": "Nakhchivan Auto",
+    "slug": "nakhchivan-auto",
+    "city": "Naxçıvan",
+    "address": "Heydər Əliyev pr.",
+    "description": "Naxçıvan üzrə rəsmi avtomobil satışı.",
+    "logo": "https://i.pinimg.com/736x/e5/91/c4/e591c486148387dc347a7c83576ae807.jpg",
+    "carsCount": 6,
+    "phone": "+994706667788",
+    "verified": false
+  },
+  {
+    "id": 12,
+    "name": "Caspian Motors",
+    "slug": "caspian-motors",
+    "city": "Bakı",
+    "address": "Zığ yolu",
+    "description": "Yeni nəsil avtomobil mərkəzi.",
+    "logo": "https://aada.az/uploads/posts/2024-06/1719403353_news-copy.jpg",
+    "carsCount": 28,
+    "phone": "+994509998877",
+    "verified": true
+  }
+];
+
 

@@ -1,0 +1,112 @@
+/* =========================
+   CarAll — salon.css
+   Only hero + empty + sentinel.
+   Cards/grid styling comes from style.css
+   ========================= */
+
+:root{
+  --bd: rgba(15, 23, 42, .08);
+  --tx: rgba(15, 23, 42, .92);
+  --sub: rgba(15, 23, 42, .62);
+  --soft: rgba(15, 23, 42, .04);
+  --shadow: 0 10px 30px rgba(2, 6, 23, .06);
+  --r: 18px;
+}
+
+.wrap{ max-width: 1200px; margin: 0 auto; padding: 18px 14px 28px; }
+
+/* HERO */
+.salon-hero{
+  border: 1px solid var(--bd);
+  border-radius: var(--r);
+  background: #fff;
+  box-shadow: var(--shadow);
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.hero-top{
+  display:flex; gap: 12px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+}
+
+.hero-left{ display:flex; gap:12px; align-items:center; min-width: 240px; }
+.hero-logo{
+  width:56px; height:56px; border-radius:16px;
+  border:1px solid var(--bd); background: var(--soft);
+  display:grid; place-items:center; overflow:hidden; flex:0 0 auto;
+}
+.hero-logo img{ width:100%; height:100%; object-fit:cover; display:block; }
+.hero-logo__txt{ font-weight:900; color: rgba(15,23,42,.65); }
+
+.hero-name{ font-size:20px; line-height:1.15; margin:0; color: var(--tx); }
+.hero-sub{ margin-top:4px; color: var(--sub); font-size:13.5px; }
+
+.hero-actions{ display:flex; gap:10px; }
+.hero-btn{
+  height:44px; padding:0 14px; border-radius:14px;
+  border:1px solid var(--bd); background:#fff; cursor:pointer; font-weight:800;
+  color: rgba(15,23,42,.82);
+}
+.hero-btn:hover{ background: rgba(15,23,42,.02); }
+
+/* block head */
+.salon-block__head{
+  display:flex; align-items:center; justify-content:space-between; gap: 10px; flex-wrap:wrap;
+  margin: 6px 0 10px;
+}
+.salon-block__title{ margin:0; font-size:16px; color: var(--tx); }
+.salon-pill{
+  font-size: 13px;
+  color: var(--sub);
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--soft);
+  border: 1px solid var(--bd);
+}
+
+/* sentinel */
+.salon-sentinel{
+  margin: 12px 0 0;
+  padding: 12px 0;
+  text-align: center;
+  color: rgba(15, 23, 42, .55);
+  font-size: 13px;
+}
+
+/* empty */
+.salon-empty{
+  margin: 14px 0 0;
+  border: 1px dashed var(--bd);
+  border-radius: var(--r);
+  padding: 18px;
+  background: rgba(15, 23, 42, .02);
+}
+.salon-empty__t{ font-weight: 900; color: var(--tx); }
+.salon-empty__d{ margin-top: 4px; color: var(--sub); font-size: 13.5px; }
+
+.salon-tools{ margin: 10px 0 12px; display:flex; justify-content:flex-start; }
+.salon-search{
+  position: relative;
+  width: min(520px, 100%);
+}
+.salon-search input{
+  width: 100%;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(15,23,42,.12);
+  padding: 0 44px 0 14px;
+  outline: 0;
+  background: #fff;
+}
+.salon-search button{
+  position:absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 0;
+  background: rgba(15,23,42,.06);
+  cursor: pointer;
+}
