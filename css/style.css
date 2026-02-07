@@ -526,7 +526,7 @@ img { max-width: 100%; }
 
   /* bottom-u aşağı itələ */
   .card__bottom{
-    margin-top:auto;
+    margin-top:15px;
   }
   .card__meta span{
   white-space: nowrap;
@@ -771,8 +771,8 @@ img { max-width: 100%; }
   }
 
   .card__price{
-    font-size: 15px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 600;
   }
 
   .card__cta{
@@ -2269,11 +2269,7 @@ img { max-width: 100%; }
   }
 }
 
-.subnav{
-  background: #fff;
-  border-top: 1px solid rgba(17,24,39,.06);
-  border-bottom: 1px solid rgba(17,24,39,.08);
-}
+
 
 .subnav__in{
   max-width: 1100px;
@@ -2306,24 +2302,14 @@ img { max-width: 100%; }
 }
 
 /* Mobil: hamısı göz qabağında, sürüşür */
-@media (max-width: 640px){
-  .subnav__in{
-    justify-content: flex-start;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  .subnav__in::-webkit-scrollbar{ display:none; }
 
-  .subnav__a{ white-space: nowrap; }
-}
 .subnav__a{
   position: relative;
   text-decoration: none;
   color: #111827;
   font-weight: 700;
   font-size: 14px;
-
+width: 100%;
   padding: 8px 14px;
   border-bottom: 2px solid transparent;
   transition: border-color .15s ease, opacity .15s ease;
@@ -2382,7 +2368,7 @@ img { max-width: 100%; }
     min-height: 48px;
     padding: 12px 10px;
     text-align: center;
-    font-weight: 800;
+    font-weight: 600;
     font-size: 14px;
     line-height: 1.15;
     border-radius: 14px;
