@@ -2063,7 +2063,7 @@ img { max-width: 100%; }
 
   /* ümumi badge */
   .badges .badge{
-    padding: 3px 6px;
+    padding: 2px 5px;
     font-size: 10px;
     line-height: 1;
     border-radius: 999px;
@@ -2075,11 +2075,15 @@ img { max-width: 100%; }
   /* VIP – daha kompakt */
   .badges .badge.vip{
     font-weight: 600;
+    margin-left: 115px;
+
   }
 
   /* Premium – icon ön planda */
   .badges .badge.premium{
     padding: 3px 5px;
+    margin-left: 115px;
+
   }
 
   /* Premium-da texti gizlət, icon qalsın */
