@@ -2039,10 +2039,12 @@ img { max-width: 100%; }
   border-radius: 999px;
   font-size: 12px;
   border: 1px solid #e5e7eb;
+    margin-left:78%;
+
 }
 
 .badge.premium{
-  background: linear-gradient(135deg, #f59e0b, #facc15);
+  /* background: linear-gradient(135deg, #f59e0b, #facc15); */
   color: #1f2937;
   font-weight: 700;
   padding: 5px 10px;
@@ -2050,6 +2052,8 @@ img { max-width: 100%; }
   font-size: 12px;
   letter-spacing: .2px;
   box-shadow: 0 4px 10px rgba(245, 158, 11, .35);
+    margin-left: 78%;
+
   
 }
 .home-block__head{
@@ -2084,21 +2088,15 @@ img { max-width: 100%; }
     font-size: 13px;
   }
 }
-.vip{
-  margin-left: 210px;
-}
-
-.premium{
-  margin-left: 230px;
-}
 
 @media (max-width: 560px){
 .vip{
-  margin-left: 130px;
+  margin-left: clamp(120px, calc(10vw + 60px), 180px);
 }
 
 .premium{
-  margin-left: 150px;
+  margin-left: clamp(120px, calc(10vw + 60px), 180px);
+
 }
   
 }@media (max-width: 480px){
@@ -2122,14 +2120,14 @@ img { max-width: 100%; }
   /* VIP – daha kompakt */
   .badges .badge.vip{
     font-weight: 600;
-    margin-left: 115px;
+    margin-left: 150px;
 
   }
 
   /* Premium – icon ön planda */
   .badges .badge.premium{
     padding: 3px 5px;
-    margin-left: 115px;
+    margin-left: 150px;
 
   }
 
@@ -2323,7 +2321,7 @@ img { max-width: 100%; }
 
 
 .subnav__in{
-  max-width: 1100px;
+  max-width:70%;
   margin: 0 auto;
   padding: 10px 16px;
 
@@ -2398,6 +2396,9 @@ width: 100%;
   /* konteyneri "kart" elə */
   .subnav{
     margin: 10px 12px 14px;
+    max-width:100%;
+
+
   }
 
   .subnav__in{
@@ -2409,26 +2410,37 @@ width: 100%;
     background: #fff;
     box-shadow: 0 10px 26px rgba(17,24,39,.08);
     border: 1px solid rgba(17,24,39,.08);
+    max-width: 100% !important;
+    
   }
 
+  
   /* item-ları ayrıca "chip-card" elə */
   .subnav__a{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 48px;
-    padding: 12px 10px;
-    text-align: center;
-    font-weight: 600;
-    font-size: 14px;
-    line-height: 1.15;
-    border-radius: 14px;
+   -webkit-tap-highlight-color: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-    background: rgba(17,24,39,.03);
-    border: 1px solid rgba(17,24,39,.08);
+  min-height: 48px;
+  padding: 0 14px;
 
-    transition: transform .08s ease, background .15s ease, border-color .15s ease;
-    -webkit-tap-highlight-color: transparent;
+  border-radius: 14px;
+  border: 1px solid rgba(15,23,42,.10);
+  background: rgba(255,255,255,.85);
+
+  font-weight: 600;
+  text-decoration: none;
+  color: rgba(15,23,42,.92);
+
+ box-shadow:
+    0 1px 2px rgba(0,0,0,.04),
+    0 6px 16px rgba(0,0,0,.06);
+  transition:
+    box-shadow .15s ease,
+    transform .08s ease,
+    background .15s ease;
+  user-select: none;
   }
 
   .subnav__a:active{
@@ -2446,4 +2458,99 @@ width: 100%;
     padding: 0px 0 0px;
 }
   .subnav__a::after{ display:none; }
+}
+
+
+/* =========================
+   FINAL FIX: VIP/Premium icons (ALL devices)
+   - Prevent 0x0 / unset conflicts
+   - No impact on location .badge (country • city)
+   ========================= */
+
+/* şəkil wrap referans */
+.card__imgwrap{
+  position: relative;
+}
+
+/* top layer mütləq şəkilin üstünü tutsun */
+.card__top{
+  position: absolute;
+  inset: 0;
+  z-index: 35;
+}
+
+/* badges küncə pin */
+.card__top .badges{
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ---- ONLY icon badges (vip/premium) ---- */
+.card__top .badges .badge.vip,
+.card__top .badges .badge.premium{
+  /* köhnə .badge qaydaları (all:unset və s.) varsa, bunu "geri alır" */
+  all: revert;
+
+  /* sonra bizim sabit görünüş */
+  margin: 0 !important;
+  padding: 0 !important;
+
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 999px;
+
+  display: grid !important;
+  place-items: center;
+
+  line-height: 1 !important;
+  font-size: 14px !important;
+
+  background: rgba(17,24,39,.55);
+  color: #fff;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,.22);
+  box-shadow: 0 10px 22px rgba(0,0,0,.18);
+}
+
+/* desktop bir az böyük */
+@media (min-width: 641px){
+  .card__top .badges{
+    right: 10px;
+    bottom: 10px;
+  }
+  .card__top .badges .badge.vip,
+  .card__top .badges .badge.premium{
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 12px !important;
+  }
+}
+
+/* mobile xırda */
+@media (max-width: 640px){
+  .card__top .badges{
+    right: 8px;
+    bottom: 8px;
+  }
+}
+/* MOBIL: VIP/Premium icon daha balaca olsun */
+@media (max-width: 640px){
+  .card__top .badges{
+    right: 6px;
+    bottom: 6px;
+    gap: 5px;
+  }
+
+  .card__top .badges .badge.vip,
+  .card__top .badges .badge.premium{
+    width: 20px !important;
+    height: 20px !important;
+    font-size: 11px !important;
+    border-radius: 999px;
+  }
 }
