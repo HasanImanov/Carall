@@ -2203,3 +2203,54 @@ document.addEventListener("DOMContentLoaded", () => {
   const y = document.getElementById("footerYear");
   if (y) y.textContent = new Date().getFullYear();
 });
+(function advDelegationFix(){
+  const open = () => {
+    const p = document.getElementById("advPanel");
+    if (!p) return;
+
+    p.removeAttribute("hidden");
+    p.setAttribute("aria-hidden", "false");
+    requestAnimationFrame(() => p.classList.add("is-open"));
+  };
+
+  const close = () => {
+    const p = document.getElementById("advPanel");
+    if (!p) return;
+
+    p.classList.remove("is-open");
+    p.setAttribute("aria-hidden", "true");
+    setTimeout(() => p.setAttribute("hidden",""), 220);
+  };
+
+  const toggle = () => {
+    const p = document.getElementById("advPanel");
+    if (!p) return;
+    const isOpen = p.classList.contains("is-open") && !p.hasAttribute("hidden");
+    isOpen ? close() : open();
+  };
+
+  // ✅ delegation: element dəyişsə də tutacaq
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("#btnAdvanced");
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    toggle();
+  }, true);
+
+  // outside click close
+  document.addEventListener("click", (e) => {
+    const p = document.getElementById("advPanel");
+    if (!p || p.hasAttribute("hidden")) return;
+    if (e.target.closest("#advPanel") || e.target.closest("#btnAdvanced")) return;
+    close();
+  }, true);
+
+  // ESC close
+  window.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    const p = document.getElementById("advPanel");
+    if (!p || p.hasAttribute("hidden")) return;
+    close();
+  });
+})();
