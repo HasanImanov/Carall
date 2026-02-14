@@ -46,13 +46,24 @@
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#039;");
 
-  const logoHTML = (name, logo) => {
-    if (logo && String(logo).trim()) {
-      return `<img src="${logo}" alt="${escapeHtml(name)}">`;
-    }
-    const first = (name || "?").trim().charAt(0).toUpperCase();
-    return `<span class="s-logo__txt">${escapeHtml(first)}</span>`;
-  };
+ const logoHTML = (name, logo) => {
+  const url = String(logo || "").trim();
+  if (url) {
+    return `
+      <img
+        src="${escapeHtml(url)}"
+        alt="${escapeHtml(name)}"
+        loading="lazy"
+        referrerpolicy="no-referrer"
+        onerror="this.onerror=null; this.src='images/Logo.png';"
+      />
+    `;
+  }
+  const first = (name || "?").trim().charAt(0).toUpperCase();
+  return `<span class="s-logo__txt">${escapeHtml(first)}</span>`;
+};
+
+
 
   function setCount(n) {
     if (!countEl) return;
@@ -83,32 +94,40 @@
       const logo = s.logo ?? "";
 
       const card = document.createElement("article");
-      card.className = "s-card";
-      card.innerHTML = `
-        <div class="s-top">
-          <div class="s-logo" aria-hidden="true">${logoHTML(name, logo)}</div>
+card.className = "s-card";
+card.setAttribute("data-href", `salon.html?id=${encodeURIComponent(String(id))}`);
 
-          <div class="s-head">
-            <div class="s-title">
-              <a href="salon.html?id=${encodeURIComponent(String(id))}">${escapeHtml(name)}</a>
-              ${verified ? `<span class="s-badge" title="Təsdiqli">✓</span>` : ``}
-            </div>
-            <div class="s-sub">${escapeHtml(carsCount ? `${carsCount} elan` : "—")}</div>
-          </div>
-        </div>
+card.innerHTML = `
+  <div class="s-top">
+    <a class="s-logo" href="salon.html?id=${encodeURIComponent(String(id))}" aria-label="${escapeHtml(name)}">
+      ${logoHTML(name, logo)}
+    </a>
 
-        <div class="s-desc">${escapeHtml(desc)}</div>
+    <div class="s-head">
+      <div class="s-title">
+        <a class="s-link" href="salon.html?id=${encodeURIComponent(String(id))}">${escapeHtml(name)}</a>
+        ${verified ? `<span class="s-badge" title="Təsdiqli">✓</span>` : ``}
+      </div>
 
-        ${addr ? `<a class="s-addr" href="salon.html?id=${encodeURIComponent(String(id))}">${escapeHtml(addr)}</a>` : ``}
+      <!-- ✅ “3 elan” da link olsun -->
+      <a class="s-sub s-link2" href="salon.html?id=${encodeURIComponent(String(id))}">
+        ${escapeHtml(carsCount ? `${carsCount} elan` : "—")}
+      </a>
+    </div>
+  </div>
 
-        <div class="s-actions">
-          <button class="s-btn" type="button" data-phone="${escapeHtml(phone)}">
-            Nömrəni göstər
-          </button>
-        </div>
+  <div class="s-desc">${escapeHtml(desc)}</div>
 
-        <div class="s-phone" hidden></div>
-      `;
+  ${addr ? `<a class="s-addr" href="salon.html?id=${encodeURIComponent(String(id))}">${escapeHtml(addr)}</a>` : ``}
+
+  <div class="s-actions">
+    <button class="s-btn" type="button" data-phone="${escapeHtml(phone)}">
+      Nömrəni göstər
+    </button>
+  </div>
+
+  <div class="s-phone" hidden></div>
+`;
 
       frag.appendChild(card);
     });
@@ -216,14 +235,12 @@
     searchEl.focus();
   });
 
-  grid.addEventListener("click", (e) => {
-    const btn = e.target.closest(".s-btn");
-    if (!btn) return;
-
+ grid.addEventListener("click", (e) => {
+  const btn = e.target.closest(".s-btn");
+  if (btn) {
     const card = btn.closest(".s-card");
     const phoneBox = card?.querySelector(".s-phone");
     const phone = btn.getAttribute("data-phone") || "";
-
     if (!phoneBox) return;
 
     if (!phone || phone.trim() === "") {
@@ -234,7 +251,7 @@
       return;
     }
 
-    const show = phoneBox.hidden; // toggle
+    const show = phoneBox.hidden;
     phoneBox.hidden = !show;
 
     if (show) {
@@ -243,7 +260,17 @@
     } else {
       btn.textContent = "Nömrəni göstər";
     }
-  });
+    return; // ✅ button klikindən sonra kart yönləndirməsin
+  }
+
+  // ✅ Kart klik
+  const card = e.target.closest(".s-card");
+  if (card && !e.target.closest("a")) {
+    const href = card.getAttribute("data-href");
+    if (href) location.href = href;
+  }
+});
+
 
   // ---- INIT ----
   resetPager(baseAll);

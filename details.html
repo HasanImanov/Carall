@@ -98,134 +98,155 @@
   </div>
 </div>
 
- <main class="wrap">
+ <!-- ===================== DETAILS MAIN (SƏNİN ATDIĞIN KİMİ) ===================== -->
+<main class="wrap">
 
-    <!-- SECTION 1: Gallery -->
-    <section class="card p16">
-      <div class="gallery-grid">
+  <!-- SECTION 1: Gallery -->
+  <section class="card p16">
+    <div class="gallery-grid">
 
-        <!-- Left (60%) main slider -->
-        <div class="mainbox">
-          <div class="mainimg-wrap" id="mainWrap">
-            <img id="mainImg" alt="car" />
-            <img id="ghostImg" alt="" aria-hidden="true" />
+      <!-- Left (60%) main slider -->
+      <div class="mainbox">
+        <div class="mainimg-wrap" id="mainWrap">
+          <img id="mainImg" alt="car" />
+          <img id="ghostImg" alt="" aria-hidden="true" />
 
-            <button class="fav-btn" id="favBtn" type="button" aria-label="Favorit" >
-  <!-- OUTLINE -->
-                <svg class="fav-ic ic-off" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"
-                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+          <button class="fav-btn" id="favBtn" type="button" aria-label="Favorit" >
+            <!-- OUTLINE -->
+            <svg class="fav-ic ic-off" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
 
-                <!-- FILLED -->
-                <svg class="fav-ic ic-on" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M12 21.23 4.22 13.45a5.5 5.5 0 0 1 7.78-7.78L12 5.67l1-1a5.5 5.5 0 0 1 7.78 7.78Z"
-                    fill="currentColor"/>
-                </svg>
-                </button>
+            <!-- FILLED -->
+            <svg class="fav-ic ic-on" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 21.23 4.22 13.45a5.5 5.5 0 0 1 7.78-7.78L12 5.67l1-1a5.5 5.5 0 0 1 7.78 7.78Z"
+              fill="currentColor"/>
+            </svg>
+          </button>
 
-            <button class="navbtn navbtn--l" id="btnPrev" aria-label="Əvvəlki"></button>
-            <button class="navbtn navbtn--r" id="btnNext" aria-label="Növbəti"></button>
-            <div class="count" id="imgCount">1 / 1</div>
-          </div>
+          <button class="navbtn navbtn--l" id="btnPrev" aria-label="Əvvəlki"></button>
+          <button class="navbtn navbtn--r" id="btnNext" aria-label="Növbəti"></button>
+          <div class="count" id="imgCount">1 / 1</div>
         </div>
-
-        <!-- Right (40%) thumbs (2x2 grid, top->bottom) -->
-        <div class="thumbsbox">
-          <div class="thumbs-title">Şəkillər</div>
-          <div class="thumbs" id="thumbsGrid"></div>
-        </div>
-
       </div>
-    </section>
 
-    <!-- SECTION 2: Car info (Turbo-style) -->
-<section class="card mt14 info2">
-  <div class="info2-grid">
+      <!-- Right (40%) thumbs (2x2 grid, top->bottom) -->
+      <div class="thumbsbox">
+        <div class="thumbs-title">Şəkillər</div>
+        <div class="thumbs" id="thumbsGrid"></div>
+      </div>
 
-    <!-- LEFT -->
-    <div class="info2-left">
-      <div class="info2-head">
-        <div>
-          <h1 class="title" id="carTitle">—</h1>
-          <div class="sub" id="carSub">—</div>
-        </div>
+    </div>
+  </section>
 
-        <div class="pricebox">
-          <div class="price" id="carPrice">—</div>
-          <div class="updrow">
-            <span id="updatedAt">Yenilənib: —</span>
-            <span class="dot">•</span>
-            <span class="views">
+  <!-- SECTION 2: Car info (Turbo-style) -->
+  <section class="card mt14 info2">
+    <div class="info2-grid">
+
+      <!-- LEFT -->
+      <div class="info2-left">
+        <div class="info2-head">
+          <div>
+            <h1 class="title" id="carTitle">—</h1>
+            <div class="sub" id="carSub">—</div>
+          </div>
+
+          <div class="pricebox">
+            <div class="price" id="carPrice">—</div>
+            <div class="updrow">
+              <span id="updatedAt">Yenilənib: —</span>
+              <span class="dot">•</span>
+              <span class="views">
                 <span class="eye">👁</span>
                 <span id="viewsCount">0</span>
-                </span>
+              </span>
+            </div>
           </div>
         </div>
+
+        <div class="divider"></div>
+
+        <!-- Specs (2 sütun cütlük kimi) -->
+        <div class="specs2" id="specsGrid"></div>
+
+        <div class="divider"></div>
+
+        <!-- Description -->
+        <div class="block">
+          <div class="block-title">Maşın haqqında</div>
+          <p class="desc clamp" id="carDesc">—</p>
+          <button class="more" id="toggleDesc" type="button">Davamını oxu</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Features chips -->
+        <div class="block">
+          <div class="block-title">Avadanlıqlar</div>
+          <div class="chips2" id="featuresChips"></div>
+        </div>
       </div>
 
-      <div class="divider"></div>
+      <!-- RIGHT (Seller like Turbo) -->
+      <aside class="info2-right">
+        <div class="sellerCard" id="sellerCard">
+          <div class="sellerTop">
+            <div class="sellerLogo" aria-hidden="true"></div>
+            <div class="sellerName" id="sellerName">Satıcı</div>
 
-      <!-- Specs (2 sütun cütlük kimi) -->
-      <div class="specs2" id="specsGrid"></div>
+            <!-- ✅ ƏLAVƏ: private üçün şəhər/since sətri (HTML-də heç nəyi silmədən) -->
+            <div class="sellerSub" id="sellerSub" style="display:none;"></div>
+          </div>
 
-      <div class="divider"></div>
+          <button class="btnGreen" id="showPhoneBtn" type="button">
+            Nömrəni göstər
+            <span class="phone" id="sellerPhone">+994 *** ** **</span>
+          </button>
 
-      <!-- Description -->
-      <div class="block">
-        <div class="block-title">Maşın haqqında</div>
-        <p class="desc clamp" id="carDesc">—</p>
-        <button class="more" id="toggleDesc" type="button">Davamını oxu</button>
-      </div>
+          <button class="btnBlue" id="msgBtn" type="button">
+            Mesaj yaz
+          </button>
 
-      <div class="divider"></div>
+          <!-- ✅ ƏLAVƏ: İrəli çək / VIP / Premium buttonları -->
+          <div class="promoteRow" id="promoteRow">
+            <button class="promoteBtn promoteBtn--boost" id="btnBoost" type="button">
+              İrəli çək
+              <span class="promoteSub">3 AZN-dən</span>
+            </button>
 
-      <!-- Features chips -->
-      <div class="block">
-        <div class="block-title">Avadanlıqlar</div>
-        <div class="chips2" id="featuresChips"></div>
-      </div>
+            <button class="promoteBtn" id="btnVip" type="button">
+              VIP
+              <span class="promoteSub">5 AZN-dən</span>
+            </button>
+
+            <button class="promoteBtn" id="btnPremium" type="button">
+              Premium
+              <span class="promoteSub">7 AZN-dən</span>
+            </button>
+          </div>
+
+          <div class="sellerNote" id="sellerNote">
+            Bizim məqsədimiz müştərilərimizə münasib qiymətə keyfiyyətli avtomobil təqdim etməkdir.
+          </div>
+
+          <a class="sellerLink" href="#" id="sellerAdsLink">16 elan</a>
+
+          <div class="sellerMeta">
+            <div class="metaRow">🕒 <span id="sellerHours">Hər gün: 08:00–20:00</span></div>
+            <div class="metaRow">📍 <span id="sellerAddr">Bakı</span></div>
+            <div class="metaRow">👤 <span id="sellerSince">Satıcı 04.2017 tarixindən</span></div>
+          </div>
+
+          <button class="btnOutline" id="goDealerBtn" type="button">Dilərə keç</button>
+        </div>
+      </aside>
+
     </div>
+  </section>
 
-    <!-- RIGHT (Seller like Turbo) -->
-    <aside class="info2-right">
-      <div class="sellerCard">
-        <div class="sellerTop">
-          <div class="sellerLogo" aria-hidden="true"></div>
-          <div class="sellerName" id="sellerName">Satıcı</div>
-        </div>
+</main>
 
-        <button class="btnGreen" id="showPhoneBtn" type="button">
-          Nömrəni göstər
-          <span class="phone" id="sellerPhone">+994 *** ** **</span>
-        </button>
-
-        <button class="btnBlue" id="msgBtn" type="button">
-          Mesaj yaz
-        </button>
-
-        <div class="sellerNote" id="sellerNote">
-          Bizim məqsədimiz müştərilərimizə münasib qiymətə keyfiyyətli avtomobil təqdim etməkdir.
-        </div>
-
-        <a class="sellerLink" href="#" id="sellerAdsLink">16 elan</a>
-
-        <div class="sellerMeta">
-          <div class="metaRow">🕒 <span id="sellerHours">Hər gün: 08:00–20:00</span></div>
-          <div class="metaRow">📍 <span id="sellerAddr">Bakı</span></div>
-          <div class="metaRow">👤 <span id="sellerSince">Satıcı 04.2017 tarixindən</span></div>
-        </div>
-
-        <button class="btnOutline" id="goDealerBtn" type="button">Dilərə keç</button>
-      </div>
-    </aside>
-
-  </div>
-</section>
-
-   
-
-  </main>
 
    <footer class="footer" id="contact">
     <div class="container footer__inner">
