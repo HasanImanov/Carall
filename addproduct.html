@@ -301,22 +301,36 @@
     <section class="step" data-step="4">
       <h2 class="h2">Əlaqə</h2>
 
+      <!-- ✅ NEW: FULL NAME -->
       <label class="field">
-  <span class="field__lbl">Şəhər <small>(istəyə bağlı)</small></span>
-  <select class="field__inp" name="city" id="citySelect">
-    <option value="">Şəhəri seç</option>
-    <option>Bakı</option>
-    <option>Sumqayıt</option>
-    <option>Gəncə</option>
-    <option>Mingəçevir</option>
-    <option>Şəki</option>
-    <option>Lənkəran</option>
-    <option>Naxçıvan</option>
-    <option>Xırdalan</option>
-  </select>
-  <small class="field__err"></small>
-</label>
+        <span class="field__lbl">Ad <b>*</b></span>
+        <input class="field__inp" name="fullname" id="fullName" type="text" placeholder="Məs: Elvin Məmmədov" required />
+        <small class="field__err"></small>
+      </label>
 
+      <!-- ✅ NEW: EMAIL (GMAIL) -->
+      <label class="field">
+        <span class="field__lbl">Email (Gmail) <b>*</b></span>
+        <input class="field__inp" name="email" id="email" type="email" inputmode="email"
+               placeholder="məs: ad.soyad@gmail.com" autocomplete="email" required />
+        <small class="field__err"></small>
+      </label>
+
+      <label class="field">
+        <span class="field__lbl">Şəhər <small>(istəyə bağlı)</small></span>
+        <select class="field__inp" name="city" id="citySelect">
+          <option value="">Şəhəri seç</option>
+          <option>Bakı</option>
+          <option>Sumqayıt</option>
+          <option>Gəncə</option>
+          <option>Mingəçevir</option>
+          <option>Şəki</option>
+          <option>Lənkəran</option>
+          <option>Naxçıvan</option>
+          <option>Xırdalan</option>
+        </select>
+        <small class="field__err"></small>
+      </label>
 
       <label class="field">
         <span class="field__lbl">Telefon <b>*</b></span>
@@ -344,6 +358,7 @@
 
   </form>
 </main>
+
 
 
     

@@ -135,34 +135,41 @@ injectOwnerActions(car);
 
   // ===== LOOP buttons (main) =====
   btnPrev.addEventListener("click", () => {
-    idx = (idx - 1 + imgs.length) % imgs.length;
-    setMain();
-    if (lbOpen) renderLb(true, +1);
-  });
+  idx = (idx - 1 + imgs.length) % imgs.length;
+  setMain();
+  if (lbOpen) renderLb(true, -1); // ✅ prev
+});
 
-  btnNext.addEventListener("click", () => {
-    idx = (idx + 1) % imgs.length;
-    setMain();
-    if (lbOpen) renderLb(true, -1);
-  });
+btnNext.addEventListener("click", () => {
+  idx = (idx + 1) % imgs.length;
+  setMain();
+  if (lbOpen) renderLb(true, +1); // ✅ next
+});
+
 
   // Keyboard arrows (page)
- window.addEventListener("keydown", (e) => {
-  if (lbOpen) return; // ✅ lightbox açıqdırsa buranı işlətmə
+ // keyboard in popup (FIX)
+window.addEventListener("keydown", (e) => {
+  if (!lbOpen) return;
 
-  const tag = (document.activeElement?.tagName || "").toLowerCase();
-  if (tag === "input" || tag === "textarea") return;
+  e.preventDefault(); // scroll olmasın
+  e.stopPropagation();
+
+  if (e.key === "Escape") closeLb();
 
   if (e.key === "ArrowLeft") {
     idx = (idx - 1 + imgs.length) % imgs.length;
     setMain();
-    // lbOpen false olduğu üçün renderLb çağırmağa ehtiyac yoxdur (istəsən sil)
+    renderLb(true, -1); // ✅ prev direction
   }
+
   if (e.key === "ArrowRight") {
     idx = (idx + 1) % imgs.length;
     setMain();
+    renderLb(true, +1); // ✅ next direction
   }
 });
+
 
 
   // ===== Section 2 info =====
@@ -485,23 +492,29 @@ const closeLbSafe = () => {
     resetMain2(false);
   }, { passive: true });
 
-  mainImg.addEventListener("touchmove", (e) => {
-    if (!mainTouchActive || !e.touches || e.touches.length !== 1) return;
+mainImg.addEventListener("touchmove", (e) => {
+  if (!mainTouchActive || !e.touches || e.touches.length !== 1) return;
 
-    const x = e.touches[0].clientX;
-    const y = e.touches[0].clientY;
+  const x = e.touches[0].clientX;
+  const y = e.touches[0].clientY;
 
-    mainDx2 = x - mainStartX2;
-    mainDy2 = y - mainStartY2;
+  mainDx2 = x - mainStartX2;
+  mainDy2 = y - mainStartY2;
 
-    if (Math.abs(mainDy2) > Math.abs(mainDx2) * 1.2) return;
+  // vertikal scroll üstünlükdürsə burax
+  if (Math.abs(mainDy2) > Math.abs(mainDx2) * 1.2) return;
 
-    if (ghostImg && ghostImg.style.opacity !== "1") {
-      setGhost(mainDx2 < 0 ? -1 : +1);
-    }
+  // ✅ BU ƏN VACİB HİSSƏ
+  e.preventDefault();
 
-    moveDrag(mainDx2);
-  }, { passive: true });
+  if (ghostImg && ghostImg.style.opacity !== "1") {
+    setGhost(mainDx2 < 0 ? -1 : +1);
+  }
+
+  moveDrag(mainDx2);
+
+}, { passive: false });
+
 
   mainImg.addEventListener("touchend", () => {
     if (!mainTouchActive) return;
@@ -531,12 +544,13 @@ const closeLbSafe = () => {
       }
 
       setTimeout(() => {
-        idx = goNext ? (idx + 1) % imgs.length : (idx - 1 + imgs.length) % imgs.length;
-        setMain();
+  idx = goNext ? (idx + 1) % imgs.length : (idx - 1 + imgs.length) % imgs.length;
+  setMain();
 
-        resetMain2(false);
-        requestAnimationFrame(() => resetMain2(true));
-      }, 220);
+  resetMain2(false);
+  requestAnimationFrame(() => resetMain2(true));
+}, 220);
+
     } else {
       mainImg.style.transition = "transform 220ms cubic-bezier(.2,.8,.2,1)";
       mainImg.style.transform = "translate3d(0,0,0)";

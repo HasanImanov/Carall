@@ -4,6 +4,48 @@
    ========================= */
 
 // ===== Favorites =====
+// ============================
+// GLOBAL TSEL MANAGER (FIX)
+// - birini açanda o biri bağlansın
+// - outside click hamısını bağlasın
+// - ESC hamısını bağlasın
+// ============================
+(function TSEL_GLOBAL_MANAGER(){
+  if (window.__TSEL_GLOBAL_MANAGER__) return;
+  window.__TSEL_GLOBAL_MANAGER__ = true;
+
+  function closeAll(exceptWrap){
+    document.querySelectorAll(".tsel.is-open").forEach(w=>{
+      if (exceptWrap && w === exceptWrap) return;
+      w.classList.remove("is-open");
+    });
+  }
+
+  // 1) CAPTURE click: toggle edəndən ƏVVƏL bağla
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".tsel__btn");
+    if (!btn) return;
+
+    const wrap = btn.closest(".tsel");
+    if (!wrap) return;
+
+    // bu düyməyə basanda digər hamısı bağlansın
+    closeAll(wrap);
+
+    // toggle normal davam etsin (makeTurboSelect-in toggle-u işləsin)
+  }, true);
+
+  // 2) outside click: hamısını bağla
+  document.addEventListener("click", (e) => {
+    if (e.target.closest(".tsel")) return;
+    closeAll(null);
+  });
+
+  // 3) ESC: hamısını bağla
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeAll(null);
+  });
+})();
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -815,14 +857,24 @@ function bindChipsIfExist() {
 }
 
 // ===== Advanced panel open/close (smooth friendly) =====
+const closeAllTurboSelects = () => {
+  document.querySelectorAll(".tsel.is-open").forEach((w) => {
+    if (w !== wrap) w.classList.remove("is-open");
+  });
+};
+
 function initAdvancedPanel() {
   if (!btnAdvanced || !advPanel) return;
 
   const open = () => {
-    advPanel.removeAttribute("hidden");
-    advPanel.setAttribute("aria-hidden", "false");
-    requestAnimationFrame(() => advPanel.classList.add("is-open"));
-  };
+  closeAllTurboSelects();          // ✅ əlavə et
+  wrap.classList.add("is-open");
+  renderList(input.value);
+  setBtnLabel();
+  if (searchable) {
+    setTimeout(() => { input.focus(); input.select(); }, 0);
+  }
+};
 
   const close = () => {
     advPanel.classList.remove("is-open");

@@ -1225,3 +1225,9 @@ body{
     line-height: 1.2;
   }
 }
+#mainImg,
+#ghostImg{
+  will-change: transform;
+  transform: translate3d(0,0,0);
+  backface-visibility: hidden;
+}

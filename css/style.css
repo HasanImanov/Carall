@@ -1,3 +1,4 @@
+
 /* ===== Reset ===== */
 *{margin:0;padding:0;box-sizing:border-box}
 
@@ -9,8 +10,8 @@
   --muted:#6b7280;
   --line:#e5e7eb;
   --shadow:0 10px 24px rgba(0,0,0,.06);
-  --primary:#e11d48; /* turbo-red vibe */
-  --primary2:#be123c;
+  --primary:rgb(0,53,106); /* turbo-red vibe */
+  --primary2:rgb(0,53,106);
   --radius:16px;
 }
 
@@ -128,7 +129,7 @@ max-width: 100%;
 
 .nav__link:hover{
   color: var(--primary);
-  background: rgba(225,29,72,.08);
+  background: rgb(207, 209, 211);
 }
 
 .nav__link--fav{
@@ -139,8 +140,8 @@ max-width: 100%;
   padding:8px 14px;
   border-radius:999px;
 
-  background: rgba(239,68,68,.08);   /* qırmızı yüngül fon */
-  color:#e11d48;                     /* red-600 */
+  background: rgb(0,53,106);   /* qırmızı yüngül fon */
+  color:#e9e9e4;                     /* red-600 */
 
   font-weight:600;
   text-decoration:none;
@@ -149,11 +150,12 @@ max-width: 100%;
 }
 
 .nav__link--fav:hover{
-  background: rgba(239,68,68,.14);
+  background: rgb(30, 63, 95);
   transform: translateY(-1px);
+  color: #e9e9e4;
 }
 
-/* ürək icon */
+/* ürək icon */ 
 .nav__link--fav .fav-ic{
   font-size:14px;
   line-height:1;
@@ -438,7 +440,7 @@ max-width: 100%;
 
 .cardlink:hover .card{
   transform: translateY(-2px);
-  border-color: rgba(225,29,72,.35);
+  border-color: rgb(38 35 35 / 35%);
   box-shadow: 0 16px 34px rgba(0,0,0,.10);
 }
 img { max-width: 100%; }
@@ -701,7 +703,8 @@ img { max-width: 100%; }
 }
 
 .nav__btn:hover{
-  background: #be123c;
+  background: rgb(39, 66, 93);
+  transition: background 160ms ease, transform 120ms ease;
 }
 /* Notify button (Mənə bildir) */
 .notifybtn{
@@ -725,7 +728,7 @@ img { max-width: 100%; }
 }
 
 .notifybtn:hover{
-  border-color: rgba(225,29,72,.35);
+  border-color: var(--primary2);
   box-shadow: 0 10px 18px rgba(0,0,0,.06);
 }
 
@@ -1084,7 +1087,7 @@ img { max-width: 100%; }
     place-items:center;
 
     transform: translateY(-14px); /* ⬅️ az qaldır */
-    box-shadow: 0 14px 24px rgba(225,29,72,.30);
+    box-shadow: 0 14px 24px rgb(91, 133, 176);
   }
 
   .bnav__plus{
@@ -1541,8 +1544,8 @@ img { max-width: 100%; }
 
 .tsel__btn:focus{
   outline:none;
-  border-color:#ef4444;
-  box-shadow:0 0 0 4px rgba(239,68,68,.12);
+  border-color:rgb(0,53,106);
+  box-shadow:0 0 0 4px rgba(0,53,106,0.12);
 }
 
 .tsel__chev{
@@ -1584,8 +1587,8 @@ img { max-width: 100%; }
   outline:none;
 }
 .tsel__input:focus{
-  border-color:#ef4444;
-  box-shadow:0 0 0 4px rgba(239,68,68,.10);
+  border-color:rgb(0,53,106);
+  box-shadow:0 0 0 4px rgba(0,53,106,0.10);
 }
 
 .tsel__list{
@@ -1606,8 +1609,8 @@ img { max-width: 100%; }
 }
 .tsel__row:hover{ background:#f3f4f6; }
 .tsel__row.is-active{
-  background:rgba(239,68,68,.10);
-  color:#ef4444;
+  background:rgba(0,53,106,0.10);
+  color:rgb(0,53,106);
 }
 
 .tsel__clear{
@@ -1804,10 +1807,10 @@ img { max-width: 100%; }
 
 /* hover effekti */
 .nav__iconlink:hover{
-  background: rgba(225,29,72,.10);
-  color: var(--primary);
+  background: rgb(207, 209, 211);
+  color:  var(--primary);
   transform: translateY(-1px);
-}
+} 
 .just-appended .card{
   outline: 3px solid #fbbf24;
   box-shadow: 0 0 0 6px rgba(251,191,36,.25);
@@ -1965,9 +1968,9 @@ img { max-width: 100%; }
   cursor:pointer;
 }
 .btn--primary{
-  background:#e92754;
+  background:rgb(0,53,106);
   color:#fff;
-  border-color:#e92754;
+  border-color:#545453;
 }
 .btn--ghost{ background:#fff; }
 
@@ -2393,72 +2396,85 @@ width: 100%;
 
 /* mobil: separator bir az qısa olsun */
 @media (max-width: 640px){
-  /* konteyneri "kart" elə */
+
+  /* konteyner */
   .subnav{
     margin: 10px 12px 14px;
-    max-width:100%;
-
-
-  }
-
-  .subnav__in{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;                  /* aralıq */
-    padding: 12px;
-    border-radius: 16px;
-    background: #fff;
-    box-shadow: 0 10px 26px rgba(17,24,39,.08);
-    border: 1px solid rgba(17,24,39,.08);
     max-width: 100% !important;
-    
   }
 
-  
-  /* item-ları ayrıca "chip-card" elə */
+  /* grid kart */
+  .subnav__in{
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+    padding: 14px !important;
+
+    border-radius: 18px !important;
+    background: #fff !important;
+    border: 1px solid rgba(15,23,42,.06) !important;
+
+    box-shadow:
+      0 4px 10px rgba(0,0,0,.04),
+      0 18px 40px rgba(0,0,0,.06) !important;
+
+    max-width: 100% !important;
+  }
+
+  /* item-lar (chip-card) */
   .subnav__a{
-   -webkit-tap-highlight-color: transparent;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 
-  min-height: 48px;
-  padding: 0 14px;
+    width: 100% !important;
+    min-height: 50px !important;
+    padding: 0 16px !important;
 
-  border-radius: 14px;
-  border: 1px solid rgba(15,23,42,.10);
-  background: rgba(255,255,255,.85);
+    border-radius: 16px !important;
+    border: 1px solid rgba(15,23,42,.08) !important;
+    background: linear-gradient(180deg,#ffffff,#f9fafb) !important;
 
-  font-weight: 600;
-  text-decoration: none;
-  color: rgba(15,23,42,.92);
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    text-decoration: none !important;
+    color: rgba(15,23,42,.95) !important;
 
- box-shadow:
-    0 1px 2px rgba(0,0,0,.04),
-    0 6px 16px rgba(0,0,0,.06);
-  transition:
-    box-shadow .15s ease,
-    transform .08s ease,
-    background .15s ease;
-  user-select: none;
+    box-shadow:
+      0 2px 4px rgba(0,0,0,.04),
+      0 8px 18px rgba(0,0,0,.06) !important;
+
+    transition:
+      box-shadow .18s ease,
+      transform .08s ease,
+      background .18s ease,
+      border-color .18s ease !important;
+
+    user-select: none !important;
   }
 
   .subnav__a:active{
-    transform: scale(.98);
-    background: rgba(17,24,39,.06);
-    border-color: rgba(17,24,39,.14);
+    transform: translateY(1px) scale(.985) !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,.08) !important;
+    background: #fff !important;
+    border-color: rgba(15,23,42,.14) !important;
   }
 
   /* köhnə border sistemini söndür */
   .subnav__a{
-    border-bottom: none;
-    border-right: none;
+    border-bottom: none !important;
+    border-right: none !important;
   }
-  .hero {
-    padding: 0px 0 0px;
+
+  .subnav__a::after{ display:none !important; }
+
+  /* hero padding (səndə var idi) */
+  .hero{
+    padding: 0px 0 0px !important;
+  }
 }
-  .subnav__a::after{ display:none; }
-}
+
 
 
 /* =========================

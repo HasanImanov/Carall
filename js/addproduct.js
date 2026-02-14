@@ -12,6 +12,23 @@ document.addEventListener("DOMContentLoaded", () => {
     if (err) err.textContent = msg;
   }
 
+  // ✅ NEW: error helper for normal fields (Ad / Email)
+  function setErrForEl(el, msg = "") {
+    const field = el?.closest?.(".field");
+    const err = field?.querySelector?.(".field__err");
+    if (err) err.textContent = msg;
+  }
+
+  // ✅ NEW: email validator
+  function isValidEmail(v) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || "").trim());
+  }
+
+  // (istəsən yalnız gmail olsun: aç)
+  // function isGmail(v){
+  //   return /@gmail\.com$/i.test(String(v || "").trim());
+  // }
+
   // ---------------------------
   // Data
   // ---------------------------
@@ -127,6 +144,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Step 4 required (city optional)
     if (step === 4) {
+      // ✅ NEW: fullname + email required
+      const fullNameEl = document.getElementById("fullName");
+      const emailEl = document.getElementById("email");
+
+      const fullname = fullNameEl?.value?.trim?.() ?? "";
+      const email = emailEl?.value?.trim?.() ?? "";
+
+      if (!fullname) {
+        setErrForEl(fullNameEl, "Ad mütləqdir.");
+        return false;
+      }
+
+      if (!email) {
+        setErrForEl(emailEl, "Email mütləqdir.");
+        return false;
+      }
+      if (!isValidEmail(email)) {
+        setErrForEl(emailEl, "Email formatı yanlışdır.");
+        return false;
+      }
+
+      // yalnız gmail istəsən aç:
+      // if (!isGmail(email)) { setErrForEl(emailEl, "Yalnız Gmail qəbul olunur."); return false; }
+
       const phone = form?.elements?.phone?.value?.trim?.() ?? "";
       if (!phone) {
         const el = form?.elements?.phone;
@@ -148,7 +189,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const price = form?.elements?.price?.value || "-";
     const currency = form?.elements?.currency?.value || "AZN";
     const city = form?.elements?.city?.value || "-";
-    summaryText.textContent = `${make} ${model} (${year}) — ${price} ${currency}. Şəhər: ${city}. Şəkil: ${photos.length}.`;
+
+    // ✅ NEW: show fullname + email in summary (optional display)
+    const fullname = document.getElementById("fullName")?.value?.trim?.() || "-";
+    const email = document.getElementById("email")?.value?.trim?.() || "-";
+
+    summaryText.textContent =
+      `${make} ${model} (${year}) — ${price} ${currency}. ` +
+      `Şəhər: ${city}. Şəkil: ${photos.length}. ` +
+      `Əlaqə: ${fullname}, ${email}.`;
   }
 
   backBtn?.addEventListener("click", () => {
@@ -480,12 +529,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // ---------------------------
   setStep(1);
 
-    // ---------------------------
+  // ---------------------------
   // Phone mask: +994 (0XX) XXX-XX-XX
   // ---------------------------
   initPhoneMask();
 
-  function initPhoneMask(){
+  function initPhoneMask() {
     const input = form?.elements?.phone; // name="phone"
     if (!input) return;
 
@@ -493,7 +542,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const onlyDigits = (s) => (s || "").replace(/\D/g, "");
 
-    function formatAZ(rawDigits){
+    function formatAZ(rawDigits) {
       let d = rawDigits;
 
       // user +994 yazıbsa, 994-i kəs
@@ -506,9 +555,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (d.length > 0 && d[0] !== "0") d = "0" + d;
       d = d.slice(0, 10);
 
-      const op = d.slice(0, 3);  // 0XX
-      const p1 = d.slice(3, 6);  // XXX
-      const p2 = d.slice(6, 8);  // XX
+      const op = d.slice(0, 3); // 0XX
+      const p1 = d.slice(3, 6); // XXX
+      const p2 = d.slice(6, 8); // XX
       const p3 = d.slice(8, 10); // XX
 
       let out = PREFIX;
@@ -531,7 +580,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return out;
     }
 
-    function caretEnd(){
+    function caretEnd() {
       const len = input.value.length;
       input.setSelectionRange(len, len);
     }
@@ -569,7 +618,4 @@ document.addEventListener("DOMContentLoaded", () => {
       caretEnd();
     });
   }
-
-
-
 });
