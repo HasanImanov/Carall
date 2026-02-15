@@ -1,4 +1,11 @@
+
 (() => {
+  if (window.__CARALL_DETAILS_LOADED__) {
+  console.warn("DETAILS JS already loaded — skipping");
+  return;
+}
+window.__CARALL_DETAILS_LOADED__ = true;
+
   const qs = new URLSearchParams(location.search);
   const id = qs.get("id");
 
@@ -189,7 +196,7 @@ btnNext.addEventListener("click", () => {
 window.addEventListener("keydown", (e) => {
   if (!lbOpen) return;
 
-  e.preventDefault(); // scroll olmasın
+  e.preventDefault();
   e.stopPropagation();
 
   if (e.key === "Escape") closeLb();
@@ -197,15 +204,16 @@ window.addEventListener("keydown", (e) => {
   if (e.key === "ArrowLeft") {
     idx = (idx - 1 + imgs.length) % imgs.length;
     setMain();
-    renderLb(true, -1); // ✅ prev direction
+    renderLb(true, -1);
   }
 
   if (e.key === "ArrowRight") {
     idx = (idx + 1) % imgs.length;
     setMain();
-    renderLb(true, +1); // ✅ next direction
+    renderLb(true, +1);
   }
 });
+
 
 
 
@@ -630,21 +638,51 @@ mainImg.addEventListener("touchmove", (e) => {
   });
 
   // keyboard in popup
-  window.addEventListener("keydown", (e) => {
-    if (!lbOpen) return;
+ // ✅ Keyboard arrows — SINGLE handler (no double step)
+(() => {
+  // 1 dəfə qoşulsun
+  if (window.__CARALL_ARROW_BIND__) return;
+  window.__CARALL_ARROW_BIND__ = true;
 
-    if (e.key === "Escape") closeLb();
+  let lock = false; // 1 basış = 1 addım
+
+  window.addEventListener("keydown", (e) => {
+    if (!lbOpen) return;           // popup açıq deyil => işləmir
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "Escape") return;
+
+    // basılı saxlananda (repeat) keçmə
+    if (e.repeat) return;
+
+    // eyni anda iki handler dəysə belə 1 dəfə işləsin
+    if (lock) return;
+    lock = true;
+    setTimeout(() => (lock = false), 140);
+
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+
+    if (e.key === "Escape") {
+      closeLb();
+      return;
+    }
+
     if (e.key === "ArrowLeft") {
       idx = (idx - 1 + imgs.length) % imgs.length;
       setMain();
-      renderLb(true, +1);
+      renderLb(true, -1);
+      return;
     }
+
     if (e.key === "ArrowRight") {
       idx = (idx + 1) % imgs.length;
       setMain();
-      renderLb(true, -1);
+      renderLb(true, +1);
+      return;
     }
-  });
+  }, true); // capture: başqalarından əvvəl tut
+})();
+
 
   // --- iPhone-like swipe (smooth drag + snap) ---
   let swiping = false;

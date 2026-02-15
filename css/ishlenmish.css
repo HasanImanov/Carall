@@ -1,0 +1,498 @@
+/* ====== Base ====== */
+.wrap{ max-width:1100px; margin:0 auto; padding:18px 14px 40px; }
+.pagehead{ margin:8px 0 14px; }
+.pagehead--row{ display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.pagetitle{ font-size:28px; font-weight:800; margin:0; }
+.pagedesc{ margin:6px 0 0; color:#6b7280; font-weight:650; }
+.backlink{ display:inline-block; margin-bottom:8px; color:#2563eb; text-decoration:none; font-weight:700; }
+.backlink:hover{ text-decoration:underline; }
+
+.hint{ margin-top:14px; color:#6b7280; font-weight:650; display:flex; gap:8px; align-items:center; }
+.hint span{ color:#111827; font-weight:800; }
+
+/* ====== Brand grid ====== */
+.brandgrid{
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap:14px;
+}
+@media (max-width: 980px){
+  .brandgrid{ grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 720px){
+  .brandgrid{ grid-template-columns: repeat(2, 1fr); }
+}
+.brandcard{
+  background:#fff;
+  border:1px solid rgba(17,24,39,.10);
+  border-radius:16px;
+  padding:14px;
+  display:flex;
+  gap:12px;
+  align-items:center;
+  text-decoration:none;
+  color:inherit;
+  box-shadow: 0 10px 20px rgba(17,24,39,.06);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.brandcard:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 14px 26px rgba(17,24,39,.10);
+}
+.brandlogo{
+  width:56px; height:56px;
+  border-radius:14px;
+  border:1px solid rgba(17,24,39,.10);
+  background: rgba(17,24,39,.04);
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+  flex:0 0 auto;
+}
+.brandlogo img{
+  width:100%; height:100%;
+  object-fit:cover;
+  display:block;
+}
+.brandmeta{ min-width:0; }
+.brandname{ font-weight:850; font-size:16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.brandsub{ margin-top:4px; color:#6b7280; font-weight:650; font-size:13px; }
+
+/* ====== Detail list ====== */
+.searchbox input{
+  width:320px; max-width: 78vw;
+  padding:12px 12px;
+  border:1px solid rgba(17,24,39,.12);
+  border-radius:14px;
+  outline:none;
+  font-weight:650;
+}
+.searchbox input:focus{
+  border-color: rgba(37,99,235,.45);
+  box-shadow: 0 0 0 4px rgba(37,99,235,.10);
+}
+
+.placelist{
+  margin-top:14px;
+  display:grid;
+  grid-template-columns: 1fr;
+  gap:12px;
+}
+.place{
+  background:#fff;
+  border:1px solid rgba(17,24,39,.10);
+  border-radius:16px;
+  padding:14px 14px;
+  box-shadow: 0 10px 18px rgba(17,24,39,.05);
+  display:grid;
+  grid-template-columns: 1fr auto;
+  gap:10px 12px;
+}
+.placetitle{ font-weight:850; font-size:16px; margin:0; }
+.placemeta{ color:#6b7280; font-weight:650; margin-top:6px; line-height:1.5; }
+.placeactions{ display:flex; gap:10px; align-items:flex-start; justify-content:flex-end; flex-wrap:wrap; }
+.btn{
+  border:1px solid rgba(17,24,39,.12);
+  background:#fff;
+  padding:10px 12px;
+  border-radius:12px;
+  font-weight:800;
+  cursor:pointer;
+}
+.btn:hover{ background: rgba(17,24,39,.04); }
+.btnPrimary{
+  border-color: rgba(34,197,94,.35);
+  background: rgba(34,197,94,.10);
+}
+.btnPrimary:hover{ background: rgba(34,197,94,.16); }
+.badge{
+  display:inline-flex; align-items:center; gap:6px;
+  font-weight:800; font-size:12px;
+  padding:6px 10px;
+  border-radius:999px;
+  background: rgba(17,24,39,.06);
+  border:1px solid rgba(17,24,39,.10);
+}
+
+.empty{
+  margin-top:18px;
+  padding:16px;
+  background:#fff;
+  border:1px dashed rgba(17,24,39,.20);
+  border-radius:16px;
+  color:#6b7280;
+  font-weight:750;
+}
+
+/* ===== Used parts (brands) ===== */
+
+.parts-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.parts-title{
+  margin:0;
+  font-weight:700;
+  letter-spacing:.2px;
+}
+
+.parts-search{
+  position:relative;
+  width:min(360px, 100%);
+}
+
+.parts-search input{
+  width:100%;
+  height:44px;
+  border-radius:14px;
+  border:1px solid rgba(15,23,42,.12);
+  padding:0 44px 0 14px;
+  font-weight:600;
+  outline:none;
+}
+
+.parts-search input:focus{
+  border-color: rgba(15,23,42,.25);
+}
+
+#partsClear{
+  position:absolute;
+  right:10px;
+  top:50%;
+  transform:translateY(-50%);
+  width:30px;
+  height:30px;
+  border-radius:999px;
+  border:0;
+  font-weight:800;
+  cursor:pointer;
+}
+
+/* grid */
+.parts-grid{
+  margin-top:14px;
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  gap:12px;
+}
+
+.p-card{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px;
+  border-radius:16px;
+  border:1px solid rgba(15,23,42,.10);
+  background:#fff;
+  cursor:pointer;
+  user-select:none;
+  transition:transform .12s ease, border-color .12s ease;
+}
+
+.p-card:active{ transform:scale(.99); }
+
+/* logo container (hamısına eyni ölçü) */
+.p-logo{
+  width:54px;
+  height:54px;
+  border-radius:14px;
+  background:rgba(15,23,42,.04);
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  flex:0 0 54px;
+}
+
+.p-logo img{
+  width:100%;
+  height:100%;
+  object-fit:contain; /* ✅ böyük-balaca logo problemini həll edir */
+  padding:8px;
+}
+
+.p-logo__txt{
+  font-weight:800;
+  font-size:18px;
+  opacity:.75;
+}
+
+.p-body{ min-width:0; }
+.p-title{
+  font-weight:700;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.p-sub{
+  margin-top:2px;
+  font-weight:650;
+  font-size:12px;
+  opacity:.65;
+}
+
+.parts-empty{
+  margin-top:14px;
+  padding:14px;
+  border-radius:14px;
+  border:1px dashed rgba(15,23,42,.18);
+  font-weight:650;
+  opacity:.75;
+}
+
+/* responsive */
+@media (max-width: 980px){
+  .parts-grid{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+
+@media (max-width: 640px){
+  .parts-grid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .p-card{
+    gap:10px;
+    padding:12px;
+  }
+  .p-logo{
+    width:52px;
+    height:52px;
+    flex:0 0 52px;
+  }
+}
+
+@media (max-width: 380px){
+  .parts-grid{ grid-template-columns: 1fr; }
+}
+
+.brand-card{
+  display:flex;
+  gap:12px;
+  padding:14px;
+  border:1px solid rgba(17,24,39,.10);
+  border-radius:14px;
+  background:#fff;
+  text-decoration:none;
+  color:inherit;
+}
+
+.brand-logo{
+  width:64px;
+  height:64px;
+  flex:0 0 64px;
+  border-radius:14px;
+  background:rgba(17,24,39,.06);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+
+.brand-logo img{
+  width:100%;
+  height:100%;
+  object-fit:contain; /* ✅ hamısı eyni ölçü */
+}
+
+.brand-name{ font-weight:800; }
+.brand-desc{ color:#6b7280; font-weight:650; margin-top:2px; }
+
+@media (max-width: 520px){
+  .brand-logo{ width:56px; height:56px; flex-basis:56px; }
+}
+
+/* ===== İşlənmiş ehtiyat hissələri ===== */
+.pageHead{ margin: 22px 0 14px; }
+.pageTitle{ font-size: 28px; font-weight: 800; margin: 0 0 12px; }
+
+.searchRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.searchBox{
+  position:relative;
+  flex: 1 1 380px;
+  max-width: 520px;
+}
+
+.s-ic{
+  position:absolute;
+  left:14px;
+  top:50%;
+  transform:translateY(-50%);
+  width:18px; height:18px;
+  opacity:.55;
+}
+
+.searchInput{
+  width:100%;
+  height:44px;
+  border:1px solid rgba(17,24,39,.14);
+  border-radius:14px;
+  padding:0 44px 0 42px;
+  font-weight:650;
+  outline:none;
+  background:#fff;
+}
+
+.searchInput:focus{
+  border-color: rgba(37,99,235,.45);
+  box-shadow: 0 0 0 4px rgba(37,99,235,.12);
+}
+
+.searchClear{
+  position:absolute;
+  right:10px;
+  top:50%;
+  transform:translateY(-50%);
+  width:28px; height:28px;
+  border-radius:10px;
+  border:1px solid rgba(17,24,39,.12);
+  background:#fff;
+  font-size:18px;
+  line-height:1;
+  cursor:pointer;
+}
+
+.pillCount{
+  height:36px;
+  padding:0 12px;
+  border-radius:999px;
+  border:1px solid rgba(17,24,39,.12);
+  display:flex;
+  align-items:center;
+  font-weight:700;
+  color:#6b7280;
+  background:#fff;
+}
+
+/* grid */
+.brandsGrid{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap:12px;
+}
+
+@media (max-width: 980px){
+  .brandsGrid{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+@media (max-width: 700px){
+  .brandsGrid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+@media (max-width: 420px){
+  .brandsGrid{ grid-template-columns: repeat(2, minmax(0,1fr)); gap:10px; }
+}
+
+/* brand card */
+.bcard{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px 12px;
+  border:1px solid rgba(17,24,39,.10);
+  border-radius:16px;
+  background:#fff;
+  text-decoration:none;
+  color:inherit;
+  cursor:pointer;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+
+.bcard:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(17,24,39,.08);
+}
+
+.blogo{
+  width:44px;
+  height:44px;
+  flex:0 0 44px;
+  border-radius:14px;
+  border:1px solid rgba(17,24,39,.10);
+  background: rgba(17,24,39,.06);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+
+.blogo img{
+  width:100%;
+  height:100%;
+  object-fit:contain;  /* ✅ hamısı eyni görünəcək */
+  display:block;
+}
+
+.btxt{ min-width:0; }
+.bname{ font-weight:800; line-height:1.15; }
+.bdesc{ margin-top:4px; color:#6b7280; font-weight:650; font-size:13px; }
+
+/* detail */
+.detailHead{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:14px;
+}
+
+.btnBack{
+  height:36px;
+  padding:0 12px;
+  border-radius:12px;
+  border:1px solid rgba(17,24,39,.12);
+  background:#fff;
+  cursor:pointer;
+  font-weight:750;
+}
+
+.detailTitle{ font-weight:900; font-size:18px; }
+.detailSub{ color:#6b7280; font-weight:650; margin-top:2px; font-size:13px; }
+
+.placesList{
+  display:grid;
+  gap:10px;
+}
+
+.place{
+  border:1px solid rgba(17,24,39,.10);
+  border-radius:16px;
+  padding:12px;
+  background:#fff;
+}
+
+.placeTop{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:flex-start;
+}
+
+.placeName{ font-weight:850; }
+.placeLoc{ color:#6b7280; font-weight:650; font-size:13px; margin-top:3px; }
+.placeAddr{ color:#111827; font-weight:650; font-size:13px; margin-top:6px; opacity:.9; }
+
+.placeActions{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+  flex-wrap:wrap;
+}
+
+.pbtn{
+  height:36px;
+  padding:0 12px;
+  border-radius:12px;
+  border:1px solid rgba(17,24,39,.12);
+  background:#fff;
+  cursor:pointer;
+  font-weight:750;
+  text-decoration:none;
+  color:inherit;
+}
+
+.pbtnGreen{
+  border-color: rgba(34,197,94,.35);
+}

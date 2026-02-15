@@ -9,7 +9,7 @@ const CARS = [
   { id: 107, createdAt:Date.parse("2026-01-11T12:00:00+04:00"), adType: 2,ownerType: "salon",ownerId: 5, country: "DE", city: "Berlin", brand: "Mercedes", model: "E200", year: 2015, price: 25500, mileage: 155000, fuel: "Dizel", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/f460x343/2026%2F01%2F08%2F14%2F30%2F08%2F0c25a8c4-46dc-499d-bf69-fc195c4b9bd8%2F40131_cs9N9jw19_BxcXbll3L2-w.jpg", link: "details.html?id=107", images:["https://turbo.azstatic.com/uploads/full/2026%2F01%2F08%2F14%2F30%2F08%2F4c1a8a43-c102-4541-9ab4-21785e7649ae%2F47042_1YdUmAx2iIvuoSlr2Ay_kQ.jpg","https://turbo.azstatic.com/uploads/full/2026%2F01%2F08%2F14%2F30%2F08%2Fb4657e67-ce29-4762-8b5c-2d4438b93cad%2F67304_G33p3695a50l3MAXhGsWGw.jpg","https://turbo.azstatic.com/uploads/full/2026%2F01%2F08%2F14%2F30%2F08%2F3161cd14-6697-4361-afe4-1c304cb5ff41%2F95255_HLDpIcpei5mIIoFiVrWDdg.jpg"]},
   { id: 108, createdAt:Date.parse("2026-01-13T12:00:00+04:00"), adType: 1,ownerType: "salon",ownerId: 4, country: "AZ", city: "Bakı", brand: "Kia", model: "Rio", year: 2019, price: 17800, mileage: 89000, fuel: "Benzin", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/f460x343/2025%2F04%2F05%2F00%2F50%2F22%2F70cf8846-db44-4c52-ad23-c7c6e3a039e6%2F2746_FhBLeET6_RWLOHbwaKgtUw.jpg", link: "details.html?id=108", images:["https://turbo.azstatic.com/uploads/full/2026%2F01%2F17%2F19%2F32%2F03%2Fc7e66ad4-d728-4a0e-aa5c-0856d7951a99%2F47017_dosQShjmXV1_BiiySlZ8bQ.jpg","https://turbo.azstatic.com/uploads/full/2026%2F01%2F17%2F19%2F32%2F03%2F06356649-b8f1-4e0e-a24b-fc229640d595%2F46725_nuqgtME0uzCsW1n8vfCl1A.jpg","https://turbo.azstatic.com/uploads/full/2026%2F01%2F17%2F19%2F32%2F03%2Fdf45d390-839f-4454-83df-51c7c22e36bc%2F47086_3DxTibWQLpQLYYIXJ7D03Q.jpg"]},
   { id: 109, createdAt:Date.parse("2026-01-13T12:00:00+04:00"), adType: 3,ownerId: 1005,sellerName: "İlkin Mübarizoğlu",sellerPhone: "+994558359635", country: "TR", city: "İstanbul", brand: "BMW", model: "M3", year: 2021, price: 72000, mileage: 34000, fuel: "Benzin", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/f460x343/2026%2F01%2F07%2F15%2F21%2F12%2F910bf4c9-7951-4632-a993-3419b74ac3a7%2F29952_uIs1u81mVw5b5UVAxSzhdw.jpg", link: "details.html?id=109", images:["https://turbo.azstatic.com/uploads/full/2026%2F01%2F07%2F15%2F21%2F13%2F4ed1c885-f57e-45d7-995f-1e8e6aebdac5%2F89093_T3KLjSwSideHMzWSxu_0qg.jpg","https://turbo.azstatic.com/uploads/full/2026%2F01%2F07%2F15%2F21%2F13%2Fd63b8b34-e2ef-404d-988c-f4079a0beadb%2F22785_dxOwUlSkUhF5t_0sNDCIMQ.jpg","https://turbo.azstatic.com/uploads/full/2026%2F01%2F07%2F15%2F21%2F14%2F150d2a00-341a-451f-b1bf-ed0d5baedfd5%2F29958_CZDxHGLep44Ik_CEAoXxsA.jpg"] },
-  { id: 110, createdAt:Date.parse("2026-01-13T12:00:00+04:00"), adType: 2,ownerId: 1006,sellerName: "Ülftə Arastunoğlu",sellerPhone: "+994703602383", country: "AZ", city: "Gəncə", brand: "Mercedes", model: "C250", year: 2011, price: 18900, mileage: 192000, fuel: "Benzin", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/f460x343/2026%2F01%2F07%2F13%2F57%2F40%2F0cadf9e6-a19f-4dfb-b9f9-9374f4a6fa82%2F80394_V1XsCKwAYN11B8KxgUC96A.jpg", link: "details.html?id=110", images:["https://turbo.az/autos/10053737-mercedes-c-180","https://turbo.azstatic.com/uploads/full/2026%2F01%2F18%2F19%2F32%2F29%2F8e2e89f8-8255-48f2-b351-a080d165e8e9%2F99405_s00LIfztybkSVLngKtCcEQ.jpg","https://turbo.azstatic.com/uploads/full/2026%2F01%2F18%2F19%2F32%2F30%2F258f418d-d9df-42e4-ae61-405e5351e13f%2F46931_57Ld1hMMLz2MarjCOuC8Hw.jpg"] },
+  { id: 110, createdAt:Date.parse("2026-01-13T12:00:00+04:00"), adType: 2,ownerId: 1006,sellerName: "Ülfət Arastunoğlu",sellerPhone: "+994703602383", country: "AZ", city: "Gəncə", brand: "Mercedes", model: "C250", year: 2011, price: 18900, mileage: 192000, fuel: "Benzin", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/f460x343/2026%2F01%2F07%2F13%2F57%2F40%2F0cadf9e6-a19f-4dfb-b9f9-9374f4a6fa82%2F80394_V1XsCKwAYN11B8KxgUC96A.jpg", link: "details.html?id=110", images:["https://turbo.az/autos/10053737-mercedes-c-180","https://turbo.azstatic.com/uploads/full/2026%2F01%2F18%2F19%2F32%2F29%2F8e2e89f8-8255-48f2-b351-a080d165e8e9%2F99405_s00LIfztybkSVLngKtCcEQ.jpg","https://turbo.azstatic.com/uploads/full/2026%2F01%2F18%2F19%2F32%2F30%2F258f418d-d9df-42e4-ae61-405e5351e13f%2F46931_57Ld1hMMLz2MarjCOuC8Hw.jpg"] },
   { id: 111, createdAt:Date.parse("2026-01-08T12:00:00+04:00"), adType: 3,ownerId: 1007,sellerName: "Kulu Balakişi",sellerPhone: "+994556533644", country: "AZ", city: "Bakı", brand: "Toyota", model: "Camry", year: 2022, price: 44500, mileage: 35000, fuel: "Benzin", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/f460x343/2025%2F11%2F09%2F15%2F36%2F58%2F70879996-b818-4bc2-bebb-004ef00a3fb9%2F4164_q6NjAn_iYobtJzTEf0S02A.jpg", link: "details.html?id=111", images:["https://turbo.azstatic.com/uploads/full/2025%2F11%2F09%2F15%2F37%2F12%2F295d595c-7edb-43ee-9199-403463d84368%2F57779_avPIXTk1UmhmIXze5SgIvw.jpg","https://turbo.azstatic.com/uploads/full/2025%2F11%2F09%2F15%2F37%2F13%2F369ad7f0-47cb-47f2-901c-e45a6c4f869d%2F55680_P_DV5RDzZ_6c4H0flK2Oiw.jpg","https://turbo.azstatic.com/uploads/full/2025%2F11%2F09%2F15%2F37%2F13%2F369ad7f0-47cb-47f2-901c-e45a6c4f869d%2F55680_P_DV5RDzZ_6c4H0flK2Oiw.jpg"] },
   { id: 112, createdAt:Date.parse("2026-01-08T12:00:00+04:00"), adType: 3,ownerId: 1008,sellerName: "ELvin Balakisioklu",sellerPhone: "+994772774316", country: "AZ", city: "Sumqayıt", brand: "BMW", model: "M3", year: 2018, price: 63500, mileage: 76000, fuel: "Benzin", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/f460x343/2026%2F01%2F14%2F19%2F47%2F16%2Ff1e60d2c-acaf-43f7-9aa1-936d90583893%2F32503__2jkVr2paaSwA29qtOk0Vw.jpg", link: "details.html?id=112", images:["https://turbo.azstatic.com/uploads/full/2026%2F01%2F14%2F19%2F47%2F16%2Fa84e8cea-c20d-4450-87d4-cee6850fc67a%2F32492_5H3ZmUrjbQxxCkA9OaV9Zg.jpg","https://turbo.azstatic.com/uploads/full/2026%2F01%2F14%2F19%2F47%2F16%2F6454c0aa-9fc5-44f2-81bf-8c21cb658d84%2F88995_VgNm27vygupQ0SdQrvl5LA.jpg","https://turbo.azstatic.com/uploads/full/2026%2F01%2F14%2F19%2F56%2F11%2F81407fb6-0142-4073-ba6f-fa44b912317c%2F80838_-r3g8DkDgMi_-0M2N9vhOg.jpg"] },
   { id: 113, createdAt:Date.parse("2026-01-07T12:00:00+04:00"), adType: 1,ownerId: 1009,sellerName: "Vahid Ağazadə",sellerPhone: "+994515605886", country: "AZ", city: "Bakı", brand: "Mercedes", model: "C250", year: 2012, price: 23500, mileage: 168000, fuel: "Benzin", gearbox: "Avtomat", img: "https://turbo.azstatic.com/uploads/full/2025%2F12%2F02%2F14%2F14%2F45%2Faa6970e9-c954-49b4-932d-9dd4eb778dc0%2F60140_lFROYH38cQAxab9A2ROerQ.jpg", link: "details.html?id=101", images:["https://turbo.azstatic.com/uploads/full/2025%2F12%2F02%2F14%2F14%2F43%2F1a6fa666-d47b-4405-bc1f-1a397e287636%2F89094_cS0jJRwrZQp7K9eI5kwxkw.jpg","https://turbo.azstatic.com/uploads/full/2025%2F12%2F02%2F14%2F14%2F45%2F4feca2be-58ba-441e-a5c3-3bf239f6603e%2F60195_GjaQCdbi4DHxzx41iJEtZw.jpg","https://turbo.azstatic.com/uploads/full/2025%2F12%2F02%2F14%2F14%2F47%2F997a202d-3081-4f8f-8e78-90fd6721ef4e%2F60261_dvzL6t_pXLqanakCT7UXZg.jpg"] },
@@ -233,3 +233,99 @@ CARS.forEach((c, i) => {
   }
 });
 
+// window.PARTS_BRANDS + window.PARTS_PLACES
+window.PARTS_BRANDS = [
+  {
+    id: "mercedes",
+    name: "Mercedes-Benz",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Mercedes-Logo.svg/500px-Mercedes-Logo.svg.png",
+    desc: "Mercedes üçün işlənmiş hissələr"
+  },
+  {
+    id: "toyota",
+    name: "Toyota",
+    logo: "https://global.toyota/pages/global_toyota/mobility/toyota-brand/emblem_001.jpg",
+    desc: "Toyota üçün işlənmiş hissələr"
+  },
+  {
+    id: "bmw",
+    name: "BMW",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/4/44/BMW.svg",
+    desc: "BMW üçün işlənmiş hissələr"
+  },
+  {
+    id: "hyundai",
+    name: "Hyundai",
+    logo: "https://cdn.freebiesupply.com/logos/large/2x/hyundai-motor-company-2-logo-png-transparent.png",
+    desc: "Hyundai üçün işlənmiş hissələr"
+  },
+  {
+    id: "lada",
+    name: "Lada",
+    logo: "https://upload.wikimedia.org/wikipedia/en/1/12/Lada_company_logo.png",
+    desc: "Hyundai üçün işlənmiş hissələr"
+  },
+  {
+    id: "kia",
+    name: "Kia",
+    logo: "https://preview.thenewsmarket.com/Previews/kiam/StillAssets/800x600/575723_v6.jpg",
+    desc: "Kia üçün işlənmiş hissələr"
+  },
+  {
+    id: "lanrover",
+    name: "Land Rover",
+    logo: "https://static.vecteezy.com/system/resources/thumbnails/020/499/554/small/land-rover-brand-logo-car-symbol-black-design-british-automobile-illustration-free-vector.jpg",
+    desc: "Land Rover üçün işlənmiş hissələr"
+  },
+  {
+    id: "wolswagen",
+    name: "Wolswagen",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Volkswagen_logo_2019.svg/960px-Volkswagen_logo_2019.svg.png",
+    desc: "Wolswagwn üçün işlənmiş hissələr"
+  },{
+    id: "changan",
+    name: "Changan",
+    logo: "https://static.wixstatic.com/media/f2bf43_d5d45fcb3fc24541b2452893d89c680f~mv2.png",
+    desc: "Changan üçün işlənmiş hissələr"
+  },{
+    id: "haval",
+    name: "Haval",
+    logo: "https://images.seeklogo.com/logo-png/40/1/haval-logo-png_seeklogo-406808.png",
+    desc: "Hyundai üçün işlənmiş hissələr"
+  }
+];
+
+window.PARTS_PLACES = {
+  mercedes: [
+    { name:"Elmanoğlu", phone:"+994555991313", address:"Bakı, Nərimanov r., X. Xasməmmədov 12", location:"Bakı" },
+    { name:"MB Hissə Bazarı", phone:"+994707778899", address:"Bakı, Binəqədi r., Dərnəgül ş.", location:"Bakı" }
+  ],
+  toyota: [
+    { name:"Vüqaroğlu Center", phone:"+994513999957", address:"Şəmkir", location:"Şəmkir" },
+    { name:"Yapon Hissələri", phone:"+994505556677", address:"Bakı, Babək pr. 41", location:"Bakı" }
+  ],
+  bmw: [
+    { name:"Bimmer Parts", phone:"+994775551122", address:"Bakı, Xətai r., Nobel pr.", location:"Bakı" }
+  ],
+  hyundai: [
+    { name:"Korea Auto Hissə", phone:"+994502224466", address:"Gəncə, Mərkəz", location:"Gəncə" }
+  ],
+  lada: [
+    { name:"Lada Auto Hissə", phone:"+994502224466", address:"Bakı, Mərkəz", location:"Bakı" }
+  ],
+  kia: [
+    { name:"Kia Auto Hissə", phone:"+994502224466", address:"Gəncə, Mərkəz", location:"Gəncə" }
+  ],
+  landrover: [
+    { name:"Korea Auto Hissə", phone:"+994502224466", address:"Gəncə, Mərkəz", location:"Gəncə" }
+  ],
+  changan: [
+    { name:"Çin> Auto Hissə", phone:"+994502224466", address:"Gəncə, Mərkəz", location:"Gəncə" }
+  ],
+  haval: [
+    { name:"Haval Auto Hissə", phone:"+994502224466", address:"Gəncə, Mərkəz", location:"Gəncə" }
+  ],
+  wolswagen: [
+    { name:"Wolsgane Auto Hissə", phone:"+994502224466", address:"Gəncə, Mərkəz", location:"Gəncə" }
+  ]
+};
