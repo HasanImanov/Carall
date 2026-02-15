@@ -323,7 +323,7 @@ window.PARTS_PLACES = {
     { name:"Çin> Auto Hissə", phone:"+994502224466", address:"Gəncə, Mərkəz", location:"Gəncə" }
   ],
   haval: [
-    { name:"Haval Auto Hissə", phone:"+994502224466", address:"Gəncə, Mərkəz", location:"Gəncə" }
+    { name:"Turanin Atası servis", phone:"+994514889107", address:"Xətai, Mərkəz", location:"Gəncə" }
   ],
   wolswagen: [
     { name:"Wolsgane Auto Hissə", phone:"+994502224466", address:"Gəncə, Mərkəz", location:"Gəncə" }

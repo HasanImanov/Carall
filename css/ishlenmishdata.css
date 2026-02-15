@@ -201,6 +201,11 @@
     .item{ padding: 12px; }
     .item:hover{ transform: none; box-shadow: none; }
     .item__go{ width: 40px; height: 40px; }
+    .wrap{
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 16px;
+  }
   }
   .callBtn{
   display:flex;
