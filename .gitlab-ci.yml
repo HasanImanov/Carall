@@ -1,0 +1,89 @@
+workflow:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+    - when: never
+
+stages:
+  - build
+  - update
+
+variables:
+  IMAGE_TAG: "$CI_COMMIT_SHORT_SHA"
+  DOCKER_IMAGE: "$DOCKERHUB_NAMESPACE/$CI_PROJECT_NAME:$CI_COMMIT_SHORT_SHA"
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_DRIVER: overlay2
+
+build_and_push:
+  stage: build
+  image: docker:27.4.0
+  services:
+    - name: docker:27.4.0-dind
+      command: ["--mtu=1460"]
+  before_script:
+    - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+  script:
+    - docker build -t "$DOCKERHUB_NAMESPACE/$CI_PROJECT_NAME:$IMAGE_TAG" .
+    - docker push "$DOCKERHUB_NAMESPACE/$CI_PROJECT_NAME:$IMAGE_TAG"
+    - docker tag "$DOCKERHUB_NAMESPACE/$CI_PROJECT_NAME:$IMAGE_TAG" "$DOCKERHUB_NAMESPACE/$CI_PROJECT_NAME:latest"
+    - docker push "$DOCKERHUB_NAMESPACE/$CI_PROJECT_NAME:latest"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+
+update_helm_values:
+  stage: update
+  image: alpine:3.19
+  variables:
+    GIT_STRATEGY: none
+    GITOPS_BRANCH: "main"  # GitOps repo branch name
+  script:
+    - |
+      set -euo pipefail
+      apk add --no-cache git bash
+      git config --global user.email "ci-bot@gitlab.com"
+      git config --global user.name "GitLab CI Bot"
+      
+      # Clone GitOps repo
+      CLEAN_HELM_URL="${HELM_REPO_URL#https://}"
+      CLEAN_HELM_URL="${CLEAN_HELM_URL#http://}"
+      git clone "https://oauth2:${HELM_REPO_TOKEN}@${CLEAN_HELM_URL}" helm-repo
+      
+      cd helm-repo
+      
+      # Compute chart directory
+      if [ -z "${HELM_REPO_PATH:-}" ] || [ "${HELM_REPO_PATH}" = "." ]; then
+        CHART_DIR="${CI_PROJECT_NAME}"
+      else
+        BASE_PATH="${HELM_REPO_PATH#/}"
+        BASE_PATH="${BASE_PATH%/}"
+        CHART_DIR="${BASE_PATH}/${CI_PROJECT_NAME}"
+      fi
+      
+      echo "CHART_DIR=$CHART_DIR"
+      
+      if [ ! -d "$CHART_DIR" ]; then
+        echo "ERROR: Chart directory not found: $CHART_DIR"
+        echo "Available directories:"
+        ls -la
+        exit 1
+      fi
+      
+      # Pull latest changes from GitOps repo
+      git pull origin "${GITOPS_BRANCH}"
+      
+      # Update values.yaml
+      sed -i "s|^image:.*|image: ${DOCKERHUB_NAMESPACE}/${CI_PROJECT_NAME}:${IMAGE_TAG}|g" "$CHART_DIR/values.yaml"
+      
+      # Commit and push to GitOps repo
+      git add "${CHART_DIR}/values.yaml"
+      
+      if git diff --staged --quiet; then
+        echo "No changes to commit"
+      else
+        git commit -m "Update ${CI_PROJECT_NAME} image to ${IMAGE_TAG}"
+        git pull --rebase origin "${GITOPS_BRANCH}"
+        git push origin "HEAD:${GITOPS_BRANCH}"
+      fi
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+  needs:
+    - build_and_push
