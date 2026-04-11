@@ -24,7 +24,7 @@ const CARS = [
 ];
 
 
-window.cars = CARS;
+//window.cars = CARS;
 
 // ✅ missing field-ləri avtomatik tamamla (Turbo.az kimi)
 CARS.forEach(c => {
@@ -329,3 +329,281 @@ window.PARTS_PLACES = {
     { name:"Wolsgane Auto Hissə", phone:"+994502224466", address:"Gəncə, Mərkəz", location:"Gəncə" }
   ]
 };
+
+
+// ==========================
+// RENT PROFILES
+// ==========================
+window.RENTS = [
+  {
+    id: 11,
+    name: "Baku Rent Car",
+    description: "Gündəlik və həftəlik icarə üçün sedan və SUV avtomobillər.",
+    address: "Bakı şəh., Nərimanov r.",
+    city: "Bakı",
+    phone: "+994 50 555 11 11",
+    verified: true,
+    logo: "https://images.unsplash.com/photo-1583267746897-2cf415887172?w=200",
+    carsCount: 3
+  },
+  {
+    id: 12,
+    name: "City Drive",
+    description: "Depozitli və depozitsiz icarə imkanları.",
+    address: "Bakı şəh., Xətai r.",
+    city: "Bakı",
+    phone: "+994 70 444 22 22",
+    verified: true,
+    logo: "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?w=200",
+    carsCount: 3
+  },
+  {
+    id: 13,
+    name: "Econom Rent",
+    description: "Sərfəli qiymətlərlə gündəlik avtomobil icarəsi.",
+    address: "Sumqayıt şəh.",
+    city: "Sumqayıt",
+    phone: "+994 55 333 33 33",
+    verified: false,
+    logo: "",
+    carsCount: 3
+  },
+  {
+    id: 14,
+    name: "Premium Wheels",
+    description: "Premium və biznes klass avtomobillər.",
+    address: "Bakı şəh., Yasamal r.",
+    city: "Bakı",
+    phone: "+994 77 222 44 44",
+    verified: true,
+    logo: "",
+    carsCount: 3
+  }
+];
+
+
+// ==========================
+// RENT CARS (icarə maşınları)
+// ==========================
+window.rent_cars = [
+
+  {
+    id: 1101,
+    brand: "Kia",
+    model: "Rio",
+    year: 2019,
+    price: 45,
+    mileage: 52000,
+    fuel: "Benzin",
+    gearbox: "Avtomat",
+    city: "Bakı",
+    country: "AZ",
+    img: "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=800",
+    createdAt: "Bu gün",
+    ownerType: "rent",
+    ownerId: 11
+  },
+
+  {
+    id: 1102,
+    brand: "Hyundai",
+    model: "Elantra",
+    year: 2020,
+    price: 55,
+    mileage: 48000,
+    fuel: "Benzin",
+    gearbox: "Avtomat",
+    city: "Bakı",
+    country: "AZ",
+    img: "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?w=800",
+    createdAt: "Bu gün",
+    ownerType: "rent",
+    ownerId: 11
+  },
+
+  {
+    id: 1103,
+    brand: "Toyota",
+    model: "Corolla",
+    year: 2018,
+    price: 40,
+    mileage: 67000,
+    fuel: "Benzin",
+    gearbox: "Avtomat",
+    city: "Bakı",
+    country: "AZ",
+    img: "https://images.unsplash.com/photo-1549924231-f129b911e442?w=800",
+    createdAt: "Dünən",
+    ownerType: "rent",
+    ownerId: 11
+  },
+
+  {
+    id: 1104,
+    brand: "Toyota",
+    model: "Camry",
+    year: 2021,
+    price: 90,
+    mileage: 30000,
+    fuel: "Benzin",
+    gearbox: "Avtomat",
+    city: "Bakı",
+    country: "AZ",
+    img: "https://images.unsplash.com/photo-1550355291-bbee04a92027?w=800",
+    createdAt: "Bu gün",
+    ownerType: "rent",
+    ownerId: 12
+  },
+
+  {
+    id: 1105,
+    brand: "Kia",
+    model: "Sportage",
+    year: 2022,
+    price: 85,
+    mileage: 25000,
+    fuel: "Benzin",
+    gearbox: "Avtomat",
+    city: "Bakı",
+    country: "AZ",
+    img: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=800",
+    createdAt: "Dünən",
+    ownerType: "rent",
+    ownerId: 12
+  },
+
+  {
+    id: 1106,
+    brand: "Hyundai",
+    model: "Tucson",
+    year: 2021,
+    price: 80,
+    mileage: 34000,
+    fuel: "Benzin",
+    gearbox: "Avtomat",
+    city: "Bakı",
+    country: "AZ",
+    img: "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=800",
+    createdAt: "2 gün əvvəl",
+    ownerType: "rent",
+    ownerId: 12
+  },
+
+  {
+    id: 1107,
+    brand: "Chevrolet",
+    model: "Cruze",
+    year: 2017,
+    price: 40,
+    mileage: 89000,
+    fuel: "Benzin",
+    gearbox: "Avtomat",
+    city: "Sumqayıt",
+    country: "AZ",
+    img: "https://images.unsplash.com/photo-1590362891991-f776e747a588?w=800",
+    createdAt: "3 gün əvvəl",
+    ownerType: "rent",
+    ownerId: 13
+  },
+
+  {
+    id: 1108,
+    brand: "Nissan",
+    model: "Sunny",
+    year: 2016,
+    price: 35,
+    mileage: 110000,
+    fuel: "Benzin",
+    gearbox: "Avtomat",
+    city: "Sumqayıt",
+    country: "AZ",
+    img: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800",
+    createdAt: "4 gün əvvəl",
+    ownerType: "rent",
+    ownerId: 13
+  },
+
+  {
+    id: 1109,
+    brand: "Lada",
+    model: "Vesta",
+    year: 2019,
+    price: 30,
+    mileage: 60000,
+    fuel: "Benzin",
+    gearbox: "Mexaniki",
+    city: "Sumqayıt",
+    country: "AZ",
+    img: "https://images.unsplash.com/photo-1609521263047-f8f205293f24?w=800",
+    createdAt: "5 gün əvvəl",
+    ownerType: "rent",
+    ownerId: 13
+  },
+
+  {
+    id: 1110,
+    brand: "Mercedes",
+    model: "C 180",
+    year: 2018,
+    price: 120,
+    mileage: 67000,
+    fuel: "Benzin",
+    gearbox: "Avtomat",
+    city: "Bakı",
+    country: "AZ",
+    img: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800",
+    createdAt: "Bu gün",
+    ownerType: "rent",
+    ownerId: 14
+  },
+
+  {
+    id: 1111,
+    brand: "BMW",
+    model: "520",
+    year: 2019,
+    price: 130,
+    mileage: 58000,
+    fuel: "Benzin",
+    gearbox: "Avtomat",
+    city: "Bakı",
+    country: "AZ",
+    img: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800",
+    createdAt: "Dünən",
+    ownerType: "rent",
+    ownerId: 14
+  },
+
+  {
+    id: 1112,
+    brand: "Audi",
+    model: "A6",
+    year: 2020,
+    price: 140,
+    mileage: 42000,
+    fuel: "Benzin",
+    gearbox: "Avtomat",
+    city: "Bakı",
+    country: "AZ",
+    img: "https://images.unsplash.com/photo-1549924231-f129b911e442?w=800",
+    createdAt: "2 gün əvvəl",
+    ownerType: "rent",
+    ownerId: 14
+  }
+
+];
+
+// window.cars = [
+//   ...CARS,
+//   ...(window.rent_cars || [])
+// ];
+
+window.SALONS = SALONS;
+window.RENTS = window.RENTS || [];
+
+window.cars = [
+  ...CARS,
+  ...(window.rent_cars || [])
+];
+
+window.CARS = window.cars;

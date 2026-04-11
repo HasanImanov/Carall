@@ -1,0 +1,263 @@
+:root{
+  --s-bd: rgba(15, 23, 42, .08);
+  --s-tx: rgba(15, 23, 42, .92);
+  --s-sub: rgba(15, 23, 42, .60);
+  --s-bg: #fff;
+  --s-soft: rgba(15, 23, 42, .04);
+  --s-shadow: 0 10px 30px rgba(2, 6, 23, .06);
+  --s-radius: 18px;
+}
+
+.wrap{
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 18px 14px 28px;
+}
+
+.rentcars-head{
+  margin-bottom: 14px;
+}
+
+.rentcars-title{
+  font-size: 22px;
+  line-height: 1.15;
+  letter-spacing: .2px;
+  margin: 4px 0 12px;
+  color: var(--s-tx);
+}
+
+.rentcars-controls{
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.rentcars-search{
+  position: relative;
+  flex: 1 1 320px;
+  max-width: 520px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--s-bd);
+  border-radius: 999px;
+  background: var(--s-bg);
+  padding: 0 12px 0 40px;
+  box-shadow: 0 1px 0 rgba(2,6,23,.02);
+}
+
+.rentcars-search__ico{
+  position: absolute;
+  left: 14px;
+  width: 18px;
+  height: 18px;
+  color: rgba(15, 23, 42, .45);
+}
+
+.rentcars-search input{
+  width: 100%;
+  border: 0;
+  outline: 0;
+  height: 42px;
+  font-size: 14.5px;
+  color: var(--s-tx);
+  background: transparent;
+}
+
+.rentcars-clear{
+  border: 0;
+  background: var(--s-soft);
+  color: rgba(15, 23, 42, .55);
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.rentcars-meta{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+}
+
+.rentcars-count{
+  font-size: 13px;
+  color: var(--s-sub);
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--s-soft);
+  border: 1px solid var(--s-bd);
+}
+
+.rentcars-section{
+  margin-top: 10px;
+}
+
+.rentcars-grid{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 720px){
+  .rentcars-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1100px){
+  .rentcars-grid{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.r-card{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid var(--s-bd);
+  background: var(--s-bg);
+  border-radius: var(--s-radius);
+  box-shadow: var(--s-shadow);
+  padding: 14px;
+  min-height: 220px;
+}
+
+.r-top{
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.r-logo{
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  border: 1px solid var(--s-bd);
+  background: var(--s-soft);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+.r-logo img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.r-logo .r-logo__txt{
+  font-weight: 700;
+  color: rgba(15, 23, 42, .65);
+  font-size: 14px;
+}
+
+.r-title{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.r-title a{
+  color: var(--s-tx);
+  text-decoration: none;
+  font-weight: 800;
+  letter-spacing: .1px;
+}
+
+.r-title a:hover{ text-decoration: underline; }
+
+.r-badge{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #3b82f6;
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.r-sub{
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--s-sub);
+}
+
+.r-desc{
+  font-size: 13.5px;
+  line-height: 1.35;
+  color: rgba(15, 23, 42, .72);
+  min-height: 52px;
+}
+
+.r-addr{
+  font-size: 13px;
+  color: rgba(15, 23, 42, .70);
+  text-decoration: underline;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.r-addr:hover{ opacity: .9; }
+
+.r-actions{
+  margin-top: auto;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.r-btn{
+  width: 100%;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid var(--s-bd);
+  background: #fff;
+  cursor: pointer;
+  font-weight: 700;
+  color: rgba(15, 23, 42, .82);
+  transition: transform .08s ease, background .12s ease;
+}
+
+.r-btn:active{ transform: scale(.99); }
+.r-btn:hover{ background: rgba(15, 23, 42, .02); }
+
+.r-phone{
+  font-size: 13px;
+  color: rgba(15, 23, 42, .70);
+  text-align: center;
+  margin-top: 6px;
+}
+
+.rentcars-empty{
+  margin: 16px 0 0;
+  border: 1px dashed var(--s-bd);
+  border-radius: var(--s-radius);
+  padding: 18px;
+  background: rgba(15, 23, 42, .02);
+}
+
+.rentcars-empty__t{
+  font-weight: 800;
+  color: var(--s-tx);
+}
+
+.rentcars-empty__d{
+  margin-top: 4px;
+  color: var(--s-sub);
+  font-size: 13.5px;
+}
+
+.rentcars-sentinel{
+  margin: 14px 0 0;
+  padding: 12px 0;
+  text-align: center;
+  color: rgba(15, 23, 42, .55);
+  font-size: 13px;
+}

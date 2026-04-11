@@ -98,10 +98,7 @@ if (!car.seller) {
   car.seller = buildSellerFromData(car);
 }
 
-injectBreadcrumb(car);
-injectSimilarAdsStrict(car, cars);
-renderSellerFromOwner(car); // ✅ BUDUR relation render
-injectOwnerActions(car);
+
   // ===== Images: img first + images[] (unique) =====
   const seen = new Set();
   const imgs = [];
@@ -177,6 +174,10 @@ injectOwnerActions(car);
     });
   };
 
+  if (typeof injectBreadcrumb === "function") injectBreadcrumb(car);
+if (typeof injectSimilarAdsStrict === "function") injectSimilarAdsStrict(car, cars);
+if (typeof renderSellerFromOwner === "function") renderSellerFromOwner(car);
+if (typeof initPromoteButtons === "function") initPromoteButtons(car);
   // ===== LOOP buttons (main) =====
   btnPrev.addEventListener("click", () => {
   idx = (idx - 1 + imgs.length) % imgs.length;
@@ -1796,11 +1797,70 @@ function maskAzPhone(p){
 function getSalonById(id){
   return (window.SALONS || []).find(s => String(s.id) === String(id)) || null;
 }
+function getRentById(id){
+  return (window.RENTS || []).find(r => String(r.id) === String(id)) || null;
+}
+function buildSellerFromData(car){
+  const salons = window.SALONS || [];
+  const rents  = window.RENTS || [];
+
+  if (car.ownerType === "salon") {
+    const salon = salons.find(s => String(s.id) === String(car.ownerId));
+    if (!salon) return null;
+
+    return {
+      type: "dealer",
+      ownerKind: "salon",
+      name: salon.name,
+      logo: salon.logo || "",
+      phone: salon.phone || "",
+      dealerId: salon.id,
+      dealerListingCount: salon.carsCount ?? "",
+      city: salon.city || "",
+      address: salon.address || "",
+      dealerDesc: salon.description || "",
+      dealerHours: "Hər gün: 08:00–20:00",
+      since: salon.verified ? "✅ Təsdiqlənmiş diler" : "Diler"
+    };
+  }
+
+  if (car.ownerType === "rent") {
+    const rent = rents.find(r => String(r.id) === String(car.ownerId));
+    if (!rent) return null;
+
+    return {
+      type: "dealer",
+      ownerKind: "rent",
+      name: rent.name,
+      logo: rent.logo || "",
+      phone: rent.phone || "",
+      dealerId: rent.id,
+      dealerListingCount: rent.carsCount ?? "",
+      city: rent.city || car.city || "",
+      address: rent.address || "",
+      dealerDesc: rent.description || "Rent a Car profili",
+      dealerHours: "Hər gün: 09:00–21:00",
+      since: rent.verified ? "✅ Təsdiqlənmiş rent" : "Rent a Car"
+    };
+  }
+
+  return {
+    type: "private",
+    ownerKind: "private",
+    name: car.ownerName || "Satıcı",
+    phone: car.ownerPhone || "",
+    hidePhone: true,
+    city: car.city || "",
+    since: "03.2024"
+  };
+}
 
 function renderSellerFromOwner(car){
-  // ✅ ID yoxdursa class ilə tut
   const card = document.getElementById("sellerCard") || document.querySelector(".sellerCard");
-  if(!card) { console.warn("sellerCard tapılmadı"); return; }
+  if(!card) { 
+    console.warn("sellerCard tapılmadı"); 
+    return; 
+  }
 
   const elName   = document.getElementById("sellerName");
   const elPhone  = document.getElementById("sellerPhone");
@@ -1812,95 +1872,122 @@ function renderSellerFromOwner(car){
   const addr     = document.getElementById("sellerAddr");
   const sinceEl  = document.getElementById("sellerSince");
   const goDealer = document.getElementById("goDealerBtn");
+  const sellerSub = document.getElementById("sellerSub");
+
   const logoBox =
-  document.querySelector("#sellerCard .sellerLogo") ||
-  document.querySelector(".sellerCard .sellerLogo") ||
-  document.querySelector(".sellerLogo");
+    document.querySelector("#sellerCard .sellerLogo") ||
+    document.querySelector(".sellerCard .sellerLogo") ||
+    document.querySelector(".sellerLogo");
 
+  const isSalon = car?.ownerType === "salon";
+  const isRent  = car?.ownerType === "rent";
 
-  // ✅ owner logic
-  const isDealer = car?.ownerType === "salon";
-  const salon = isDealer ? getSalonById(car.ownerId) : null;
+  const salon = isSalon ? getSalonById(car.ownerId) : null;
+  const rent  = isRent  ? getRentById(car.ownerId)  : null;
+  const owner = salon || rent;
 
-  // private görünüş (dealer hissələri CSS ilə gizlədiləcək)
-  card.classList.toggle("is-private", !salon);
+  card.classList.toggle("is-private", !owner);
 
   let name = "Satıcı";
   let phone = "";
   let sinceText = "";
 
-  if(salon){
-    name = salon.name || "Diler";
-    phone = salon.phone || "";
-    if(note) note.textContent = salon.description || "";
-    
-    if (logoBox) {
-  const url = String(salon.logo || "").trim();
-  const href = `salon.html?id=${encodeURIComponent(salon.id)}`;
+  if (owner) {
+    name = owner.name || (isRent ? "Rent a Car" : "Diler");
+    phone = owner.phone || "";
 
-  logoBox.innerHTML = `
-    <a href="${href}" class="sellerLogoLink" aria-label="${name} səhifəsinə keç">
-      ${
-        url
-          ? `<img src="${url}" alt="${name}"
-                  referrerpolicy="no-referrer"
-                  onerror="this.onerror=null; this.src='images/Logo.png';">`
-          : `<span class="s-logo__txt">${(name || "?").trim().charAt(0).toUpperCase()}</span>`
-      }
-    </a>
-  `;
-}
-
-    if(adsLink){
-      const cnt = salon.carsCount ?? "";
-      adsLink.textContent = cnt ? `${cnt} elan` : "Elanlar";
-      adsLink.href = `salon.html?id=${encodeURIComponent(salon.id)}`;
+    if (note) note.textContent = owner.description || owner.dealerDesc || "";
+    if (hours) hours.textContent = isRent ? "Hər gün: 09:00–21:00" : "Hər gün: 08:00–20:00";
+    if (addr)  addr.textContent  = owner.address || owner.city || car.city || "Bakı";
+    if (sinceEl) {
+      sinceEl.textContent = isRent
+        ? (owner.verified ? "✅ Təsdiqlənmiş rent" : "Rent a Car")
+        : (owner.verified ? "✅ Təsdiqlənmiş diler" : "Diler");
     }
-    if(hours) hours.textContent = "Hər gün: 08:00–20:00";
-    if(addr)  addr.textContent  = salon.address || salon.city || car.city || "Bakı";
-    if(sinceEl) sinceEl.textContent = salon.verified ? "✅ Təsdiqlənmiş diler" : "Diler";
+
+    if (sellerSub) {
+      sellerSub.style.display = "block";
+      sellerSub.textContent = isRent ? "Rent a Car" : "Avtosalon";
+    }
+
+    if (logoBox) {
+      const url = String(owner.logo || "").trim();
+      const href = isRent
+        ? `rentcar.html?id=${encodeURIComponent(owner.id)}`
+        : `salon.html?id=${encodeURIComponent(owner.id)}`;
+
+      logoBox.innerHTML = `
+        <a href="${href}" class="sellerLogoLink" aria-label="${name} səhifəsinə keç">
+          ${
+            url
+              ? `<img src="${url}" alt="${name}"
+                      referrerpolicy="no-referrer"
+                      onerror="this.onerror=null; this.src='images/Logo.png';">`
+              : `<span class="s-logo__txt">${(name || "?").trim().charAt(0).toUpperCase()}</span>`
+          }
+        </a>
+      `;
+    }
+
+    if (adsLink) {
+      const cnt = owner.carsCount ?? owner.dealerListingCount ?? "";
+      adsLink.textContent = cnt ? `${cnt} elan` : "Elanlar";
+      adsLink.href = isRent
+        ? `rentcar.html?id=${encodeURIComponent(owner.id)}`
+        : `salon.html?id=${encodeURIComponent(owner.id)}`;
+    }
+
     if (goDealer) {
-  const link = document.createElement("a");
-
-  link.className = goDealer.className; // mövcud CSS saxla
-  link.textContent = goDealer.textContent;
-  link.href = "salon.html?id=" + encodeURIComponent(salon.id);
-
-  goDealer.replaceWith(link);
-}
+      const link = document.createElement("a");
+      link.className = goDealer.className;
+      link.textContent = isRent ? "Rent profilinə keç" : goDealer.textContent;
+      link.href = isRent
+        ? `rentcar.html?id=${encodeURIComponent(owner.id)}`
+        : `salon.html?id=${encodeURIComponent(owner.id)}`;
+      goDealer.replaceWith(link);
+    }
 
   } else {
-    // ✅ private: sənin yazdığın field-lər
     name = car.sellerName || "Satıcı";
     phone = car.sellerPhone || "";
     sinceText = car.sellerSince ? `Satıcı ${car.sellerSince} tarixindən` : "";
-    if(sinceEl) sinceEl.textContent = sinceText || "";
-    if(addr) addr.textContent = car.city || "—";
+
+    if (sinceEl) sinceEl.textContent = sinceText || "";
+    if (addr) addr.textContent = car.city || "—";
+    if (sellerSub) sellerSub.style.display = "none";
   }
 
   if (elName) {
-  elName.innerHTML = salon
-    ? `<a class="sellerNameLink" href="salon.html?id=${encodeURIComponent(salon.id)}">${name}</a>`
-    : name;
-}
+    if (owner) {
+      const href = isRent
+        ? `rentcar.html?id=${encodeURIComponent(owner.id)}`
+        : `salon.html?id=${encodeURIComponent(owner.id)}`;
+      elName.innerHTML = `<a class="sellerNameLink" href="${href}">${name}</a>`;
+    } else {
+      elName.textContent = name;
+    }
+  }
 
-
-  // phone show/hide
-  const hidePhone = !salon && !!car.hidePhone;
+  const hidePhone = !owner && !!car.hidePhone;
   let revealed = false;
 
   const syncPhone = () => {
-    if(!elPhone) return;
-    elPhone.textContent = revealed ? (phone || "+994 *** ** **") : maskAzPhone(phone);
+    if (!elPhone) return;
+    elPhone.textContent = revealed
+      ? (phone || "Nömrə yoxdur")
+      : (hidePhone ? maskAzPhone(phone) : "+994 *** ** **");
+
+    if (btnPhone) {
+      btnPhone.disabled = !phone;
+    }
   };
+
   syncPhone();
 
-  if(btnPhone){
-    btnPhone.onclick = () => {
-      if(!phone) return;
-      revealed = !revealed;
-      syncPhone();
-    };
-  }
+  btnPhone?.addEventListener("click", () => {
+    if (!phone) return;
+    revealed = !revealed;
+    syncPhone();
+  });
 }
 
