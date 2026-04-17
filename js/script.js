@@ -2263,3 +2263,93 @@ document.addEventListener("DOMContentLoaded", () => {
     close();
   });
 })();
+/* =========================
+   CarAll Universal Success Modal
+========================= */
+(function () {
+  if (window.__CARALL_MODAL_READY__) return;
+  window.__CARALL_MODAL_READY__ = true;
+
+  const modalContentMap = {
+    created: {
+      title: "Elan uğurla yerləşdirildi",
+      text: "Elanınız sistemə əlavə olundu. İndi elanlarınız bölməsindən baxa bilərsiniz.",
+      primaryText: "Elanlarıma bax",
+      primaryHref: "profile.html",
+      secondaryText: "Ana səhifəyə qayıt",
+      secondaryHref: "index.html"
+    },
+    edited: {
+      title: "Elan uğurla yeniləndi",
+      text: "Dəyişikliklər yadda saxlanıldı və elan yenilənmiş formada göstəriləcək.",
+      primaryText: "Elana bax",
+      primaryHref: "",
+      secondaryText: "Ana səhifəyə qayıt",
+      secondaryHref: "index.html"
+    },
+    deleted: {
+      title: "Elan uğurla silindi",
+      text: "Seçilmiş elan sistemdən silindi və artıq siyahıda görünməyəcək.",
+      primaryText: "Elanlarıma bax",
+      primaryHref: "profile.html",
+      secondaryText: "Ana səhifəyə qayıt",
+      secondaryHref: "index.html"
+    }
+  };
+
+  function getModalEls() {
+    return {
+      modal: document.getElementById("caModal"),
+      title: document.getElementById("caModalTitle"),
+      text: document.getElementById("caModalText"),
+      primary: document.getElementById("caModalPrimary"),
+      secondary: document.getElementById("caModalSecondary"),
+      close: document.getElementById("caModalClose")
+    };
+  }
+
+  window.openCarallModal = function (type = "created", options = {}) {
+    const els = getModalEls();
+    if (!els.modal || !els.title || !els.text || !els.primary || !els.secondary) {
+      console.warn("CarAll modal elementləri tapılmadı");
+      return;
+    }
+
+    const content = modalContentMap[type] || modalContentMap.created;
+
+    els.title.textContent = options.title || content.title;
+    els.text.textContent = options.text || content.text;
+
+    els.primary.textContent = options.primaryText || content.primaryText;
+    els.primary.setAttribute("href", options.primaryHref || content.primaryHref || location.href);
+
+    els.secondary.textContent = options.secondaryText || content.secondaryText;
+    els.secondary.setAttribute("href", options.secondaryHref || content.secondaryHref);
+
+    els.modal.classList.add("is-open");
+    els.modal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
+  };
+
+  window.closeCarallModal = function () {
+    const els = getModalEls();
+    if (!els.modal) return;
+
+    els.modal.classList.remove("is-open");
+    els.modal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
+  };
+
+  document.addEventListener("click", function (e) {
+    if (e.target.matches("[data-ca-close]") || e.target.id === "caModalClose") {
+      window.closeCarallModal();
+    }
+  });
+
+  document.addEventListener("keydown", function (e) {
+    const els = getModalEls();
+    if (e.key === "Escape" && els.modal?.classList.contains("is-open")) {
+      window.closeCarallModal();
+    }
+  });
+})();

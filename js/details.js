@@ -1,4 +1,5 @@
-
+  const safe = (v, fb = "—") =>
+    v === null || v === undefined || String(v).trim() === "" ? fb : String(v);
 (() => {
   if (window.__CARALL_DETAILS_LOADED__) {
   console.warn("DETAILS JS already loaded — skipping");
@@ -12,8 +13,8 @@ window.__CARALL_DETAILS_LOADED__ = true;
   const cars = window.cars || [];
   const $ = (x) => document.getElementById(x);
 
-  const safe = (v, fb = "—") =>
-    v === null || v === undefined || String(v).trim() === "" ? fb : String(v);
+  
+
 
   const fmtPrice = (p) => {
     if (p === null || p === undefined || p === "") return "—";
@@ -178,6 +179,7 @@ if (!car.seller) {
 if (typeof injectSimilarAdsStrict === "function") injectSimilarAdsStrict(car, cars);
 if (typeof renderSellerFromOwner === "function") renderSellerFromOwner(car);
 if (typeof initPromoteButtons === "function") initPromoteButtons(car);
+if (typeof injectOwnerActions === "function") injectOwnerActions(car);
   // ===== LOOP buttons (main) =====
   btnPrev.addEventListener("click", () => {
   idx = (idx - 1 + imgs.length) % imgs.length;
@@ -1115,11 +1117,11 @@ if (model) parts.push(`<span class="sep">›</span><a href="${modelHref}">${esca
 }
 
 
-function fmtPriceAZ(p){
-  if (p === null || p === undefined || p === "") return "—";
-  const n = Number(String(p).replace(/[^\d]/g, ""));
-  return Number.isFinite(n) ? n.toLocaleString("az-AZ") : String(p);
-}
+// function fmtPriceAZ(p){
+//   if (p === null || p === undefined || p === "") return "—";
+//   const n = Number(String(p).replace(/[^\d]/g, ""));
+//   return Number.isFinite(n) ? n.toLocaleString("az-AZ") : String(p);
+// }
 
 function pickSimilarCars(current, allCars, limit=8){
   const curId = String(current?.id);
@@ -1451,8 +1453,7 @@ const feats   = document.getElementById("eFeatures")?.value ?? "";
 
     // ekranda qiymət
     const priceEl = document.getElementById("carPrice");
-    if (priceEl) priceEl.textContent = fmtPrice(price);
-
+if (priceEl) priceEl.textContent = `${Number(price || 0).toLocaleString("az-AZ")} AZN`;
     // title (brand model year)
     const titleEl = document.getElementById("carTitle");
     if (titleEl) titleEl.textContent =
@@ -1510,7 +1511,10 @@ const feats   = document.getElementById("eFeatures")?.value ?? "";
     }
 
     panel.hidden = true;
-    alert("UI: yadda saxlandı ✅ (sabah SQL qoşulanda real olacaq)");
+    openCarallModal("edited", {
+  primaryText: "Elana bax",
+  primaryHref: location.href
+});
   });
 }
 
@@ -1537,6 +1541,7 @@ bar.innerHTML = `
   <button class="btnOwner" id="btnEditOwner" type="button">Düzəliş et</button>
   <button class="btnOwner btnDanger" id="btnDelOwner" type="button">Sil</button>
 `;
+
 
 // ✅ Avadanlıqlar bitəndən SONRA əlavə et
 featuresBlock.parentNode.insertBefore(bar, featuresBlock.nextSibling);
@@ -1626,7 +1631,18 @@ featuresBlock.parentNode.insertBefore(bar, featuresBlock.nextSibling);
     if (action === "delete") {
   const yes = confirm("Elanı silmək istədiyinizə əminsiniz?");
   if (!yes) return;
-  alert("UI: Elan silindi ✅ (sabah SQL qoşulanda real olacaq)");
+
+  const ownerBar = document.getElementById("ownerBar");
+  const editPanel = document.getElementById("editPanel");
+
+  ownerBar?.remove();
+  editPanel?.remove();
+
+  openCarallModal("deleted", {
+    primaryText: "Elanlarıma bax",
+    primaryHref: "profile.html"
+  });
+
   return;
 }
   });
@@ -1989,5 +2005,76 @@ function renderSellerFromOwner(car){
     revealed = !revealed;
     syncPhone();
   });
+  
+  
+
 }
 
+
+  window.openCarallModal = function(type = "edited", options = {}) {
+  const modal = document.getElementById("caModal");
+  const title = document.getElementById("caModalTitle");
+  const text = document.getElementById("caModalText");
+  const primary = document.getElementById("caModalPrimary");
+  const secondary = document.getElementById("caModalSecondary");
+
+  if (!modal || !title || !text || !primary || !secondary) {
+    console.error("Modal elementləri tapılmadı");
+    return;
+  }
+
+  const map = {
+    created: {
+      title: "Elan uğurla yerləşdirildi",
+      text: "Elanınız qəbul edildi və yoxlanışa göndərildi. Təsdiqləndikdən sonra saytda dərc olunacaq.",
+      primaryText: "Elanlarıma bax",
+      primaryHref: "profile.html",
+      secondaryText: "Ana səhifəyə qayıt",
+      secondaryHref: "index.html"
+    },
+    edited: {
+      title: "Elan uğurla yeniləndi",
+      text: "Dəyişikliklər yadda saxlanıldı.",
+      primaryText: "Elana bax",
+      primaryHref: location.href,
+      secondaryText: "Ana səhifəyə qayıt",
+      secondaryHref: "index.html"
+    },
+    deleted: {
+      title: "Elan uğurla silindi",
+      text: "Elan artıq siyahıda görünməyəcək.",
+      primaryText: "Elanlarıma bax",
+      primaryHref: "profile.html",
+      secondaryText: "Ana səhifəyə qayıt",
+      secondaryHref: "index.html"
+    }
+  };
+
+  const c = map[type] || map.edited;
+
+  title.textContent = options.title || c.title;
+  text.textContent = options.text || c.text;
+  primary.textContent = options.primaryText || c.primaryText;
+  primary.href = options.primaryHref || c.primaryHref;
+  secondary.textContent = options.secondaryText || c.secondaryText;
+  secondary.href = options.secondaryHref || c.secondaryHref;
+
+  modal.classList.add("is-open");
+  modal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("modal-open");
+};
+
+window.closeCarallModal = function() {
+  const modal = document.getElementById("caModal");
+  if (!modal) return;
+
+  modal.classList.remove("is-open");
+  modal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("modal-open");
+};
+
+document.addEventListener("click", function(e) {
+  if (e.target.id === "caModalClose" || e.target.hasAttribute("data-ca-close")) {
+    window.closeCarallModal();
+  }
+});

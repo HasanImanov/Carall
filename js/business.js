@@ -1,4 +1,4 @@
-/* business.js (images/ strukturuna uyğun) */
+/* business.js */
 (() => {
   "use strict";
 
@@ -12,11 +12,6 @@
     const x = Number(n);
     if (Number.isNaN(x)) return String(n ?? "");
     return x.toLocaleString("az-AZ");
-  };
-
-  const fmtPrice = (price, currency = "AZN") => {
-    if (price == null) return "";
-    return `${fmtNumber(price)} ${currency}`;
   };
 
   const escapeHtml = (str) =>
@@ -76,19 +71,18 @@
     revealPhone: (id) => `/api/businesses/${encodeURIComponent(id)}/reveal-phone`,
   };
 
-  // Demo image paths (NEW)
   const DEMO = {
     cover: "./images/biz-cover.png",
     logo: "./images/biz-logo.png",
     carFallback: "./images/car.jpg",
-    carPool: ["./images/car-1.jpg", "./images/car-2.jpg", "./images/car-3.jpg"], // varsa random
+    carPool: ["./images/car-1.jpg", "./images/car-2.jpg", "./images/car-3.jpg"],
   };
 
-  // State
   const state = {
     businessId: null,
     business: null,
     listings: [],
+    filteredListings: [],
     offset: 0,
     limit: 12,
     sort: "new",
@@ -96,7 +90,7 @@
   };
 
   // ---------------------------
-  // Rendering (bind)
+  // Binding / business info
   // ---------------------------
   function bindBasics(root, data) {
     $$("[data-bind]", root).forEach((el) => {
@@ -127,9 +121,7 @@
       const from = h?.from ?? "";
       const to = h?.to ?? "";
       const days = h?.days ?? "";
-      row.innerHTML = `<span class="ico" aria-hidden="true">🕒</span><span>${escapeHtml(
-        days
-      )}: ${escapeHtml(from)}–${escapeHtml(to)}</span>`;
+      row.innerHTML = `<span class="ico" aria-hidden="true">🕒</span><span>${escapeHtml(days)}: ${escapeHtml(from)}–${escapeHtml(to)}</span>`;
       host.appendChild(row);
     });
   }
@@ -204,84 +196,9 @@
   }
 
   // ---------------------------
-  // Listings
-  // ---------------------------
-  function cardHtml(car) {
-    const href = `./details.html?id=${encodeURIComponent(car.id)}`;
-    const title = (car.title ?? `${car.make ?? ""} ${car.model ?? ""}`.trim()) || "Elan";
-    const price = fmtPrice(car.price, car.currency || "AZN");
-
-    const meta = [
-      car.year ? String(car.year) : null,
-      car.km != null ? `${fmtNumber(car.km)} km` : null,
-      car.city ? String(car.city) : null,
-    ]
-      .filter(Boolean)
-      .join(" • ");
-
-    const tags = [];
-    if (car.is_vip) tags.push(`<span class="tag vip">VIP</span>`);
-    if (car.is_premium) tags.push(`<span class="tag premium">Premium</span>`);
-
-    const thumb = car.thumb_url || car.image_url || DEMO.carFallback;
-
-    return `
-      <a class="car-card" href="${href}" aria-label="${escapeHtml(title)}">
-        <img class="car-thumb" src="${escapeHtml(thumb)}" alt="" loading="lazy" />
-        <div class="car-body">
-          <p class="car-title">${escapeHtml(title)}</p>
-          <div class="car-row">
-            <div class="car-price">${escapeHtml(price)}</div>
-            <div class="car-meta">${escapeHtml(meta)}</div>
-          </div>
-          <div class="car-tags">${tags.join("")}</div>
-        </div>
-      </a>
-    `;
-  }
-
-  function renderListings(list, { append = false } = {}) {
-    const grid = $("#bizListingsGrid");
-    if (!grid) return;
-
-    if (!append) grid.innerHTML = "";
-    if (!Array.isArray(list) || list.length === 0) {
-      if (!append) {
-        grid.innerHTML = `<div class="muted" style="padding:10px;color:rgba(0,0,0,.6)">Elan tapılmadı.</div>`;
-      }
-      return;
-    }
-
-    const html = list.map(cardHtml).join("");
-    if (append) grid.insertAdjacentHTML("beforeend", html);
-    else grid.innerHTML = html;
-  }
-
-  // ---------------------------
-  // Fetch
-  // ---------------------------
-  async function apiGet(url) {
-    const res = await fetch(url, { credentials: "include" });
-    if (!res.ok) throw new Error(`GET ${url} failed: ${res.status}`);
-    return res.json();
-  }
-
-  async function apiPost(url, body) {
-    const res = await fetch(url, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body || {}),
-    });
-    if (!res.ok) throw new Error(`POST ${url} failed: ${res.status}`);
-    return res.json();
-  }
-
-  // ---------------------------
-  // DEMO fallback (images/ paths)
+  // Demo fallback
   // ---------------------------
   function pickDemoCar(i) {
-    // car-1/2/3 varsa onları döndərir, yoxdursa car.jpg-a düşür (image onerror handle ilə)
     const url = DEMO.carPool[i % DEMO.carPool.length] || DEMO.carFallback;
     return url;
   }
@@ -310,21 +227,46 @@
 
   function mockListings() {
     const arr = [];
-    for (let i = 1; i <= 30; i++) {
+    for (let i = 1; i <= 12; i++) {
       arr.push({
         id: `car_${i}`,
-        title: `Mercedes C250 • ${2010 + (i % 10)}`,
+        brand: "Mercedes",
+        model: `C250`,
         price: 18000 + i * 350,
-        currency: "AZN",
         year: 2010 + (i % 10),
-        km: 120000 + i * 3500,
+        mileage: 120000 + i * 3500,
+        fuel: "Benzin",
+        gearbox: "Avtomat",
         city: "Bakı",
-        thumb_url: pickDemoCar(i), // NEW: images/car-*.jpg
-        is_vip: i % 5 === 0,
-        is_premium: i % 7 === 0,
+        country: "AZ",
+        img: pickDemoCar(i),
+        adType: i % 7 === 0 ? 3 : i % 5 === 0 ? 2 : 1,
+        ownerId: state.businessId,
+        ownerType: "salon",
+        createdAt: Date.now() - i * 86400000
       });
     }
     return arr;
+  }
+
+  // ---------------------------
+  // API / data
+  // ---------------------------
+  async function apiGet(url) {
+    const res = await fetch(url, { credentials: "include" });
+    if (!res.ok) throw new Error(`GET ${url} failed: ${res.status}`);
+    return res.json();
+  }
+
+  async function apiPost(url, body) {
+    const res = await fetch(url, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body || {}),
+    });
+    if (!res.ok) throw new Error(`POST ${url} failed: ${res.status}`);
+    return res.json();
   }
 
   async function loadBusiness(id) {
@@ -338,15 +280,140 @@
   }
 
   async function loadListings(id, { limit, offset, sort }) {
-    try {
-      const data = await apiGet(API.listings(id, { limit, offset, sort }));
-      const items = Array.isArray(data) ? data : data.items;
-      return Array.isArray(items) ? items : [];
-    } catch (e) {
-      console.warn("Listings fetch failed, using mock:", e);
-      const all = mockListings();
-      return all.slice(offset, offset + limit);
+  // 1) API
+  const apiItems = await loadListingsFromApi(id, { limit, offset, sort });
+  if (Array.isArray(apiItems) && apiItems.length) {
+    return apiItems.map(normalizeLocalCar);
+  }
+
+  // 2) local/window cars
+  const allCars = getWindowCars();
+  if (Array.isArray(allCars) && allCars.length) {
+    let mine = allCars.filter((car) => String(car.ownerId) === String(id));
+    mine = mine.map(normalizeLocalCar);
+    mine = sortListings(mine, sort);
+    return mine.slice(offset, offset + limit);
+  }
+
+  // 3) demo yalnız demo səhifədirsə
+  if (String(id) === "demo") {
+    const all = sortListings(mockListings(), sort);
+    return all.slice(offset, offset + limit);
+  }
+
+  return [];
+}
+
+  function getWindowCars() {
+    return window.ALL_CARS || window.CARS || window.cars || [];
+  }
+
+  function normalizeLocalCar(car) {
+    return {
+      ...car,
+      img: car.img || car.image_url || car.thumb_url || DEMO.carFallback,
+      mileage: car.mileage ?? car.km ?? 0,
+      brand: car.brand || car.make || "",
+      model: car.model || "",
+      country: car.country || "AZ",
+      city: car.city || "",
+      fuel: car.fuel || "",
+      gearbox: car.gearbox || "",
+      adType: car.adType || (car.is_premium ? 3 : car.is_vip ? 2 : 1),
+      createdAt: car.createdAt || Date.now()
+    };
+  }
+
+  function sortListings(list, sort) {
+    const arr = [...list];
+
+    if (sort === "price_asc") {
+      arr.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
+      return arr;
     }
+
+    if (sort === "price_desc") {
+      arr.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
+      return arr;
+    }
+
+    arr.sort((a, b) => Number(b.createdAt || b.id || 0) - Number(a.createdAt || a.id || 0));
+    return arr;
+  }
+
+  async function loadListings(id, { limit, offset, sort }) {
+    // 1) API
+    const apiItems = await loadListingsFromApi(id, { limit, offset, sort });
+    if (Array.isArray(apiItems) && apiItems.length) {
+      return apiItems.map(normalizeLocalCar);
+    }
+
+    // 2) local/window cars
+    const allCars = getWindowCars();
+    if (Array.isArray(allCars) && allCars.length) {
+      let mine = allCars.filter((car) => String(car.ownerId) === String(id));
+
+      // ownerId hələ yoxdursa fallback kimi boş qalmamasın
+      if (!mine.length) {
+        mine = allCars;
+      }
+
+      mine = mine.map(normalizeLocalCar);
+      mine = sortListings(mine, sort);
+      return mine.slice(offset, offset + limit);
+    }
+
+    // 3) demo
+    const all = sortListings(mockListings(), sort);
+    return all.slice(offset, offset + limit);
+  }
+
+  // ---------------------------
+  // Listings render
+  // ---------------------------
+  function renderEmpty() {
+    const grid = $("#bizListingsGrid");
+    if (!grid) return;
+    grid.innerHTML = `<div class="muted" style="padding:10px;color:rgba(0,0,0,.6)">Elan tapılmadı.</div>`;
+  }
+
+  function renderListings(list, { append = false } = {}) {
+    const grid = $("#bizListingsGrid");
+    if (!grid) return;
+
+    if (!Array.isArray(list) || list.length === 0) {
+      if (!append) renderEmpty();
+      return;
+    }
+
+    // script.js içindəki hazır renderCars istifadə olunur
+    if (typeof window.renderCars === "function") {
+      window.renderCars(list, grid, append);
+      return;
+    }
+
+    // fallback sadə render
+    if (!append) grid.innerHTML = "";
+
+    const html = list.map((car) => {
+      const href = `details.html?id=${encodeURIComponent(car.id)}`;
+      return `
+        <a class="cardlink" href="${href}" aria-label="${escapeHtml(car.brand)} ${escapeHtml(car.model)}">
+          <article class="card">
+            <div class="card__imgwrap">
+              <img class="card__img" src="${escapeHtml(car.img || DEMO.carFallback)}" alt="${escapeHtml(car.brand)} ${escapeHtml(car.model)}">
+            </div>
+            <div class="card__body">
+              <div class="card__title">${escapeHtml(car.brand)} ${escapeHtml(car.model)}</div>
+              <div class="card__price">${fmtNumber(car.price)} ₼</div>
+            </div>
+          </article>
+        </a>
+      `;
+    }).join("");
+
+    if (append) grid.insertAdjacentHTML("beforeend", html);
+    else grid.innerHTML = html;
   }
 
   // ---------------------------
@@ -358,6 +425,7 @@
     if (!biz?.phones?.[0]) return;
 
     const btn = $("#revealPhoneBtn");
+    const hint = document.querySelector(".biz-phonecard__hint");
     if (btn) btn.disabled = true;
 
     try {
@@ -366,6 +434,7 @@
 
       state.isPhoneRevealed = true;
       setText($("#maskedPhone"), phone);
+      if (hint) hint.textContent = "Nömrə açıldı";
 
       const digits = String(phone).replace(/[^\d+]/g, "");
       const telHref = digits ? `tel:${digits}` : "#";
@@ -380,6 +449,7 @@
 
       const phone = biz.phones[0].value;
       setText($("#maskedPhone"), phone);
+      if (hint) hint.textContent = "Nömrə açıldı";
 
       enableLink($("#callLink"), biz.phones[0].tel_href || `tel:${phone}`);
       enableLink($("#waLink"), biz.phones[0].wa_href || "#");
@@ -407,6 +477,8 @@
     if (reset) {
       state.offset = 0;
       state.listings = [];
+      const grid = $("#bizListingsGrid");
+      if (grid) grid.innerHTML = "";
     }
 
     const items = await loadListings(state.businessId, {
@@ -420,7 +492,9 @@
     renderListings(items, { append: !reset });
 
     const btn = $("#loadMoreBtn");
-    if (btn) btn.style.display = items.length < state.limit ? "none" : "inline-flex";
+    if (btn) {
+      btn.style.display = items.length < state.limit ? "none" : "inline-flex";
+    }
 
     state.offset += items.length;
   }
@@ -447,7 +521,6 @@
     if (btn) btn.addEventListener("click", revealPhone);
   }
 
-  // fallback for missing demo images: if car-1/2/3 not found -> car.jpg
   function setupImageFallback() {
     document.addEventListener(
       "error",

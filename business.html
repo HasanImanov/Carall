@@ -148,33 +148,22 @@
 
         <!-- Call to action -->
         <aside class="biz-cta" aria-label="Əlaqə">
-          <button class="btn btn--primary biz-call"
-                  type="button"
-                  id="revealPhoneBtn"
-                  data-action="reveal-phone">
-            <span class="biz-call__title">Nömrəni göstər</span>
-            <span class="biz-call__num" id="maskedPhone" data-bind="phones[0].masked">+994 ...</span>
-          </button>
+  <button class="biz-phonecard" type="button" id="revealPhoneBtn" data-action="reveal-phone">
+    <span class="biz-phonecard__top">Əlaqə nömrəsi</span>
+    <span class="biz-phonecard__number" id="maskedPhone" data-bind="phones[0].masked">+994 50 *** ** 67</span>
+    <span class="biz-phonecard__hint">Nömrəni göstərmək üçün kliklə</span>
+  </button>
 
-          <!-- reveal olandan sonra aktivləşəcək -->
-          <div class="biz-cta__links">
-            <a class="btn btn--ghost"
-               id="callLink"
-               href="#"
-               data-bind-href="phones[0].tel_href"
-               aria-disabled="true">
-              Zəng et
-            </a>
+  <div class="biz-cta__links">
+    <a class="btn btn--ghost" id="callLink" href="#" data-bind-href="phones[0].tel_href" aria-disabled="true">
+      Zəng et
+    </a>
 
-            <a class="btn btn--ghost"
-               id="waLink"
-               href="#"
-               data-bind-href="phones[0].wa_href"
-               aria-disabled="true">
-              WhatsApp
-            </a>
-          </div>
-        </aside>
+    <a class="btn btn--ghost" id="waLink" href="#" data-bind-href="phones[0].wa_href" aria-disabled="true">
+      WhatsApp
+    </a>
+  </div>
+</aside>
       </div>
     </section>
 
