@@ -1,568 +1,477 @@
-/* business.js */
 (() => {
   "use strict";
 
-  // ---------------------------
-  // Helpers
-  // ---------------------------
   const $ = (sel, root = document) => root.querySelector(sel);
-  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
-  const fmtNumber = (n) => {
-    const x = Number(n);
-    if (Number.isNaN(x)) return String(n ?? "");
-    return x.toLocaleString("az-AZ");
+  const state = {
+    businessId: null,
+    business: null,
+    allCars: [],
+    filteredCars: []
   };
 
-  const escapeHtml = (str) =>
-    String(str ?? "")
+  const DEMO = {
+    logo: "images/biz-logo.png",
+    car: "images/car.jpg"
+  };
+
+  function fmtNumber(n) {
+    const x = Number(n || 0);
+    return x.toLocaleString("az-AZ");
+  }
+
+  function fmtPrice(n) {
+    return `${fmtNumber(n)} ₼`;
+  }
+
+  function fmtDate(v) {
+    if (!v) return "—";
+    const d = new Date(v);
+    if (Number.isNaN(d.getTime())) return String(v);
+    return d.toLocaleDateString("az-AZ");
+  }
+
+  function safeText(v, fb = "—") {
+    if (v === null || v === undefined || String(v).trim() === "") return fb;
+    return String(v);
+  }
+
+  function escapeHtml(str) {
+    return String(str ?? "")
       .replaceAll("&", "&amp;")
       .replaceAll("<", "&lt;")
       .replaceAll(">", "&gt;")
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#039;");
-
-  const getQuery = () => Object.fromEntries(new URLSearchParams(location.search).entries());
-
-  // supports "a.b" and "phones[0].masked"
-  const getByPath = (obj, path) => {
-    if (!obj || !path) return undefined;
-    const normalized = path.replace(/\[(\d+)\]/g, ".$1");
-    return normalized
-      .split(".")
-      .reduce((acc, key) => (acc == null ? undefined : acc[key]), obj);
-  };
-
-  const setText = (el, val) => {
-    if (!el) return;
-    el.textContent = val == null ? "" : String(val);
-  };
-
-  const setImg = (el, url) => {
-    if (!el) return;
-    el.src = url || "";
-    el.alt = el.alt || "";
-  };
-
-  const setHref = (el, url) => {
-    if (!el) return;
-    el.setAttribute("href", url || "#");
-  };
-
-  const enableLink = (el, href) => {
-    if (!el) return;
-    el.setAttribute("aria-disabled", "false");
-    setHref(el, href);
-  };
-
-  const disableLink = (el) => {
-    if (!el) return;
-    el.setAttribute("aria-disabled", "true");
-    setHref(el, "#");
-  };
-
-  // ---------------------------
-  // Config
-  // ---------------------------
-  const API = {
-    business: (id) => `/api/businesses/${encodeURIComponent(id)}`,
-    listings: (id, params) =>
-      `/api/businesses/${encodeURIComponent(id)}/listings?${new URLSearchParams(params).toString()}`,
-    revealPhone: (id) => `/api/businesses/${encodeURIComponent(id)}/reveal-phone`,
-  };
-
-  const DEMO = {
-    cover: "./images/biz-cover.png",
-    logo: "./images/biz-logo.png",
-    carFallback: "./images/car.jpg",
-    carPool: ["./images/car-1.jpg", "./images/car-2.jpg", "./images/car-3.jpg"],
-  };
-
-  const state = {
-    businessId: null,
-    business: null,
-    listings: [],
-    filteredListings: [],
-    offset: 0,
-    limit: 12,
-    sort: "new",
-    isPhoneRevealed: false,
-  };
-
-  // ---------------------------
-  // Binding / business info
-  // ---------------------------
-  function bindBasics(root, data) {
-    $$("[data-bind]", root).forEach((el) => {
-      const path = el.getAttribute("data-bind");
-      const val = getByPath(data, path);
-
-      if (el.tagName === "IMG") setImg(el, val);
-      else setText(el, val);
-    });
-
-    $$("[data-bind-href]", root).forEach((el) => {
-      const path = el.getAttribute("data-bind-href");
-      const val = getByPath(data, path);
-      if (val != null) setHref(el, val);
-    });
   }
 
-  function renderWorkingHours(hours = []) {
-    const host = $('[data-bind-list="working_hours"]');
-    if (!host) return;
-
-    host.innerHTML = "";
-    if (!Array.isArray(hours) || hours.length === 0) return;
-
-    hours.forEach((h) => {
-      const row = document.createElement("div");
-      row.className = "biz-hours__row";
-      const from = h?.from ?? "";
-      const to = h?.to ?? "";
-      const days = h?.days ?? "";
-      row.innerHTML = `<span class="ico" aria-hidden="true">🕒</span><span>${escapeHtml(days)}: ${escapeHtml(from)}–${escapeHtml(to)}</span>`;
-      host.appendChild(row);
-    });
+  function getQueryParams() {
+    return Object.fromEntries(new URLSearchParams(window.location.search).entries());
   }
 
-  function renderBadges(badges = []) {
-    const host = $('[data-bind-list="badges"]');
-    if (!host) return;
-
-    host.innerHTML = "";
-    if (!Array.isArray(badges) || badges.length === 0) return;
-
-    badges.forEach((b) => {
-      const el = document.createElement("span");
-      el.className = "tag";
-      el.textContent = String(b);
-      host.appendChild(el);
-    });
+  function getSession() {
+    try {
+      return JSON.parse(localStorage.getItem("carall_session_v1")) || null;
+    } catch {
+      return null;
+    }
   }
 
-  function buildMapUrl(biz) {
-    if (biz?.map_url) return biz.map_url;
+  function getUsers() {
+    try {
+      return JSON.parse(localStorage.getItem("carall_users_v1")) || [];
+    } catch {
+      return [];
+    }
+  }
 
-    const lat = biz?.location?.lat;
-    const lng = biz?.location?.lng;
-    if (lat != null && lng != null) {
-      return `https://www.google.com/maps?q=${encodeURIComponent(`${lat},${lng}`)}`;
+  function getLocalCars() {
+    try {
+      return JSON.parse(localStorage.getItem("carall_cars_v1")) || [];
+    } catch {
+      return [];
+    }
+  }
+
+  function getWindowCars() {
+    const fromWindow = window.ALL_CARS || window.CARS || window.cars || [];
+    const fromLocal = getLocalCars();
+    return [...fromWindow, ...fromLocal];
+  }
+
+  function getBusinessFromSession() {
+    const q = getQueryParams();
+    const session = getSession();
+    const users = getUsers();
+
+    const explicitBusinessId = q.business_id || q.id || q.ownerId || q.salonId;
+    if (explicitBusinessId) {
+      const byId = users.find(u =>
+        String(u.id) === String(explicitBusinessId) ||
+        String(u.userId) === String(explicitBusinessId) ||
+        String(u.ownerId) === String(explicitBusinessId)
+      );
+      if (byId) return normalizeBusiness(byId, explicitBusinessId);
+
+      return buildDemoBusiness(explicitBusinessId);
     }
 
-    const q = [biz?.city, biz?.address].filter(Boolean).join(", ");
-    return q ? `https://www.google.com/maps?q=${encodeURIComponent(q)}` : "#";
+    if (session) {
+      const sessionId = session.userId || session.id || session.ownerId || "demo-business";
+      const user = users.find(u =>
+        String(u.id) === String(sessionId) ||
+        String(u.userId) === String(sessionId)
+      );
+
+      if (user) return normalizeBusiness(user, sessionId);
+      return buildDemoBusiness(sessionId);
+    }
+
+    return buildDemoBusiness("demo-business");
   }
 
-  function hydratePhones(biz) {
-    const phones = Array.isArray(biz.phones) ? biz.phones : [];
-    if (!phones[0]) return biz;
+  function normalizeBusiness(user, fallbackId) {
+    const businessTypeRaw =
+      user.businessType ||
+      user.companyType ||
+      user.type ||
+      user.accountType ||
+      "salon";
 
-    const p0 = phones[0];
-    const raw = String(p0.value || "");
-    const masked =
-      p0.masked ||
-      (raw
-        ? raw.replace(/^(\+\d{3})(\d{2})\d+(\d{2})$/, "$1 $2 *** $3").replace(/\s{2,}/g, " ")
-        : "+994 ...");
+    const businessType =
+      String(businessTypeRaw).toLowerCase().includes("rent") ? "Rent a car" : "Avtosalon";
 
-    const digits = raw.replace(/[^\d+]/g, "");
-    const telHref = digits ? `tel:${digits}` : "#";
-    const waDigits = raw.replace(/[^\d]/g, "");
-    const waHref = waDigits ? `https://wa.me/${waDigits}` : "#";
-
-    p0.masked = masked;
-    p0.tel_href = telHref;
-    p0.wa_href = waHref;
-    return biz;
+    return {
+      id: user.id || user.userId || user.ownerId || fallbackId,
+      name: user.companyName || user.businessName || user.name || user.fullName || "Business hesab",
+      city: user.city || user.addressCity || "Bakı",
+      type: businessType,
+      logo: user.logo || user.logoUrl || user.image || DEMO.logo,
+      createdAt: user.createdAt || "2026-01-01"
+    };
   }
 
-  function renderBusiness(biz) {
-    biz.map_url = buildMapUrl(biz);
-    hydratePhones(biz);
-
-    bindBasics(document, biz);
-
-    const viewsEl = $('[data-bind="stats.views"]');
-    if (viewsEl) setText(viewsEl, fmtNumber(biz?.stats?.views ?? 0));
-
-    renderWorkingHours(biz.working_hours);
-    renderBadges(biz.badges);
-
-    setText($("#maskedPhone"), getByPath(biz, "phones[0].masked") || "+994 ...");
-
-    disableLink($("#callLink"));
-    disableLink($("#waLink"));
-  }
-
-  // ---------------------------
-  // Demo fallback
-  // ---------------------------
-  function pickDemoCar(i) {
-    const url = DEMO.carPool[i % DEMO.carPool.length] || DEMO.carFallback;
-    return url;
-  }
-
-  function mockBusiness(id) {
+  function buildDemoBusiness(id) {
     return {
       id,
       name: "Cars For Aze",
-      logo_url: DEMO.logo,
-      cover_url: DEMO.cover,
       city: "Bakı",
-      address: "Xətai r., Nəcəfqulu Rəfiyev küç., 10",
-      location: { lat: 40.385, lng: 49.863 },
-      phones: [{ label: "Əsas", value: "+994501234567", is_public: false, is_whatsapp: true }],
-      working_hours: [
-        { days: "B.e – Cümə", from: "09:00", to: "18:00" },
-        { days: "Şənbə – Bazar", from: "10:00", to: "18:00" },
-      ],
-      about:
-        "\"Cars For Aze\" MMC 2019-cu ildən etibarən avtomobillərin idxalı və satışı ilə məşğuldur.",
-      stats: { views: 73829, listings_count: 12, followers: 0 },
-      turbo_seller_since: "12.12.2023 tarixindən",
-      badges: ["verified", "premium_seller"],
+      type: "Avtosalon",
+      logo: DEMO.logo,
+      createdAt: "2026-01-01"
     };
   }
 
-  function mockListings() {
-    const arr = [];
-    for (let i = 1; i <= 12; i++) {
-      arr.push({
-        id: `car_${i}`,
-        brand: "Mercedes",
-        model: `C250`,
-        price: 18000 + i * 350,
-        year: 2010 + (i % 10),
-        mileage: 120000 + i * 3500,
-        fuel: "Benzin",
-        gearbox: "Avtomat",
-        city: "Bakı",
-        country: "AZ",
-        img: pickDemoCar(i),
-        adType: i % 7 === 0 ? 3 : i % 5 === 0 ? 2 : 1,
-        ownerId: state.businessId,
-        ownerType: "salon",
-        createdAt: Date.now() - i * 86400000
+  function normalizeCar(car, idx = 0) {
+    const status = normalizeStatus(car.status || car.adStatus || car.moderationStatus);
+    const views = Number(car.views ?? car.viewCount ?? car.clicks ?? randomRange(40, 460, idx));
+    const phoneClicks = Number(car.phoneClicks ?? car.phone_clicks ?? randomRange(2, 36, idx + 5));
+    const whatsappClicks = Number(car.whatsappClicks ?? car.whatsapp_clicks ?? randomRange(1, 24, idx + 9));
+    const todayClicks = Number(car.todayClicks ?? car.today_clicks ?? Math.max(1, Math.round(views * 0.08)));
+
+    return {
+      id: car.id ?? `car-${idx + 1}`,
+      ownerId: car.ownerId ?? car.userId ?? car.businessId ?? null,
+      ownerType: car.ownerType || "salon",
+      brand: safeText(car.brand || car.make, "Marka"),
+      model: safeText(car.model, "Model"),
+      year: safeText(car.year, "—"),
+      city: safeText(car.city, "Bakı"),
+      price: Number(car.price || 0),
+      mileage: Number(car.mileage ?? car.km ?? 0),
+      img: car.img || car.image || car.image_url || car.thumb_url || DEMO.car,
+      createdAt: car.createdAt || car.updatedAt || new Date().toISOString(),
+      status,
+      views,
+      phoneClicks,
+      whatsappClicks,
+      todayClicks
+    };
+  }
+
+  function normalizeStatus(status) {
+    const s = String(status || "").toLowerCase();
+
+    if (
+      s.includes("active") ||
+      s.includes("aktiv") ||
+      s === "1" ||
+      s === "published"
+    ) return "active";
+
+    if (
+      s.includes("pending") ||
+      s.includes("moderation") ||
+      s.includes("wait") ||
+      s.includes("review") ||
+      s.includes("gözləm")
+    ) return "pending";
+
+    if (
+      s.includes("sold") ||
+      s.includes("sat")
+    ) return "sold";
+
+    if (
+      s.includes("deactive") ||
+      s.includes("inactive") ||
+      s.includes("passive") ||
+      s.includes("off")
+    ) return "deactive";
+
+    return "active";
+  }
+
+  function randomRange(min, max, seed) {
+    const x = Math.sin(seed + 1) * 10000;
+    const r = x - Math.floor(x);
+    return Math.floor(r * (max - min + 1)) + min;
+  }
+
+  function buildDemoCars(businessId) {
+    const demo = [
+      ["Toyota", "Camry", 2020, 24500, "active"],
+      ["Kia", "Sorento", 2018, 28900, "pending"],
+      ["Mercedes", "E 220", 2017, 33200, "active"],
+      ["Hyundai", "Elantra", 2019, 19800, "sold"],
+      ["BMW", "530", 2016, 30500, "deactive"],
+      ["Lexus", "RX 350", 2021, 51800, "active"]
+    ];
+
+    return demo.map((item, i) => normalizeCar({
+      id: `demo-${i + 1}`,
+      ownerId: businessId,
+      ownerType: "salon",
+      brand: item[0],
+      model: item[1],
+      year: item[2],
+      price: item[3],
+      status: item[4],
+      city: "Bakı",
+      img: DEMO.car,
+      createdAt: new Date(Date.now() - i * 86400000 * 3).toISOString()
+    }, i));
+  }
+
+  function getBusinessCars(businessId) {
+    const all = getWindowCars().map((car, idx) => normalizeCar(car, idx));
+
+    let mine = all.filter(car => String(car.ownerId) === String(businessId));
+
+    if (!mine.length) {
+      mine = all.filter(car =>
+        String(car.ownerType || "").toLowerCase() === "salon" ||
+        String(car.ownerType || "").toLowerCase() === "rent"
+      );
+    }
+
+    if (!mine.length) {
+      mine = buildDemoCars(businessId);
+    }
+
+    return dedupeCars(mine);
+  }
+
+  function dedupeCars(list) {
+    const map = new Map();
+    list.forEach(item => {
+      map.set(String(item.id), item);
+    });
+    return Array.from(map.values());
+  }
+
+  function renderBusinessHeader() {
+    const b = state.business;
+    $("#bizName").textContent = b.name;
+    $("#bizCity").textContent = b.city;
+    $("#bizType").textContent = b.type;
+    $("#bizSince").textContent = `${fmtDate(b.createdAt)}-dan`;
+    $("#bizLogo").src = b.logo || DEMO.logo;
+  }
+
+  function calcStats(cars) {
+    const totalCars = cars.length;
+    const activeCars = cars.filter(c => c.status === "active").length;
+    const totalViews = cars.reduce((sum, c) => sum + Number(c.views || 0), 0);
+    const todayClicks = cars.reduce((sum, c) => sum + Number(c.todayClicks || 0), 0);
+
+    return {
+      totalCars,
+      activeCars,
+      totalViews,
+      todayClicks
+    };
+  }
+
+  function renderStats(cars) {
+    const stats = calcStats(cars);
+
+    $("#statTotalCars").textContent = fmtNumber(stats.totalCars);
+    $("#statActiveCars").textContent = fmtNumber(stats.activeCars);
+    $("#statViews").textContent = fmtNumber(stats.totalViews);
+    $("#statTodayClicks").textContent = fmtNumber(stats.todayClicks);
+  }
+
+  function getStatusLabel(status) {
+    if (status === "active") return "Aktiv";
+    if (status === "pending") return "Gözləmədə";
+    if (status === "sold") return "Satılıb";
+    return "Deaktiv";
+  }
+
+  function buildRow(car) {
+    return `
+      <tr>
+        <td>
+          <div class="bd-carCell">
+            <img
+              class="bd-carCell__img"
+              src="${escapeHtml(car.img)}"
+              alt="${escapeHtml(car.brand)} ${escapeHtml(car.model)}"
+              onerror="this.src='images/car.jpg'"
+            />
+            <div class="bd-carCell__body">
+              <div class="bd-carCell__title">${escapeHtml(car.brand)} ${escapeHtml(car.model)}</div>
+              <div class="bd-carCell__meta">
+                ID: ${escapeHtml(car.id)} • ${escapeHtml(car.year)} • ${escapeHtml(car.city)}
+              </div>
+            </div>
+          </div>
+        </td>
+
+        <td>
+          <div class="bd-price">${fmtPrice(car.price)}</div>
+        </td>
+
+        <td>
+          <span class="bd-pill bd-pill--${escapeHtml(car.status)}">
+            ${getStatusLabel(car.status)}
+          </span>
+        </td>
+
+        <td>
+          <span class="bd-num">${fmtNumber(car.views)}</span>
+        </td>
+
+        <td>
+          <span class="bd-num">${fmtNumber(car.phoneClicks)}</span>
+        </td>
+
+        <td>
+          <span class="bd-num">${fmtNumber(car.whatsappClicks)}</span>
+        </td>
+
+        <td>
+          <span class="bd-date">${fmtDate(car.createdAt)}</span>
+        </td>
+
+        <td>
+          <div class="bd-actions">
+            <a class="bd-action" href="details.html?id=${encodeURIComponent(car.id)}">Bax</a>
+            <a class="bd-action" href="addproduct.html?edit=${encodeURIComponent(car.id)}">Düzəliş et</a>
+            <button class="bd-action bd-action--danger" type="button" data-delete-id="${escapeHtml(car.id)}">Sil</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }
+
+  function renderTable(cars) {
+    const tbody = $("#bizCarsTableBody");
+    const empty = $("#bizEmptyState");
+
+    $("#resultCount").textContent = fmtNumber(cars.length);
+
+    if (!cars.length) {
+      tbody.innerHTML = "";
+      empty.hidden = false;
+      return;
+    }
+
+    empty.hidden = true;
+    tbody.innerHTML = cars.map(buildRow).join("");
+  }
+
+  function applyFilters() {
+    const q = ($("#bizSearchInput").value || "").trim().toLowerCase();
+    const status = $("#bizStatusFilter").value;
+    const sort = $("#bizSortSelect").value;
+
+    let list = [...state.allCars];
+
+    if (q) {
+      list = list.filter(car => {
+        const hay = [
+          car.id,
+          car.brand,
+          car.model,
+          car.city,
+          car.year,
+          car.price
+        ].join(" ").toLowerCase();
+
+        return hay.includes(q);
       });
     }
-    return arr;
-  }
 
-  // ---------------------------
-  // API / data
-  // ---------------------------
-  async function apiGet(url) {
-    const res = await fetch(url, { credentials: "include" });
-    if (!res.ok) throw new Error(`GET ${url} failed: ${res.status}`);
-    return res.json();
-  }
-
-  async function apiPost(url, body) {
-    const res = await fetch(url, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body || {}),
-    });
-    if (!res.ok) throw new Error(`POST ${url} failed: ${res.status}`);
-    return res.json();
-  }
-
-  async function loadBusiness(id) {
-    try {
-      const data = await apiGet(API.business(id));
-      return data;
-    } catch (e) {
-      console.warn("Business fetch failed, using mock:", e);
-      return mockBusiness(id);
+    if (status !== "all") {
+      list = list.filter(car => car.status === status);
     }
+
+    list = sortCars(list, sort);
+
+    state.filteredCars = list;
+
+    renderStats(list);
+    renderTable(list);
   }
 
-  async function loadListings(id, { limit, offset, sort }) {
-  // 1) API
-  const apiItems = await loadListingsFromApi(id, { limit, offset, sort });
-  if (Array.isArray(apiItems) && apiItems.length) {
-    return apiItems.map(normalizeLocalCar);
-  }
-
-  // 2) local/window cars
-  const allCars = getWindowCars();
-  if (Array.isArray(allCars) && allCars.length) {
-    let mine = allCars.filter((car) => String(car.ownerId) === String(id));
-    mine = mine.map(normalizeLocalCar);
-    mine = sortListings(mine, sort);
-    return mine.slice(offset, offset + limit);
-  }
-
-  // 3) demo yalnız demo səhifədirsə
-  if (String(id) === "demo") {
-    const all = sortListings(mockListings(), sort);
-    return all.slice(offset, offset + limit);
-  }
-
-  return [];
-}
-
-  function getWindowCars() {
-    return window.ALL_CARS || window.CARS || window.cars || [];
-  }
-
-  function normalizeLocalCar(car) {
-    return {
-      ...car,
-      img: car.img || car.image_url || car.thumb_url || DEMO.carFallback,
-      mileage: car.mileage ?? car.km ?? 0,
-      brand: car.brand || car.make || "",
-      model: car.model || "",
-      country: car.country || "AZ",
-      city: car.city || "",
-      fuel: car.fuel || "",
-      gearbox: car.gearbox || "",
-      adType: car.adType || (car.is_premium ? 3 : car.is_vip ? 2 : 1),
-      createdAt: car.createdAt || Date.now()
-    };
-  }
-
-  function sortListings(list, sort) {
+  function sortCars(list, sort) {
     const arr = [...list];
 
-    if (sort === "price_asc") {
-      arr.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
+    if (sort === "old") {
+      arr.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      return arr;
+    }
+
+    if (sort === "views_desc") {
+      arr.sort((a, b) => Number(b.views) - Number(a.views));
       return arr;
     }
 
     if (sort === "price_desc") {
-      arr.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
+      arr.sort((a, b) => Number(b.price) - Number(a.price));
       return arr;
     }
 
-    arr.sort((a, b) => Number(b.createdAt || b.id || 0) - Number(a.createdAt || a.id || 0));
+    if (sort === "price_asc") {
+      arr.sort((a, b) => Number(a.price) - Number(b.price));
+      return arr;
+    }
+
+    arr.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     return arr;
   }
 
-  async function loadListings(id, { limit, offset, sort }) {
-    // 1) API
-    const apiItems = await loadListingsFromApi(id, { limit, offset, sort });
-    if (Array.isArray(apiItems) && apiItems.length) {
-      return apiItems.map(normalizeLocalCar);
-    }
+  function bindEvents() {
+    $("#bizSearchInput").addEventListener("input", applyFilters);
+    $("#bizStatusFilter").addEventListener("change", applyFilters);
+    $("#bizSortSelect").addEventListener("change", applyFilters);
 
-    // 2) local/window cars
-    const allCars = getWindowCars();
-    if (Array.isArray(allCars) && allCars.length) {
-      let mine = allCars.filter((car) => String(car.ownerId) === String(id));
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-delete-id]");
+      if (!btn) return;
 
-      // ownerId hələ yoxdursa fallback kimi boş qalmamasın
-      if (!mine.length) {
-        mine = allCars;
-      }
+      const id = btn.getAttribute("data-delete-id");
+      const ok = window.confirm(`Bu elanı silmək istəyirsən?\nID: ${id}`);
+      if (!ok) return;
 
-      mine = mine.map(normalizeLocalCar);
-      mine = sortListings(mine, sort);
-      return mine.slice(offset, offset + limit);
-    }
+      state.allCars = state.allCars.filter(car => String(car.id) !== String(id));
 
-    // 3) demo
-    const all = sortListings(mockListings(), sort);
-    return all.slice(offset, offset + limit);
-  }
+      try {
+        const localCars = getLocalCars().filter(car => String(car.id) !== String(id));
+        localStorage.setItem("carall_cars_v1", JSON.stringify(localCars));
+      } catch (_) {}
 
-  // ---------------------------
-  // Listings render
-  // ---------------------------
-  function renderEmpty() {
-    const grid = $("#bizListingsGrid");
-    if (!grid) return;
-    grid.innerHTML = `<div class="muted" style="padding:10px;color:rgba(0,0,0,.6)">Elan tapılmadı.</div>`;
-  }
-
-  function renderListings(list, { append = false } = {}) {
-    const grid = $("#bizListingsGrid");
-    if (!grid) return;
-
-    if (!Array.isArray(list) || list.length === 0) {
-      if (!append) renderEmpty();
-      return;
-    }
-
-    // script.js içindəki hazır renderCars istifadə olunur
-    if (typeof window.renderCars === "function") {
-      window.renderCars(list, grid, append);
-      return;
-    }
-
-    // fallback sadə render
-    if (!append) grid.innerHTML = "";
-
-    const html = list.map((car) => {
-      const href = `details.html?id=${encodeURIComponent(car.id)}`;
-      return `
-        <a class="cardlink" href="${href}" aria-label="${escapeHtml(car.brand)} ${escapeHtml(car.model)}">
-          <article class="card">
-            <div class="card__imgwrap">
-              <img class="card__img" src="${escapeHtml(car.img || DEMO.carFallback)}" alt="${escapeHtml(car.brand)} ${escapeHtml(car.model)}">
-            </div>
-            <div class="card__body">
-              <div class="card__title">${escapeHtml(car.brand)} ${escapeHtml(car.model)}</div>
-              <div class="card__price">${fmtNumber(car.price)} ₼</div>
-            </div>
-          </article>
-        </a>
-      `;
-    }).join("");
-
-    if (append) grid.insertAdjacentHTML("beforeend", html);
-    else grid.innerHTML = html;
-  }
-
-  // ---------------------------
-  // Actions
-  // ---------------------------
-  async function revealPhone() {
-    if (state.isPhoneRevealed) return;
-    const biz = state.business;
-    if (!biz?.phones?.[0]) return;
-
-    const btn = $("#revealPhoneBtn");
-    const hint = document.querySelector(".biz-phonecard__hint");
-    if (btn) btn.disabled = true;
-
-    try {
-      const r = await apiPost(API.revealPhone(state.businessId), { phone_index: 0 });
-      const phone = r?.phone || biz.phones[0].value;
-
-      state.isPhoneRevealed = true;
-      setText($("#maskedPhone"), phone);
-      if (hint) hint.textContent = "Nömrə açıldı";
-
-      const digits = String(phone).replace(/[^\d+]/g, "");
-      const telHref = digits ? `tel:${digits}` : "#";
-      const waDigits = String(phone).replace(/[^\d]/g, "");
-      const waHref = waDigits ? `https://wa.me/${waDigits}` : "#";
-
-      enableLink($("#callLink"), telHref);
-      enableLink($("#waLink"), waHref);
-    } catch (e) {
-      console.warn("Reveal failed, demo reveal used:", e);
-      state.isPhoneRevealed = true;
-
-      const phone = biz.phones[0].value;
-      setText($("#maskedPhone"), phone);
-      if (hint) hint.textContent = "Nömrə açıldı";
-
-      enableLink($("#callLink"), biz.phones[0].tel_href || `tel:${phone}`);
-      enableLink($("#waLink"), biz.phones[0].wa_href || "#");
-    } finally {
-      if (btn) btn.disabled = false;
-    }
-  }
-
-  function setupTabs() {
-    const tabs = $$(".tab");
-    const panes = $$("[data-tabpane]");
-
-    tabs.forEach((t) => {
-      t.addEventListener("click", () => {
-        const name = t.getAttribute("data-tab");
-        tabs.forEach((x) => x.classList.toggle("is-active", x === t));
-        panes.forEach((p) => p.classList.toggle("is-active", p.getAttribute("data-tabpane") === name));
-      });
+      applyFilters();
     });
   }
 
-  async function refreshListings({ reset = false } = {}) {
-    if (!state.businessId) return;
-
-    if (reset) {
-      state.offset = 0;
-      state.listings = [];
-      const grid = $("#bizListingsGrid");
-      if (grid) grid.innerHTML = "";
-    }
-
-    const items = await loadListings(state.businessId, {
-      limit: state.limit,
-      offset: state.offset,
-      sort: state.sort,
-    });
-
-    state.listings = reset ? items : state.listings.concat(items);
-
-    renderListings(items, { append: !reset });
-
-    const btn = $("#loadMoreBtn");
-    if (btn) {
-      btn.style.display = items.length < state.limit ? "none" : "inline-flex";
-    }
-
-    state.offset += items.length;
+  function setYear() {
+    const y = $("#yearNow");
+    if (y) y.textContent = new Date().getFullYear();
   }
 
-  function setupListingControls() {
-    const sort = $("#sortListings");
-    if (sort) {
-      sort.addEventListener("change", async () => {
-        state.sort = sort.value || "new";
-        await refreshListings({ reset: true });
-      });
-    }
+  function init() {
+    setYear();
 
-    const more = $("#loadMoreBtn");
-    if (more) {
-      more.addEventListener("click", async () => {
-        await refreshListings({ reset: false });
-      });
-    }
-  }
+    state.business = getBusinessFromSession();
+    state.businessId = state.business.id;
+    state.allCars = getBusinessCars(state.businessId);
 
-  function setupReveal() {
-    const btn = $("#revealPhoneBtn");
-    if (btn) btn.addEventListener("click", revealPhone);
-  }
-
-  function setupImageFallback() {
-    document.addEventListener(
-      "error",
-      (e) => {
-        const img = e.target;
-        if (!(img instanceof HTMLImageElement)) return;
-
-        const src = img.getAttribute("src") || "";
-        if (src.includes("/images/car-") && !img.dataset.fallbackApplied) {
-          img.dataset.fallbackApplied = "1";
-          img.src = DEMO.carFallback;
-        }
-        if (src.includes("/images/biz-cover") && !img.dataset.fallbackApplied) {
-          img.dataset.fallbackApplied = "1";
-          img.src = DEMO.cover;
-        }
-        if (src.includes("/images/biz-logo") && !img.dataset.fallbackApplied) {
-          img.dataset.fallbackApplied = "1";
-          img.src = DEMO.logo;
-        }
-      },
-      true
-    );
-  }
-
-  // ---------------------------
-  // Boot
-  // ---------------------------
-  async function init() {
-    const q = getQuery();
-    state.businessId = q.id || q.business_id || "demo";
-
-    setupImageFallback();
-    setupTabs();
-    setupReveal();
-    setupListingControls();
-
-    const biz = await loadBusiness(state.businessId);
-    state.business = biz;
-    renderBusiness(biz);
-
-    await refreshListings({ reset: true });
+    renderBusinessHeader();
+    bindEvents();
+    applyFilters();
   }
 
   document.addEventListener("DOMContentLoaded", init);
