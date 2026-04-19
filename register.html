@@ -149,57 +149,79 @@
         </div>
 
         <!-- BUSINESS -->
-        <div class="pane" data-pane="business" hidden>
-          <form class="reg-form" data-type="business" autocomplete="on">
-            <label class="lbl">Şirkət adı</label>
-            <input class="in" type="text" name="companyName" placeholder="ABC Motors" required>
+<div class="pane" data-pane="business" hidden>
+  <form class="reg-form" data-type="business" autocomplete="on">
+    <div class="row2">
+      <div>
+        <label class="lbl">Şirkət adı</label>
+        <input class="in" type="text" name="companyName" placeholder="ABC Motors" required>
+      </div>
+      <div>
+        <label class="lbl">Business növü</label>
+        <select class="in" name="businessType" required>
+          <option value="" selected disabled>Seçin</option>
+          <option value="salon">Avtosalon</option>
+          <option value="rent">Rent a car</option>
+        </select>
+      </div>
+    </div>
 
-            <label class="lbl">Əsas mobil nömrə</label>
-            <input class="in" type="tel" name="phone" placeholder="+994 xx xxx xx xx" required>
+    <label class="lbl">Əsas mobil nömrə</label>
+    <input class="in" type="tel" name="phone" placeholder="+994 xx xxx xx xx" required>
 
-            <div class="row2">
-              <div>
-                <label class="lbl">Şəhər</label>
-                <input class="in" type="text" name="city" placeholder="Bakı" required>
-              </div>
-              <div>
-                <label class="lbl">Ünvan</label>
-                <input class="in" type="text" name="address" placeholder="Nizami küç., 12" required>
-              </div>
-            </div>
+    <div class="row2">
+      <div>
+        <label class="lbl">Şəhər</label>
+        <input class="in" type="text" name="city" placeholder="Bakı" required>
+      </div>
+      <div>
+        <label class="lbl">Ünvan</label>
+        <input class="in" type="text" name="address" placeholder="Nizami küç., 12" required>
+      </div>
+    </div>
 
-            <label class="lbl">Şəkil (logo / vitrin)</label>
-            <input class="in" type="file" name="photo" accept="image/*">
+    <label class="lbl">E-mail</label>
+    <input class="in" type="email" name="email" placeholder="business@mail.com" required>
 
-            <div class="phones">
-              <div class="phones__head">
-                <label class="lbl">Əlavə nömrələr</label>
-                <button class="btn btn--ghost" type="button" id="addPhoneBtn">+ əlavə et</button>
-              </div>
+    <label class="lbl">Şəkil (logo / vitrin)</label>
+    <input class="in" type="file" name="photo" accept="image/*">
 
-              <div id="extraPhones" class="phones__list"></div>
-              <p class="muted small">İstəsən 2-3 əlavə nömrə yaza bilərsən.</p>
-            </div>
+    <div class="phones">
+      <div class="phones__head">
+        <label class="lbl">Əlavə nömrələr</label>
+        <button class="btn btn--ghost" type="button" id="addPhoneBtn">+ əlavə et</button>
+      </div>
 
-            <div class="row2">
-              <div>
-                <label class="lbl">Parol</label>
-                <input class="in" type="password" name="password" placeholder="Minimum 6 simvol" required minlength="6">
-              </div>
-              <div>
-                <label class="lbl">Parolu təsdiqlə</label>
-                <input class="in" type="password" name="password2" placeholder="Təkrar yaz" required minlength="6">
-              </div>
-            </div>
+      <div id="extraPhones" class="phones__list"></div>
+      <p class="muted small">İstəsən 2-3 əlavə nömrə yaza bilərsən.</p>
+    </div>
 
-            <button class="btn" type="submit">Business hesab yarat</button>
+    <div class="biz-note">
+      <div class="biz-note__icon">ℹ</div>
+      <div class="biz-note__text">
+        Qeydiyyatdan sonra seçdiyin business növünə uyğun panel açılacaq.
+      </div>
+    </div>
 
-            <div class="form__links">
-              <span class="muted">Artıq hesabın var?</span>
-              <a class="link" href="login.html">Daxil ol</a>
-            </div>
-          </form>
-        </div>
+    <div class="row2">
+      <div>
+        <label class="lbl">Parol</label>
+        <input class="in" type="password" name="password" placeholder="Minimum 6 simvol" required minlength="6">
+      </div>
+      <div>
+        <label class="lbl">Parolu təsdiqlə</label>
+        <input class="in" type="password" name="password2" placeholder="Təkrar yaz" required minlength="6">
+      </div>
+    </div>
+
+    <button class="btn" type="submit">Business hesab yarat</button>
+
+    <div class="form__links">
+      <span class="muted">Artıq hesabın var?</span>
+      <a class="link" href="login.html">Daxil ol</a>
+    </div>
+  </form>
+</div>
 
       </div>
     </section>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CarAll</title>
+
+  <!-- əsas style -->
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- SALON CSS istifadə edirik -->
+  <link rel="stylesheet" href="css/salon.css" />
+</head>
+
+<!-- Mobile Bottom Nav -->
+<nav class="bnav" id="bnav">
+  <a class="bnav__item is-active" href="#top">
+    <span class="bnav__text">Əsas səhifə</span>
+  </a>
+  <a class="bnav__item" href="#list">
+    <span class="bnav__text">Axtar</span>
+  </a>
+  <a class="bnav__fab" href="addproduct.html">
+    <span class="bnav__plus">+</span>
+  </a>
+  <a class="bnav__item" href="favorites.html">
+    <span class="bnav__text">Seçilmişlər</span>
+  </a>
+  <a class="bnav__item" href="#">
+    <span class="bnav__text">Hesab</span>
+  </a>
+</nav>
+
+<body class="auth-body">
+
+  <!-- HEADER -->
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <a class="brand" href="#">
+        <img src="images/Logo.png" class="brand__img">
+      </a>
+
+      <nav class="nav">
+        <a class="nav__link nav__link--fav" href="favorites.html">
+          ❤ Seçilmişlər
+        </a>
+        <a class="nav__link" href="#">Elanlar</a>
+        <a class="nav__link" href="#">Əlaqə</a>
+        <a class="nav__btn" href="addproduct.html">+ Elan yerləşdir</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="wrap">
+
+    <!-- HERO -->
+    <section class="salon-hero" id="rentHero"></section>
+
+    <!-- ELANLAR -->
+    <section class="salon-block">
+
+      <div class="salon-block__head">
+        <h2 class="salon-block__title">Bu rent profilinin elanları</h2>
+        <span id="rentCarsCount" class="salon-pill">—</span>
+      </div>
+
+      <!-- SEARCH -->
+      <div class="salon-tools">
+        <div class="salon-search">
+          <input id="rentSearch" type="search" placeholder="Model, marka yaz…">
+          <button id="rentClear" hidden>✕</button>
+        </div>
+      </div>
+
+      <!-- GRID -->
+      <div id="rentCarsGrid" class="grid"></div>
+
+      <!-- SCROLL -->
+      <div id="pagerSentinel" class="salon-sentinel">
+        <span id="sentinelText">Yüklənir…</span>
+      </div>
+
+      <!-- EMPTY -->
+      <div id="rentCarsEmpty" class="salon-empty" hidden>
+        <div class="salon-empty__t">Elan yoxdur</div>
+        <div class="salon-empty__d">Bu profil hələ elan yerləşdirməyib.</div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      © 2026 CarAll
+    </div>
+  </footer>
+
+  <!-- JS -->
+  <script src="js/carsdata.js"></script>
+  <script src="js/script.js"></script>
+  <script src="js/rentcar.js"></script>
+
+</body>
+</html>
