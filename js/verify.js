@@ -10,6 +10,7 @@ function openVerifyModal({ title, text, buttonText = "Bağla", onClose = null })
   const modalText = v$("modalText");
   const modalBtn = v$("modalBtn");
 
+  // fallback (modal yoxdursa)
   if (!modal || !modalTitle || !modalText || !modalBtn) {
     alert(text || title);
     if (typeof onClose === "function") onClose();
@@ -27,14 +28,16 @@ function openVerifyModal({ title, text, buttonText = "Bağla", onClose = null })
   };
 }
 
+// 🔥 JSON + TEXT safe parser
 async function readResponseSafe(res) {
   const text = await res.text().catch(() => "");
+
   if (!text) return {};
 
   try {
     return JSON.parse(text);
   } catch {
-    return { message: text };
+    return { message: text }; // "Account activated" kimi halları tutur
   }
 }
 
@@ -62,18 +65,22 @@ async function verifyUser() {
   try {
     const res = await fetch("https://carall.az/api/auth/verify", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({ email, otpCode })
     });
 
     const data = await readResponseSafe(res);
+
     console.log("VERIFY STATUS:", res.status);
     console.log("VERIFY RESPONSE:", data);
 
+    // ✅ SUCCESS (200)
     if (res.ok) {
       openVerifyModal({
         title: "Uğurlu ✅",
-        text: data.message || "Email təsdiqləndi. İndi hesabına daxil ola bilərsən.",
+        text: data.message || "Email təsdiqləndi.",
         buttonText: "Daxil ol",
         onClose: () => {
           window.location.href = "login.html";
@@ -82,6 +89,7 @@ async function verifyUser() {
       return;
     }
 
+    // ❌ ERROR (400, 401 və s.)
     openVerifyModal({
       title: "Xəta ❌",
       text: data.message || "Kod səhvdir və ya vaxtı bitib."
@@ -89,9 +97,10 @@ async function verifyUser() {
 
   } catch (err) {
     console.error("VERIFY FETCH ERROR:", err);
+
     openVerifyModal({
       title: "Server xətası ❌",
-      text: "Sorğunu tamamlamaq mümkün olmadı. Bir az sonra yenidən yoxla."
+      text: "Sorğunu göndərmək mümkün olmadı. Bir az sonra yenidən yoxla."
     });
   } finally {
     if (btn) {
@@ -101,6 +110,7 @@ async function verifyUser() {
   }
 }
 
+// 🔥 URL-dən email auto doldur
 document.addEventListener("DOMContentLoaded", () => {
   const emailFromUrl = new URLSearchParams(location.search).get("email");
   const emailInput = v$("email");
