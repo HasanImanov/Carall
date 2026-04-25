@@ -1,0 +1,103 @@
+/* Main ortalama */
+main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+}
+
+/* Kart */
+.verify-box {
+  width: 100%;
+  max-width: 380px;
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+}
+
+/* Başlıq */
+.verify-box h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #1a1a1a;
+}
+
+/* Inputlar */
+.verify-box input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+/* Focus */
+.verify-box input:focus {
+  border-color: #0d3b66;
+  outline: none;
+}
+
+/* Button */
+.verify-box button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #0d3b66;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+/* Hover */
+.verify-box button:hover {
+  background: #0b2f52;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.modal-box {
+  width: 100%;
+  max-width: 340px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,.22);
+}
+
+.modal-box h3 {
+  margin: 0 0 10px;
+  font-size: 22px;
+}
+
+.modal-box p {
+  margin: 0;
+  color: #555;
+  line-height: 1.5;
+}
+
+.modal-box button {
+  margin-top: 18px;
+  width: 100%;
+  height: 44px;
+  border: 0;
+  border-radius: 10px;
+  background: #0d3b66;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}

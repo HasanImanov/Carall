@@ -141,11 +141,12 @@ $$(".reg-form").forEach((form) => {
       return showMsg(data.message || "Qeydiyyat alınmadı.");
     }
 
-    showMsg("Qeydiyyat uğurlu ✅", "ok");
-    setTimeout(() => {
-      location.href = "login.html";
-    }, 500);
-    return;
+    showMsg("OTP emailə göndərildi ✅", "ok");
+
+setTimeout(() => {
+  location.href = "verify.html?email=" + encodeURIComponent(email);
+}, 700);
+return;
 
   } catch (err) {
     console.error(err);
@@ -191,11 +192,12 @@ $$(".reg-form").forEach((form) => {
       return showMsg(data.message || "Qeydiyyat alınmadı.");
     }
 
-    showMsg("Business qeydiyyatı uğurlu ✅", "ok");
-    setTimeout(() => {
-      location.href = "login.html";
-    }, 500);
-    return;
+    showMsg("OTP emailə göndərildi ✅", "ok");
+
+setTimeout(() => {
+  location.href = "verify.html?email=" + encodeURIComponent(email);
+}, 700);
+return;
 
   } catch (err) {
     console.error(err);
