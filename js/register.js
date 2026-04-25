@@ -1,5 +1,7 @@
 // js/register.js — register personal/business (localStorage demo)
 
+console.log("REGISTER JS NEW VERSION LOADED");
+
 const USERS_KEY = "carall_users_v1";
 const SESSION_KEY = "carall_session_v1";
 
