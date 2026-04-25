@@ -1,8 +1,20 @@
+console.log("VERIFY JS NEW VERSION LOADED");
+
+function v$(id) {
+  return document.getElementById(id);
+}
+
 function openVerifyModal({ title, text, buttonText = "Bağla", onClose = null }) {
-  const modal = document.getElementById("verifyModal");
-  const modalTitle = document.getElementById("modalTitle");
-  const modalText = document.getElementById("modalText");
-  const modalBtn = document.getElementById("modalBtn");
+  const modal = v$("verifyModal");
+  const modalTitle = v$("modalTitle");
+  const modalText = v$("modalText");
+  const modalBtn = v$("modalBtn");
+
+  if (!modal || !modalTitle || !modalText || !modalBtn) {
+    alert(text || title);
+    if (typeof onClose === "function") onClose();
+    return;
+  }
 
   modalTitle.textContent = title;
   modalText.textContent = text;
@@ -15,19 +27,24 @@ function openVerifyModal({ title, text, buttonText = "Bağla", onClose = null })
   };
 }
 
-async function readResponse(res) {
-  const text = await res.text();
+async function readResponseSafe(res) {
+  const text = await res.text().catch(() => "");
+  if (!text) return {};
+
   try {
-    return text ? JSON.parse(text) : {};
+    return JSON.parse(text);
   } catch {
     return { message: text };
   }
 }
 
 async function verifyUser() {
-  const email = document.getElementById("email").value.trim();
-  const otpCode = document.getElementById("otp").value.trim();
+  const emailInput = v$("email");
+  const otpInput = v$("otp");
   const btn = document.querySelector(".verify-box button");
+
+  const email = String(emailInput?.value || "").trim().toLowerCase();
+  const otpCode = String(otpInput?.value || "").trim();
 
   if (!email || !otpCode) {
     openVerifyModal({
@@ -37,8 +54,10 @@ async function verifyUser() {
     return;
   }
 
-  btn.disabled = true;
-  btn.textContent = "Yoxlanılır...";
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Yoxlanılır...";
+  }
 
   try {
     const res = await fetch("https://carall.az/api/auth/verify", {
@@ -47,41 +66,46 @@ async function verifyUser() {
       body: JSON.stringify({ email, otpCode })
     });
 
-    const data = await readResponse(res);
+    const data = await readResponseSafe(res);
+    console.log("VERIFY STATUS:", res.status);
     console.log("VERIFY RESPONSE:", data);
 
-    if (!res.ok) {
+    if (res.ok) {
       openVerifyModal({
-        title: "Xəta ❌",
-        text: data.message || "Kod səhvdir və ya vaxtı bitib."
+        title: "Uğurlu ✅",
+        text: data.message || "Email təsdiqləndi. İndi hesabına daxil ola bilərsən.",
+        buttonText: "Daxil ol",
+        onClose: () => {
+          window.location.href = "login.html";
+        }
       });
       return;
     }
 
     openVerifyModal({
-      title: "Uğurlu ✅",
-      text: "Email təsdiqləndi. İndi hesabına daxil ola bilərsən.",
-      buttonText: "Daxil ol",
-      onClose: () => {
-        window.location.href = "login.html";
-      }
+      title: "Xəta ❌",
+      text: data.message || "Kod səhvdir və ya vaxtı bitib."
     });
 
   } catch (err) {
-    console.error(err);
+    console.error("VERIFY FETCH ERROR:", err);
     openVerifyModal({
       title: "Server xətası ❌",
-      text: "Sorğunu göndərmək mümkün olmadı. Bir az sonra yenidən yoxla."
+      text: "Sorğunu tamamlamaq mümkün olmadı. Bir az sonra yenidən yoxla."
     });
   } finally {
-    btn.disabled = false;
-    btn.textContent = "Təsdiqlə";
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Təsdiqlə";
+    }
   }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   const emailFromUrl = new URLSearchParams(location.search).get("email");
-  if (emailFromUrl) {
-    document.getElementById("email").value = emailFromUrl;
+  const emailInput = v$("email");
+
+  if (emailFromUrl && emailInput) {
+    emailInput.value = emailFromUrl;
   }
 });
