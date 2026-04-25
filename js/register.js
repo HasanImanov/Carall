@@ -100,103 +100,107 @@ $$(".reg-form").forEach((form) => {
     hideMsg();
 
     const type = form.dataset.type;
-    const users = loadUsers();
+    // const users = loadUsers();
 
     // PERSONAL
-    if (type === "personal") {
-      const firstName = form.firstName.value.trim();
-      const lastName = form.lastName.value.trim();
-      const email = normEmail(form.email.value);
-      const pw = form.password.value;
-      const pw2 = form.password2.value;
+   if (type === "personal") {
+  const firstName = form.firstName.value.trim();
+  const lastName = form.lastName.value.trim();
+  const email = normEmail(form.email.value);
+  const phone = normPhone(form.phone.value);
+  const pw = form.password.value;
+  const pw2 = form.password2.value;
 
-      if (pw !== pw2) return showMsg("Parollar uyğun deyil.");
-      if (pw.length < 6) return showMsg("Parol minimum 6 simvol olmalıdır.");
-      if (users.some((u) => u.type === "personal" && u.email === email)) {
-        return showMsg("Bu e-mail artıq qeydiyyatdadır.");
-      }
+  const name = `${firstName} ${lastName}`.trim();
 
-      const user = {
-        id: uid(),
-        type: "personal",
+  if (!name || !email || !phone || !pw || !pw2) {
+    return showMsg("Bütün vacib xanaları doldurun.");
+  }
+
+  if (pw !== pw2) return showMsg("Parollar uyğun deyil.");
+  if (pw.length < 6) return showMsg("Parol minimum 6 simvol olmalıdır.");
+
+  try {
+    const res = await fetch("https://carall.az/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name,
         email,
-        password: pw,
-        profile: { firstName, lastName }
-      };
+        phone,
+        password: pw
+      })
+    });
 
-      users.push(user);
-      saveUsers(users);
-      saveSession(user.id);
+    const data = await res.json();
+    console.log("REGISTER RESPONSE:", data);
 
-      showMsg("Qeydiyyat uğurlu ✅", "ok");
-      setTimeout(() => {
-        location.href = "profile.html";
-      }, 250);
-      return;
+    if (!res.ok) {
+      return showMsg(data.message || "Qeydiyyat alınmadı.");
     }
+
+    showMsg("Qeydiyyat uğurlu ✅", "ok");
+    setTimeout(() => {
+      location.href = "login.html";
+    }, 500);
+    return;
+
+  } catch (err) {
+    console.error(err);
+    return showMsg("Server xətası ❌");
+  }
+}
 
     // BUSINESS
-    if (type === "business") {
-      const companyName = form.companyName.value.trim();
-      const businessType = form.businessType.value;
-      const phone = normPhone(form.phone.value);
-      const city = form.city.value.trim();
-      const address = form.address.value.trim();
-      const email = normEmail(form.email.value);
-      const pw = form.password.value;
-      const pw2 = form.password2.value;
+   if (type === "business") {
+  const companyName = form.companyName.value.trim();
+  const email = normEmail(form.email.value);
+  const phone = normPhone(form.phone.value);
+  const pw = form.password.value;
+  const pw2 = form.password2.value;
 
-      if (!businessType) return showMsg("Business növünü seç.");
-      if (pw !== pw2) return showMsg("Parollar uyğun deyil.");
-      if (pw.length < 6) return showMsg("Parol minimum 6 simvol olmalıdır.");
-      if (users.some((u) => u.type === "business" && u.phone === phone)) {
-        return showMsg("Bu nömrə artıq qeydiyyatdadır.");
-      }
-      if (users.some((u) => u.type === "business" && u.email === email)) {
-        return showMsg("Bu e-mail artıq qeydiyyatdadır.");
-      }
+  const name = companyName;
 
-      // extra phones
-      const extraPhones = [...extraPhonesBox.querySelectorAll("input")]
-        .map((i) => normPhone(i.value))
-        .filter(Boolean);
+  if (!name || !email || !phone || !pw || !pw2) {
+    return showMsg("Bütün vacib xanaları doldurun.");
+  }
 
-      // image
-      let imageDataUrl = null;
-      const file = form.photo?.files?.[0];
+  if (pw !== pw2) return showMsg("Parollar uyğun deyil.");
+  if (pw.length < 6) return showMsg("Parol minimum 6 simvol olmalıdır.");
 
-      if (file) {
-        if (file.size > 5 * 1024 * 1024) {
-          return showMsg("Şəkil 5MB-dan böyük ola bilməz.");
-        }
-        imageDataUrl = await fileToDataURL(file);
-      }
-
-      const user = {
-        id: uid(),
-        type: "business",
-        businessType,
-        phone,
+  try {
+    const res = await fetch("https://carall.az/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name,
         email,
-        password: pw,
-        profile: {
-          companyName,
-          city,
-          address,
-          extraPhones,
-          imageDataUrl
-        }
-      };
+        phone,
+        password: pw
+      })
+    });
 
-      users.push(user);
-      saveUsers(users);
-      saveSession(user.id);
+    const data = await res.json();
+    console.log("REGISTER RESPONSE:", data);
 
-      showMsg("Business qeydiyyatı uğurlu ✅", "ok");
-      setTimeout(() => {
-        location.href = "profile.html";
-      }, 250);
-      return;
+    if (!res.ok) {
+      return showMsg(data.message || "Qeydiyyat alınmadı.");
     }
+
+    showMsg("Business qeydiyyatı uğurlu ✅", "ok");
+    setTimeout(() => {
+      location.href = "login.html";
+    }, 500);
+    return;
+
+  } catch (err) {
+    console.error(err);
+    return showMsg("Server xətası ❌");
+  }
+}
   });
 });
