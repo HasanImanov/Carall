@@ -54,39 +54,49 @@ setTab(localStorage.getItem("carall_login_tab") || "personal");
 
 // --- SUBMIT (hər iki form üçün)
 $$(".login-form").forEach(form => {
-  form.addEventListener("submit", (e) => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
     hideMsg();
 
     const type = form.dataset.type; // personal | business
     const users = loadUsers();
+const phone = normPhone(form.querySelector('[name="phone"]')?.value);
+const password = form.querySelector('[name="password"]').value;
 
-    if (type === "personal") {
-      const email = normEmail(form.querySelector('[name="email"]').value);
-      const pw = form.querySelector('[name="password"]').value;
+if (!phone || !password) {
+  return showMsg("Məlumatları doldurun.");
+}
 
-      const user = users.find(u => u.type === "personal" && u.email === email);
-      if(!user) return showMsg("E-mail tapılmadı.");
-      if(!checkPw(user, pw)) return showMsg("Parol yanlışdır.");
+try {
+  const res = await fetch("https://carall.az/api/auth/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      phone: phone,
+      password: password
+    })
+  });
 
-      saveSession(user.id);
-      showMsg("Uğurlu giriş ✅", "ok");
-      setTimeout(afterLogin, 200);
-      return;
-    }
+  const data = await res.json();
+  console.log("LOGIN RESPONSE:", data);
 
-    if (type === "business") {
-      const phone = normPhone(form.querySelector('[name="phone"]').value);
-      const pw = form.querySelector('[name="password"]').value;
+  if (!res.ok) {
+    return showMsg(data.message || "Login alınmadı.");
+  }
 
-      const user = users.find(u => u.type === "business" && u.phone === phone);
-      if(!user) return showMsg("Nömrə tapılmadı.");
-      if(!checkPw(user, pw)) return showMsg("Parol yanlışdır.");
+  // TOKEN SAXLA
+  localStorage.setItem("access_token", data.accessToken);
+  localStorage.setItem("refresh_token", data.refreshToken);
 
-      saveSession(user.id);
-      showMsg("Uğurlu giriş ✅", "ok");
-      setTimeout(afterLogin, 200);
-      return;
-    }
+  showMsg("Uğurlu giriş ✅", "ok");
+  setTimeout(afterLogin, 500);
+
+} catch (err) {
+  console.error(err);
+  showMsg("Server xətası ❌");
+}
+    
   });
 });
