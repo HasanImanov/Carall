@@ -78,16 +78,58 @@ async function verifyUser() {
 
     // ✅ SUCCESS (200)
     if (res.ok) {
-      openVerifyModal({
-        title: "Uğurlu ✅",
-        text: data.message || "Email təsdiqləndi.",
-        buttonText: "Daxil ol",
-        onClose: () => {
-          window.location.href = "login.html";
-        }
+  const savedEmail = sessionStorage.getItem("carall_pending_email") || email;
+  const savedPassword = sessionStorage.getItem("carall_pending_password");
+
+  if (savedEmail && savedPassword) {
+    try {
+      const loginRes = await fetch("https://carall.az/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: savedEmail,
+          password: savedPassword
+        })
       });
-      return;
+
+      const loginData = await readResponseSafe(loginRes);
+
+      if (loginRes.ok) {
+        localStorage.setItem("carall_token", loginData.token || loginData.accessToken || "");
+        localStorage.setItem("carall_user", JSON.stringify(loginData.user || loginData));
+
+        sessionStorage.removeItem("carall_pending_email");
+        sessionStorage.removeItem("carall_pending_password");
+
+        openVerifyModal({
+          title: "Uğurlu ✅",
+          text: "Hesab təsdiqləndi və giriş edildi.",
+          buttonText: "Davam et",
+          onClose: () => {
+            window.location.href = "index.html";
+          }
+        });
+
+        return;
+      }
+    } catch (err) {
+      console.error("AUTO LOGIN ERROR:", err);
     }
+  }
+
+  openVerifyModal({
+    title: "Uğurlu ✅",
+    text: "Email təsdiqləndi. İndi hesabına daxil ola bilərsən.",
+    buttonText: "Daxil ol",
+    onClose: () => {
+      window.location.href = "login.html?email=" + encodeURIComponent(email);
+    }
+  });
+
+  return;
+}
 
     // ❌ ERROR (400, 401 və s.)
     openVerifyModal({
