@@ -594,37 +594,56 @@ btnReset && btnReset.addEventListener("click", resetAll);
 
 // ===== Advanced: auto-fill EVERYTHING =====
 function initAdvancedAutoFill() {
-  // if (typeof CARS === "undefined" || !Array.isArray(CARS)) return;
-const SOURCE_CARS = window.cars || window.CARS || [];
-if (!Array.isArray(SOURCE_CARS) || !SOURCE_CARS.length) return;
+  const SOURCE_CARS = window.cars || window.CARS || window.ALL_CARS || [];
+
+  if (!Array.isArray(SOURCE_CARS) || !SOURCE_CARS.length) return;
+
   // base selects already exist
-  if (qCountry) fillSelect(qCountry, SOURCE_CAR.map((c) => c.country), "Ölkə");
-  if (qBrand) fillSelect(qBrand, SOURCE_CAR.map((c) => c.brand), "Marka");
-  if (qCity) fillSelect(qCity, SOURCE_CAR.map((c) => c.city), "Şəhər");
+  if (qCountry) fillSelect(qCountry, SOURCE_CARS.map((c) => c.country), "Ölkə");
+  if (qBrand) fillSelect(qBrand, SOURCE_CARS.map((c) => c.brand), "Marka");
+  if (qCity) fillSelect(qCity, SOURCE_CARS.map((c) => c.city), "Şəhər");
 
   // brand -> model dependency
   if (qBrand && qModel) {
     const fillModels = () => {
       const b = qBrand.value;
-      const models = CARS.filter((c) => !b || c.brand === b).map((c) => c.model);
+      const models = SOURCE_CARS
+        .filter((c) => !b || c.brand === b)
+        .map((c) => c.model);
+
       fillSelect(qModel, models, "Model");
     };
+
     qBrand.addEventListener("change", () => {
       fillModels();
       applyFilters();
     });
+
     fillModels();
   }
 
-  // price/year min-max: if they are inputs, skip; if selects, fill
+  // price/year min-max
   if (qYear && qYearMax && qYear.tagName === "SELECT" && qYearMax.tagName === "SELECT") {
-    fillSelectMinMax(qYear, qYearMax, SOURCE_CAR.map((c) => c.year), "İl, min.", "maks.");
-  }
-  if (qMinPrice && qMaxPrice && qMinPrice.tagName === "SELECT" && qMaxPrice.tagName === "SELECT") {
-    fillSelectMinMax(qMinPrice, qMaxPrice, SOURCE_CAR.map((c) => c.price), "Qiymət, min.", "maks.");
+    fillSelectMinMax(
+      qYear,
+      qYearMax,
+      SOURCE_CARS.map((c) => c.year),
+      "İl, min.",
+      "maks."
+    );
   }
 
-  // advanced IDs (if exist in your HTML)
+  if (qMinPrice && qMaxPrice && qMinPrice.tagName === "SELECT" && qMaxPrice.tagName === "SELECT") {
+    fillSelectMinMax(
+      qMinPrice,
+      qMaxPrice,
+      SOURCE_CARS.map((c) => c.price),
+      "Qiymət, min.",
+      "maks."
+    );
+  }
+
+  // advanced IDs
   const qColor = $("qColor");
   const qBody = $("qBody");
   const qFuel = $("qFuel");
@@ -635,17 +654,17 @@ if (!Array.isArray(SOURCE_CARS) || !SOURCE_CARS.length) return;
   const qMarket = $("qMarket");
   const qStatus = $("qStatus");
 
-  if (qColor) fillSelect(qColor, SOURCE_CAR.map((c) => c.color), "Rəng");
-  if (qBody) fillSelect(qBody, SOURCE_CAR.map((c) => c.body).concat(ALL_BODY_TYPES), "Ban növü");
-  if (qFuel) fillSelect(qFuel, SOURCE_CAR.map((c) => c.fuel).concat(ALL_FUEL), "Yanacaq növü");
-  if (qDrive) fillSelect(qDrive, SOURCE_CAR.map((c) => c.drive).concat(ALL_DRIVE), "Ötürücü");
-  if (qGearbox) fillSelect(qGearbox, SOURCE_CAR.map((c) => c.gearbox).concat(ALL_GEARBOX), "Sürətlər qutusu");
-  if (qOwners) fillSelect(qOwners, SOURCE_CAR.map((c) => c.owners), "Sahiblərinin sayı");
-  if (qSeats) fillSelect(qSeats, SOURCE_CAR.map((c) => c.seats), "Yerlərin sayı");
-  if (qMarket) fillSelect(qMarket, SOURCE_CAR.map((c) => c.market).concat(ALL_MARKET), "Hansı bazar üçün yığılıb");
-  if (qStatus) fillSelect(qStatus, SOURCE_CAR.map((c) => c.status).concat(ALL_STATUS), "Status");
+  if (qColor) fillSelect(qColor, SOURCE_CARS.map((c) => c.color), "Rəng");
+  if (qBody) fillSelect(qBody, SOURCE_CARS.map((c) => c.body).concat(ALL_BODY_TYPES), "Ban növü");
+  if (qFuel) fillSelect(qFuel, SOURCE_CARS.map((c) => c.fuel).concat(ALL_FUEL), "Yanacaq növü");
+  if (qDrive) fillSelect(qDrive, SOURCE_CARS.map((c) => c.drive).concat(ALL_DRIVE), "Ötürücü");
+  if (qGearbox) fillSelect(qGearbox, SOURCE_CARS.map((c) => c.gearbox).concat(ALL_GEARBOX), "Sürətlər qutusu");
+  if (qOwners) fillSelect(qOwners, SOURCE_CARS.map((c) => c.owners), "Sahiblərinin sayı");
+  if (qSeats) fillSelect(qSeats, SOURCE_CARS.map((c) => c.seats), "Yerlərin sayı");
+  if (qMarket) fillSelect(qMarket, SOURCE_CARS.map((c) => c.market).concat(ALL_MARKET), "Hansı bazar üçün yığılıb");
+  if (qStatus) fillSelect(qStatus, SOURCE_CARS.map((c) => c.status).concat(ALL_STATUS), "Status");
 
-  // numeric ranges for advanced (if exist)
+  // numeric ranges
   const qVolumeMin = $("qVolumeMin");
   const qVolumeMax = $("qVolumeMax");
   const qPowerMin = $("qPowerMin");
@@ -654,148 +673,67 @@ if (!Array.isArray(SOURCE_CARS) || !SOURCE_CARS.length) return;
   const qMileageMax = $("qMileageMax");
 
   if (qVolumeMin && qVolumeMax && qVolumeMin.tagName === "SELECT" && qVolumeMax.tagName === "SELECT") {
-    fillSelectMinMax(qVolumeMin, qVolumeMax, SOURCE_CAR.map((c) => c.volume), "Həcm (sm³), min.", "maks.");
+    fillSelectMinMax(
+      qVolumeMin,
+      qVolumeMax,
+      SOURCE_CARS.map((c) => c.volume),
+      "Həcm (sm³), min.",
+      "maks."
+    );
   }
+
   if (qPowerMin && qPowerMax && qPowerMin.tagName === "SELECT" && qPowerMax.tagName === "SELECT") {
-    fillSelectMinMax(qPowerMin, qPowerMax, SOURCE_CAR.map((c) => c.power), "Güc (a.g.), min.", "maks.");
+    fillSelectMinMax(
+      qPowerMin,
+      qPowerMax,
+      SOURCE_CARS.map((c) => c.power),
+      "Güc (a.g.), min.",
+      "maks."
+    );
   }
+
   if (qMileageMin && qMileageMax && qMileageMin.tagName === "SELECT" && qMileageMax.tagName === "SELECT") {
-    fillSelectMinMax(qMileageMin, qMileageMax, SOURCE_CAR.map((c) => c.mileage), "Yürüş (km), min.", "maks.");
+    fillSelectMinMax(
+      qMileageMin,
+      qMileageMax,
+      SOURCE_CARS.map((c) => c.mileage),
+      "Yürüş (km), min.",
+      "maks."
+    );
   }
 
-  // bind change/input for advanced fields (so filter updates)
   [
-    qColor, qBody, qFuel, qDrive, qGearbox, qOwners, qSeats, qMarket, qStatus,
-    qVolumeMin, qVolumeMax, qPowerMin, qPowerMax, qMileageMin, qMileageMax
-  ].forEach((el) => el && el.addEventListener("change", applyFilters));
-
-  [
-    qVolumeMin, qVolumeMax, qPowerMin, qPowerMax, qMileageMin, qMileageMax
-  ].forEach((el) => el && el.tagName === "INPUT" && el.addEventListener("input", applyFilters));
-  function fillSelectEl(el, values, placeholderText) {
-  if (!el) return;
-  const list = [...new Set(values.filter(v => v !== null && v !== undefined && String(v).trim() !== ""))]
-    .sort((a,b) => String(a).localeCompare(String(b), "az"));
-
-  const ph = placeholderText || "Hamısı";
-  el.innerHTML = `<option value="">${ph}</option>` + list.map(v => `<option value="${v}">${v}</option>`).join("");
-}
-
-function initAdvancedAutoFill_NoIds() {
-  const cars = window.CARS || [];
-  if (!cars.length) return;
-
-  const panel = document.getElementById("advPanel") || document;
-  const selects = [...panel.querySelectorAll("select")];
-
-  const getPh = (sel) => {
-    // 1) data-ph varsa
-    if (sel.dataset && sel.dataset.ph) return sel.dataset.ph;
-    // 2) ilk option text
-    const opt = sel.querySelector("option");
-    if (opt && opt.textContent) return opt.textContent.trim();
-    // 3) yaxın label text
-    const lbl = sel.closest(".f")?.querySelector("label");
-    if (lbl) return lbl.textContent.trim();
-    return "";
-  };
-
-  const phIncludes = (ph, words) => words.some(w => ph.toLowerCase().includes(w));
-
-  selects.forEach(sel => {
-    const ph = getPh(sel);
-
-    // Marka
-    if (phIncludes(ph, ["marka"])) {
-      fillSelectEl(sel, cars.map(c => c.brand), "Marka");
-      return;
-    }
-
-    // Model (markadan asılı olma üçün ayrıca handle edəcəyik aşağıda)
-    if (phIncludes(ph, ["model"])) {
-      fillSelectEl(sel, cars.map(c => c.model), "Model");
-      return;
-    }
-
-    // Şəhər
-    if (phIncludes(ph, ["şəhər", "seher"])) {
-      fillSelectEl(sel, cars.map(c => c.city), "Şəhər");
-      return;
-    }
-
-    // Rəng
-    if (phIncludes(ph, ["rəng", "reng"])) {
-      fillSelectEl(sel, cars.map(c => c.color), "Rəng");
-      return;
-    }
-
-    // Ban növü
-    if (phIncludes(ph, ["ban"])) {
-      fillSelectEl(sel, cars.map(c => c.body), "Ban növü");
-      return;
-    }
-
-    // Yanacaq
-    if (phIncludes(ph, ["yanacaq", "fuel"])) {
-      fillSelectEl(sel, cars.map(c => c.fuel), "Yanacaq növü");
-      return;
-    }
-
-    // Ötürücü
-    if (phIncludes(ph, ["ötürücü", "oturucu", "drive"])) {
-      fillSelectEl(sel, cars.map(c => c.drive), "Ötürücü");
-      return;
-    }
-
-    // Sürətlər qutusu
-    if (phIncludes(ph, ["sürətlər", "suretl", "qutu"])) {
-      fillSelectEl(sel, cars.map(c => c.gearbox), "Sürətlər qutusu");
-      return;
-    }
-
-    // Sahiblərinin sayı
-    if (phIncludes(ph, ["sahibl", "sahib"])) {
-      fillSelectEl(sel, cars.map(c => c.owners), "Sahiblərinin sayı");
-      return;
-    }
-
-    // Yerlərin sayı
-    if (phIncludes(ph, ["yerlərin", "yer"])) {
-      fillSelectEl(sel, cars.map(c => c.seats), "Yerlərin sayı");
-      return;
-    }
-
-    // Status
-    if (phIncludes(ph, ["status"])) {
-      fillSelectEl(sel, cars.map(c => c.status), "Status");
-      return;
-    }
-
-    // Bazar
-    if (phIncludes(ph, ["bazar"])) {
-      fillSelectEl(sel, cars.map(c => c.market), "Hansı bazar üçün yığılıb");
-      return;
-    }
+    qColor,
+    qBody,
+    qFuel,
+    qDrive,
+    qGearbox,
+    qOwners,
+    qSeats,
+    qMarket,
+    qStatus,
+    qVolumeMin,
+    qVolumeMax,
+    qPowerMin,
+    qPowerMax,
+    qMileageMin,
+    qMileageMax
+  ].forEach((el) => {
+    if (el) el.addEventListener("change", applyFilters);
   });
 
-  // ✅ Marka → Model dependency (ID yox, placeholder ilə tapırıq)
-  const brandSel = selects.find(s => (getPh(s).toLowerCase().includes("marka")));
-  const modelSel = selects.find(s => (getPh(s).toLowerCase().includes("model")));
-
-  if (brandSel && modelSel) {
-    const fillModelsByBrand = () => {
-      const b = brandSel.value;
-      const models = cars.filter(c => !b || c.brand === b).map(c => c.model);
-      fillSelectEl(modelSel, models, "Model");
-    };
-    brandSel.addEventListener("change", fillModelsByBrand);
-    fillModelsByBrand();
-  }
-}
-
-// panel açılmadan da doldursun:
-document.addEventListener("DOMContentLoaded", initAdvancedAutoFill_NoIds);
-
+  [
+    qVolumeMin,
+    qVolumeMax,
+    qPowerMin,
+    qPowerMax,
+    qMileageMin,
+    qMileageMax
+  ].forEach((el) => {
+    if (el && el.tagName === "INPUT") {
+      el.addEventListener("input", applyFilters);
+    }
+  });
 }
 
 // ===== Equipment chips (Turbo.az like) =====
@@ -2352,4 +2290,62 @@ document.addEventListener("DOMContentLoaded", () => {
       window.closeCarallModal();
     }
   });
+})();
+
+(function () {
+  const el = document.getElementById("headerUser");
+  if (!el) return;
+
+  let session = null;
+  try {
+    session = JSON.parse(localStorage.getItem("carall_session_v1") || "null");
+  } catch {}
+
+  if (!session || !session.loggedIn) return;
+
+  const name = session.name || session.phone || "Profil";
+
+  el.href = "#"; // loginə getməsin
+
+  el.innerHTML = `
+    <span class="user-inline">
+      <svg viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="8" r="3"></circle>
+        <path d="M4 21c1.5-4 14.5-4 16 0"></path>
+      </svg>
+      <span class="user-name">${name}</span>
+    </span>
+
+    <div class="user-dropdown">
+      <a href="profile.html">Profil</a>
+      <button id="logoutBtn">Çıxış et</button>
+    </div>
+  `;
+
+  el.classList.add("has-user");
+
+  // toggle
+  el.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    el.classList.toggle("open");
+  });
+
+  document.addEventListener("click", function () {
+    el.classList.remove("open");
+  });
+
+  // logout
+  const logoutBtn = el.querySelector("#logoutBtn");
+  logoutBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("carall_session_v1");
+
+    location.href = "index.html";
+  });
+
 })();

@@ -2754,3 +2754,57 @@ body.modal-open{
     min-width: 100%;
   }
 }
+
+/* ikon + ad yan-yana */
+.user-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* adı balaca saxla */
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  max-width: 90px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* dropdown */
+.nav__iconlink {
+  position: relative;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 35px;
+  right: 0;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 8px;
+  display: none;
+  min-width: 140px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.nav__iconlink.open .user-dropdown {
+  display: block;
+}
+
+.user-dropdown a,
+.user-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 6px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.user-dropdown button {
+  color: red;
+}

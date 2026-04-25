@@ -133,6 +133,9 @@ reg$$(".reg-form").forEach((form) => {
 
         showMsg("OTP emailə göndərildi ✅", "ok");
 
+        sessionStorage.setItem("carall_pending_email", email);
+        sessionStorage.setItem("carall_pending_password", pw);
+
         setTimeout(() => {
           window.location.href = "verify.html?email=" + encodeURIComponent(email);
         }, 700);
