@@ -1,4 +1,5 @@
 // login.js — REAL BACKEND LOGIN ($ istifadə olunmur)
+console.log("Login Last update")
 
 const SESSION_KEY = "carall_session_v1";
 
