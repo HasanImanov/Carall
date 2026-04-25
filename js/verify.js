@@ -17,7 +17,6 @@ function openVerifyModal({ title, text, buttonText = "Bağla", onClose = null })
 
 async function readResponse(res) {
   const text = await res.text();
-
   try {
     return text ? JSON.parse(text) : {};
   } catch {
@@ -44,9 +43,7 @@ async function verifyUser() {
   try {
     const res = await fetch("https://carall.az/api/auth/verify", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, otpCode })
     });
 
@@ -76,7 +73,6 @@ async function verifyUser() {
       title: "Server xətası ❌",
       text: "Sorğunu göndərmək mümkün olmadı. Bir az sonra yenidən yoxla."
     });
-
   } finally {
     btn.disabled = false;
     btn.textContent = "Təsdiqlə";
@@ -84,11 +80,8 @@ async function verifyUser() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const params = new URLSearchParams(window.location.search);
-  const emailFromUrl = params.get("email");
-
+  const emailFromUrl = new URLSearchParams(location.search).get("email");
   if (emailFromUrl) {
-    const emailInput = document.getElementById("email");
-    if (emailInput) emailInput.value = emailFromUrl;
+    document.getElementById("email").value = emailFromUrl;
   }
 });
