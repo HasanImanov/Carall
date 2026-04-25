@@ -48,6 +48,14 @@ function normPhone(v) {
   return String(v || "").replace(/\s+/g, "").trim();
 }
 
+async function readResponse(res) {
+  const text = await res.text();
+  try {
+    return text ? JSON.parse(text) : {};
+  } catch {
+    return { message: text };
+  }
+}
 // TAB SWITCH
 function setTab(name) {
   hideMsg();
@@ -134,7 +142,7 @@ $$(".reg-form").forEach((form) => {
       })
     });
 
-    const data = await res.json();
+    const data = await readResponse(res);
     console.log("REGISTER RESPONSE:", data);
 
     if (!res.ok) {
@@ -185,7 +193,7 @@ return;
       })
     });
 
-    const data = await res.json();
+    const data = await readResponse(res);
     console.log("REGISTER RESPONSE:", data);
 
     if (!res.ok) {

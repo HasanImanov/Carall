@@ -7,16 +7,21 @@ function openVerifyModal({ title, text, buttonText = "Bağla", onClose = null })
   modalTitle.textContent = title;
   modalText.textContent = text;
   modalBtn.textContent = buttonText;
-
   modal.style.display = "flex";
 
   modalBtn.onclick = () => {
     modal.style.display = "none";
-
-    if (typeof onClose === "function") {
-      onClose();
-    }
+    if (typeof onClose === "function") onClose();
   };
+}
+
+async function readResponse(res) {
+  const text = await res.text();
+  try {
+    return text ? JSON.parse(text) : {};
+  } catch {
+    return { message: text };
+  }
 }
 
 async function verifyUser() {
@@ -38,16 +43,11 @@ async function verifyUser() {
   try {
     const res = await fetch("https://carall.az/api/auth/verify", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        email,
-        otpCode
-      })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, otpCode })
     });
 
-    const data = await res.json();
+    const data = await readResponse(res);
     console.log("VERIFY RESPONSE:", data);
 
     if (!res.ok) {
@@ -69,12 +69,10 @@ async function verifyUser() {
 
   } catch (err) {
     console.error(err);
-
     openVerifyModal({
       title: "Server xətası ❌",
-      text: "Hazırda sorğunu tamamlamaq mümkün olmadı. Bir az sonra yenidən yoxla."
+      text: "Sorğunu göndərmək mümkün olmadı. Bir az sonra yenidən yoxla."
     });
-
   } finally {
     btn.disabled = false;
     btn.textContent = "Təsdiqlə";
@@ -82,11 +80,8 @@ async function verifyUser() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const params = new URLSearchParams(window.location.search);
-  const emailFromUrl = params.get("email");
-
+  const emailFromUrl = new URLSearchParams(location.search).get("email");
   if (emailFromUrl) {
-    const emailInput = document.getElementById("email");
-    if (emailInput) emailInput.value = emailFromUrl;
+    document.getElementById("email").value = emailFromUrl;
   }
 });
