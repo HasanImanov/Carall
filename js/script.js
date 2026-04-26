@@ -1436,22 +1436,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if(session?.userId) return; // artıq login var
 
   // DEV user-i users listinə yaz
-  let users = [];
-  try { users = JSON.parse(localStorage.getItem(USERS_KEY) || "[]"); } catch {}
-
-  let devUser = users.find(u => u.id === "DEV_USER");
-  if(!devUser){
-    devUser = {
-      id: "DEV_USER",
-      type: "personal",
-      email: "dev@carall.local",
-      profile: { firstName: "DEV", lastName: "USER" },
-      password: "dev12345",
-      createdAt: Date.now()
-    };
-    users.unshift(devUser);
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
-  }
+  
 
   // session yarat
   localStorage.setItem(SESSION_KEY, JSON.stringify({
@@ -2304,12 +2289,17 @@ document.addEventListener("DOMContentLoaded", () => {
     session = null;
   }
 
-  if (!session || !session.loggedIn) {
+  if (!session || (!session.loggedIn && !session.userId)) {
     el.href = "login.html";
     return;
   }
 
-  const displayName = session.name || session.phone || "Profil";
+  const displayName =
+  session.name ||
+  session.fullName ||
+  session.phone ||
+  session.userId ||
+  "Profil";
 
   el.href = "#";
   el.classList.add("has-user");
