@@ -1422,7 +1422,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 // ========== DEV AUTH (only for development) ==========
 (function devAuth(){
-  const DEV_MODE = true; // prod olanda false edəcəksən
+  const DEV_MODE = false; // prod olanda false edəcəksən
 
   if(!DEV_MODE) return;
 
@@ -2289,7 +2289,7 @@ document.addEventListener("DOMContentLoaded", () => {
     session = null;
   }
 
-  if (!session || (!session.loggedIn && !session.userId)) {
+  if (!session || session.loggedIn !== true) {
     el.href = "login.html";
     return;
   }
@@ -2298,7 +2298,6 @@ document.addEventListener("DOMContentLoaded", () => {
   session.name ||
   session.fullName ||
   session.phone ||
-  session.userId ||
   "Profil";
 
   el.href = "#";
