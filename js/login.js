@@ -1,5 +1,5 @@
 // login.js — REAL BACKEND LOGIN ($ istifadə olunmur)
-console.log("Login Last update")
+console.log("Login Lasttt update");
 
 const SESSION_KEY = "carall_session_v1";
 
@@ -12,6 +12,7 @@ const msgBox = qs("#msg");
 
 function showMsg(text, type = "err") {
   if (!msgBox) return alert(text);
+
   msgBox.hidden = false;
   msgBox.className = "msg " + (type === "ok" ? "ok" : "err");
   msgBox.textContent = text;
@@ -117,10 +118,25 @@ qsa(".login-form").forEach(form => {
         localStorage.setItem("refresh_token", refreshToken);
       }
 
+      const user =
+        data.user ||
+        data.data?.user ||
+        data.data ||
+        data;
+
+      const name =
+        user.name ||
+        user.fullName ||
+        user.firstName ||
+        user.username ||
+        user.displayName ||
+        "";
+
       localStorage.setItem(SESSION_KEY, JSON.stringify({
         phone,
         type,
-        loggedIn: true
+        loggedIn: true,
+        name
       }));
 
       showMsg("Uğurlu giriş ✅", "ok");
