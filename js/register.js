@@ -2,9 +2,6 @@
 
 console.log("REGISTER JS NEW VERSION LOADED");
 
-const USERS_KEY = "carall_users_v1";
-const SESSION_KEY = "carall_session_v1";
-
 const reg$ = (s, r = document) => r.querySelector(s);
 const reg$$ = (s, r = document) => [...r.querySelectorAll(s)];
 
@@ -33,12 +30,20 @@ function normPhone(v) {
 }
 
 async function readResponse(res) {
-  const text = await res.text();
+  const text = await res.text().catch(() => "");
   try {
     return text ? JSON.parse(text) : {};
   } catch {
     return { message: text };
   }
+}
+
+function savePendingVerify({ email, phone, password, type, name }) {
+  sessionStorage.setItem("carall_pending_email", email);
+  sessionStorage.setItem("carall_pending_phone", phone);
+  sessionStorage.setItem("carall_pending_password", password);
+  sessionStorage.setItem("carall_pending_type", type || "personal");
+  sessionStorage.setItem("carall_pending_name", name || "");
 }
 
 // TAB SWITCH
@@ -90,7 +95,7 @@ reg$$(".reg-form").forEach((form) => {
     e.preventDefault();
     hideMsg();
 
-    const type = form.dataset.type;
+    const type = form.dataset.type || "personal";
 
     // PERSONAL
     if (type === "personal") {
@@ -131,10 +136,15 @@ reg$$(".reg-form").forEach((form) => {
           return showMsg(data.message || "Qeydiyyat alınmadı.");
         }
 
-        showMsg("OTP emailə göndərildi ✅", "ok");
+        savePendingVerify({
+          email,
+          phone,
+          password: pw,
+          type: "personal",
+          name
+        });
 
-        sessionStorage.setItem("carall_pending_email", email);
-        sessionStorage.setItem("carall_pending_password", pw);
+        showMsg("OTP emailə göndərildi ✅", "ok");
 
         setTimeout(() => {
           window.location.href = "verify.html?email=" + encodeURIComponent(email);
@@ -142,7 +152,7 @@ reg$$(".reg-form").forEach((form) => {
 
         return;
       } catch (err) {
-        console.error(err);
+        console.error("REGISTER ERROR:", err);
         return showMsg("Server xətası ❌");
       }
     }
@@ -185,6 +195,14 @@ reg$$(".reg-form").forEach((form) => {
           return showMsg(data.message || "Qeydiyyat alınmadı.");
         }
 
+        savePendingVerify({
+          email,
+          phone,
+          password: pw,
+          type: "business",
+          name
+        });
+
         showMsg("OTP emailə göndərildi ✅", "ok");
 
         setTimeout(() => {
@@ -193,7 +211,7 @@ reg$$(".reg-form").forEach((form) => {
 
         return;
       } catch (err) {
-        console.error(err);
+        console.error("REGISTER ERROR:", err);
         return showMsg("Server xətası ❌");
       }
     }

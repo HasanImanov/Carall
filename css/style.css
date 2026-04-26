@@ -2826,3 +2826,74 @@ body.modal-open{
 .user-dropdown button {
   color: #dc2626;
 }
+
+
+.nav__iconlink.has-user {
+  position: relative;
+  width: auto;
+  min-width: 95px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-decoration: none;
+  z-index: 10000;
+}
+
+.user-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.user-inline svg {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 700;
+  max-width: 95px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: #003b73;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 150px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 14px 30px rgba(0,0,0,.15);
+  display: none;
+  z-index: 999999;
+}
+
+.nav__iconlink.open .user-dropdown {
+  display: block;
+}
+
+.user-dropdown a,
+.user-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.user-dropdown button {
+  color: #dc2626;
+}
