@@ -1,4 +1,4 @@
-console.log("VERIFY JS NEW VERSION LOADED");
+console.log("VERIFYY JS NEW VERSION LOADED");
 
 function v$(id) {
   return document.getElementById(id);
@@ -10,7 +10,6 @@ function openVerifyModal({ title, text, buttonText = "Bağla", onClose = null })
   const modalText = v$("modalText");
   const modalBtn = v$("modalBtn");
 
-  // fallback (modal yoxdursa)
   if (!modal || !modalTitle || !modalText || !modalBtn) {
     alert(text || title);
     if (typeof onClose === "function") onClose();
@@ -28,7 +27,6 @@ function openVerifyModal({ title, text, buttonText = "Bağla", onClose = null })
   };
 }
 
-// 🔥 JSON + TEXT safe parser
 async function readResponseSafe(res) {
   const text = await res.text().catch(() => "");
 
@@ -37,8 +35,94 @@ async function readResponseSafe(res) {
   try {
     return JSON.parse(text);
   } catch {
-    return { message: text }; // "Account activated" kimi halları tutur
+    return { message: text };
   }
+}
+
+function getToken(data) {
+  return (
+    data.accessToken ||
+    data.access_token ||
+    data.token ||
+    data?.data?.accessToken ||
+    data?.data?.access_token ||
+    data?.data?.token ||
+    ""
+  );
+}
+
+function getRefreshToken(data) {
+  return (
+    data.refreshToken ||
+    data.refresh_token ||
+    data?.data?.refreshToken ||
+    data?.data?.refresh_token ||
+    ""
+  );
+}
+
+function saveLoginSession(data, phone, type = "personal") {
+  const accessToken = getToken(data);
+  const refreshToken = getRefreshToken(data);
+
+  if (accessToken) {
+    localStorage.setItem("access_token", accessToken);
+  }
+
+  if (refreshToken) {
+    localStorage.setItem("refresh_token", refreshToken);
+  }
+
+  const user =
+    data.user ||
+    data.data?.user ||
+    data.data ||
+    data;
+
+  const name =
+    user.name ||
+    user.fullName ||
+    user.firstName ||
+    user.username ||
+    user.displayName ||
+    "";
+
+  localStorage.setItem("carall_session_v1", JSON.stringify({
+    phone,
+    type,
+    loggedIn: true,
+    name
+  }));
+}
+
+async function autoLoginAfterVerify(phone, password, type = "personal") {
+  const loginRes = await fetch("https://carall.az/api/auth/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      phone,
+      password
+    })
+  });
+
+  const loginData = await readResponseSafe(loginRes);
+
+  console.log("AUTO LOGIN STATUS:", loginRes.status);
+  console.log("AUTO LOGIN RESPONSE:", loginData);
+
+  if (!loginRes.ok) return false;
+
+  const token = getToken(loginData);
+
+  if (!token) {
+    console.error("AUTO LOGIN token gəlmədi:", loginData);
+    return false;
+  }
+
+  saveLoginSession(loginData, phone, type);
+  return true;
 }
 
 async function verifyUser() {
@@ -68,7 +152,10 @@ async function verifyUser() {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ email, otpCode })
+      body: JSON.stringify({
+        email,
+        otpCode
+      })
     });
 
     const data = await readResponseSafe(res);
@@ -76,62 +163,60 @@ async function verifyUser() {
     console.log("VERIFY STATUS:", res.status);
     console.log("VERIFY RESPONSE:", data);
 
-    // ✅ SUCCESS (200)
     if (res.ok) {
-  const savedEmail = sessionStorage.getItem("carall_pending_email") || email;
-  const savedPassword = sessionStorage.getItem("carall_pending_password");
+      const savedPhone =
+        sessionStorage.getItem("carall_pending_phone") ||
+        localStorage.getItem("pending_phone") ||
+        "";
 
-  if (savedEmail && savedPassword) {
-    try {
-      const loginRes = await fetch("https://carall.az/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email: savedEmail,
-          password: savedPassword
-        })
+      const savedPassword =
+        sessionStorage.getItem("carall_pending_password") ||
+        localStorage.getItem("pending_password") ||
+        "";
+
+      const savedType =
+        sessionStorage.getItem("carall_pending_type") ||
+        localStorage.getItem("pending_type") ||
+        "personal";
+
+      if (savedPhone && savedPassword) {
+        const ok = await autoLoginAfterVerify(savedPhone, savedPassword, savedType);
+
+        if (ok) {
+          sessionStorage.removeItem("carall_pending_email");
+          sessionStorage.removeItem("carall_pending_phone");
+          sessionStorage.removeItem("carall_pending_password");
+          sessionStorage.removeItem("carall_pending_type");
+
+          localStorage.removeItem("pending_phone");
+          localStorage.removeItem("pending_password");
+          localStorage.removeItem("pending_type");
+
+          openVerifyModal({
+            title: "Uğurlu ✅",
+            text: "Hesab təsdiqləndi və giriş edildi.",
+            buttonText: "Davam et",
+            onClose: () => {
+              window.location.href = "index.html";
+            }
+          });
+
+          return;
+        }
+      }
+
+      openVerifyModal({
+        title: "Uğurlu ✅",
+        text: "Email təsdiqləndi. İndi hesabına daxil ola bilərsən.",
+        buttonText: "Daxil ol",
+        onClose: () => {
+          window.location.href = "login.html";
+        }
       });
 
-      const loginData = await readResponseSafe(loginRes);
-
-      if (loginRes.ok) {
-        localStorage.setItem("carall_token", loginData.token || loginData.accessToken || "");
-        localStorage.setItem("carall_user", JSON.stringify(loginData.user || loginData));
-
-        sessionStorage.removeItem("carall_pending_email");
-        sessionStorage.removeItem("carall_pending_password");
-
-        openVerifyModal({
-          title: "Uğurlu ✅",
-          text: "Hesab təsdiqləndi və giriş edildi.",
-          buttonText: "Davam et",
-          onClose: () => {
-            window.location.href = "index.html";
-          }
-        });
-
-        return;
-      }
-    } catch (err) {
-      console.error("AUTO LOGIN ERROR:", err);
+      return;
     }
-  }
 
-  openVerifyModal({
-    title: "Uğurlu ✅",
-    text: "Email təsdiqləndi. İndi hesabına daxil ola bilərsən.",
-    buttonText: "Daxil ol",
-    onClose: () => {
-      window.location.href = "login.html?email=" + encodeURIComponent(email);
-    }
-  });
-
-  return;
-}
-
-    // ❌ ERROR (400, 401 və s.)
     openVerifyModal({
       title: "Xəta ❌",
       text: data.message || "Kod səhvdir və ya vaxtı bitib."
@@ -152,7 +237,6 @@ async function verifyUser() {
   }
 }
 
-// 🔥 URL-dən email auto doldur
 document.addEventListener("DOMContentLoaded", () => {
   const emailFromUrl = new URLSearchParams(location.search).get("email");
   const emailInput = v$("email");
