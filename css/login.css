@@ -86,11 +86,11 @@ h1{ margin:0 0 6px; font-size:26px; }
   margin-top:6px;
   border:none;
   border-radius:14px;
-  padding:14px;
+  padding:9px;
   font-weight:800;
   font-size:15px;
   color:white;
-  background:linear-gradient(180deg, var(--btn2), var(--btn));
+  background: var(--primary);
   cursor:pointer;
 }
 .btn:active{ transform:translateY(1px); }

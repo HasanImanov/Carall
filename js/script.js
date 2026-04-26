@@ -2297,35 +2297,40 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!el) return;
 
   let session = null;
+
   try {
     session = JSON.parse(localStorage.getItem("carall_session_v1") || "null");
-  } catch {}
+  } catch {
+    session = null;
+  }
 
-  if (!session || !session.loggedIn) return;
+  if (!session || !session.loggedIn) {
+    el.href = "login.html";
+    return;
+  }
 
-  const name = session.name || session.phone || "Profil";
+  const displayName = session.name || session.phone || "Profil";
 
-  el.href = "#"; // loginə getməsin
+  el.href = "#";
+  el.classList.add("has-user");
 
   el.innerHTML = `
     <span class="user-inline">
       <svg viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" stroke-width="2">
+           stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="8" r="3"></circle>
         <path d="M4 21c1.5-4 14.5-4 16 0"></path>
       </svg>
-      <span class="user-name">${name}</span>
+      <span class="user-name">${displayName}</span>
     </span>
 
     <div class="user-dropdown">
       <a href="profile.html">Profil</a>
-      <button id="logoutBtn">Çıxış et</button>
+      <button type="button" id="logoutBtn">Çıxış et</button>
     </div>
   `;
 
-  el.classList.add("has-user");
-
-  // toggle
   el.addEventListener("click", function (e) {
     e.preventDefault();
     e.stopPropagation();
@@ -2336,9 +2341,10 @@ document.addEventListener("DOMContentLoaded", () => {
     el.classList.remove("open");
   });
 
-  // logout
   const logoutBtn = el.querySelector("#logoutBtn");
+
   logoutBtn.addEventListener("click", function (e) {
+    e.preventDefault();
     e.stopPropagation();
 
     localStorage.removeItem("access_token");
@@ -2347,5 +2353,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
     location.href = "index.html";
   });
-
 })();
