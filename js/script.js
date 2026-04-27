@@ -396,137 +396,78 @@
   }
 
   // ===== Main filter logic =====
-  function applyFilters() {
-    // if (typeof CARS === "undefined" || !Array.isArray(CARS)) {
-    //   console.error("CARS tapılmadı (carsdata.js yüklənməyib).");
-    //   return;
-    // }
+  async function applyFilters() {
+  const params = new URLSearchParams();
 
-    const SOURCE_CARS = window.cars || window.CARS || [];
-  if (!Array.isArray(SOURCE_CARS) || !SOURCE_CARS.length) {
-    console.error("cars tapılmadı");
+  if (qBrand?.value) params.append("makeId", qBrand.value);
+  if (qModel?.value) params.append("modelId", qModel.value);
+  if (qCity?.value) params.append("city", qCity.value);
+
+  if (qMinPrice?.value) params.append("minPrice", qMinPrice.value);
+  if (qMaxPrice?.value) params.append("maxPrice", qMaxPrice.value);
+
+  if (qYear?.value) params.append("yearMin", qYear.value);
+  if (qYearMax?.value) params.append("yearMax", qYearMax.value);
+
+  try {
+    const res = await fetch(`https://carall.az/api/cars?${params.toString()}`);
+    const data = await res.json();
+
+    renderCars(data);
+  } catch (err) {
+    console.error("FILTER ERROR:", err);
+  }
+}
+async function loadMakesFromApi() {
+  if (!qBrand) return;
+
+  try {
+    const res = await fetch("https://carall.az/api/lookups/makes");
+    const data = await res.json();
+
+    qBrand.innerHTML =
+      `<option value="">Hamısı</option>` +
+      data.map(m => `<option value="${m.id}">${m.name}</option>`).join("");
+
+    qBrand.dispatchEvent(new Event("change", { bubbles: true }));
+
+    if (qModel) {
+      qModel.innerHTML = `<option value="">Hamısı</option>`;
+      qModel.disabled = true;
+      qModel.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+  } catch (err) {
+    console.error("MAKES ERROR:", err);
+  }
+}
+
+
+
+async function loadModelsFromApi(makeId) {
+  if (!qModel) return;
+
+  if (!makeId) {
+    qModel.innerHTML = `<option value="">Hamısı</option>`;
+    qModel.disabled = true;
+    qModel.dispatchEvent(new Event("change", { bubbles: true }));
     return;
   }
-    // Base filters (existing)
-    const f = {
-      country: qCountry?.value || "",
-      brand: qBrand?.value || "",
-      model: qModel?.value || "",
-      city: qCity?.value || "",
-      minPrice: qMinPrice?.value ? num(qMinPrice.value) : null,
-      maxPrice: qMaxPrice?.value ? num(qMaxPrice.value) : null,
-      yearMin: qYear?.value ? num(qYear.value) : null,
-      yearMax: qYearMax?.value ? num(qYearMax.value) : null,
-    };
 
-    // Additional advanced fields (if you added them in HTML with these IDs)
-    const adv = {
-      color: getSelectValue("qColor"),
-      body: getSelectValue("qBody"),
-      fuel: getSelectValue("qFuel"),
-      drive: getSelectValue("qDrive"),
-      gearbox: getSelectValue("qGearbox"),
-      owners: getSelectValue("qOwners"),
-      seats: getSelectValue("qSeats"),
-      market: getSelectValue("qMarket"),
-      status: getSelectValue("qStatus"),
+  try {
+    const res = await fetch(`https://carall.az/api/lookups/models/${makeId}`);
+    const data = await res.json();
 
-      volumeMin: getInputNumber("qVolumeMin"),
-      volumeMax: getInputNumber("qVolumeMax"),
-      powerMin: getInputNumber("qPowerMin"),
-      powerMax: getInputNumber("qPowerMax"),
-      mileageMin: getInputNumber("qMileageMin"),
-      mileageMax: getInputNumber("qMileageMax"),
-    };
+    qModel.innerHTML =
+      `<option value="">Hamısı</option>` +
+      data.map(m => `<option value="${m.id}">${m.name}</option>`).join("");
 
-    //let list = CARS.slice();
-
-    let list = SOURCE_CARS.slice();
-
-    // Base filters
-    if (f.country) list = list.filter((x) => x.country === f.country);
-    if (f.brand) list = list.filter((x) => x.brand === f.brand);
-    if (f.model) list = list.filter((x) => x.model === f.model);
-    if (f.city) list = list.filter((x) => x.city === f.city);
-
-    if (f.yearMin !== null) list = list.filter((x) => num(x.year) !== null && num(x.year) >= f.yearMin);
-    if (f.yearMax !== null) list = list.filter((x) => num(x.year) !== null && num(x.year) <= f.yearMax);
-
-    if (f.minPrice !== null) list = list.filter((x) => num(x.price) !== null && num(x.price) >= f.minPrice);
-    if (f.maxPrice !== null) list = list.filter((x) => num(x.price) !== null && num(x.price) <= f.maxPrice);
-
-    // Advanced selects (only if car has that key)
-    if (adv.color) list = list.filter((x) => !hasField(x, "color") ? true : x.color === adv.color);
-    if (adv.body) list = list.filter((x) => !hasField(x, "body") ? true : x.body === adv.body);
-    if (adv.fuel) list = list.filter((x) => !hasField(x, "fuel") ? true : x.fuel === adv.fuel);
-    if (adv.drive) list = list.filter((x) => !hasField(x, "drive") ? true : x.drive === adv.drive);
-    if (adv.gearbox) list = list.filter((x) => !hasField(x, "gearbox") ? true : x.gearbox === adv.gearbox);
-    if (adv.owners) list = list.filter((x) => !hasField(x, "owners") ? true : String(x.owners) === String(adv.owners));
-    if (adv.seats) list = list.filter((x) => !hasField(x, "seats") ? true : String(x.seats) === String(adv.seats));
-    if (adv.market) list = list.filter((x) => !hasField(x, "market") ? true : x.market === adv.market);
-    if (adv.status) list = list.filter((x) => !hasField(x, "status") ? true : x.status === adv.status);
-
-    // Advanced numeric ranges
-    if (adv.volumeMin !== null) list = list.filter((x) => !hasField(x, "volume") ? true : num(x.volume) !== null && num(x.volume) >= adv.volumeMin);
-    if (adv.volumeMax !== null) list = list.filter((x) => !hasField(x, "volume") ? true : num(x.volume) !== null && num(x.volume) <= adv.volumeMax);
-
-    if (adv.powerMin !== null) list = list.filter((x) => !hasField(x, "power") ? true : num(x.power) !== null && num(x.power) >= adv.powerMin);
-    if (adv.powerMax !== null) list = list.filter((x) => !hasField(x, "power") ? true : num(x.power) !== null && num(x.power) <= adv.powerMax);
-
-    if (adv.mileageMin !== null) list = list.filter((x) => !hasField(x, "mileage") ? true : num(x.mileage) !== null && num(x.mileage) >= adv.mileageMin);
-    if (adv.mileageMax !== null) list = list.filter((x) => !hasField(x, "mileage") ? true : num(x.mileage) !== null && num(x.mileage) <= adv.mileageMax);
-
-    // Chips / toggles
-    if (UI.condition === "new") {
-      list = list.filter((x) => !hasField(x, "condition") ? true : x.condition === "new");
-    }
-    if (UI.condition === "used") {
-      list = list.filter((x) => !hasField(x, "condition") ? true : x.condition === "used");
-    }
-
-    if (UI.credit) list = list.filter((x) => !hasField(x, "credit") ? true : !!x.credit);
-    if (UI.barter) list = list.filter((x) => !hasField(x, "barter") ? true : !!x.barter);
-
-    if (UI.noHit) list = list.filter((x) => !hasField(x, "noHit") ? true : !!x.noHit);
-    if (UI.notPainted) list = list.filter((x) => !hasField(x, "notPainted") ? true : !!x.notPainted);
-    if (UI.onlyCrashed) list = list.filter((x) => !hasField(x, "onlyCrashed") ? true : !!x.onlyCrashed);
-
-    // Equipment chips: every selected equipment must be in car.features
-    if (UI.selectedEquip.size) {
-      const need = [...UI.selectedEquip];
-      list = list.filter((car) => {
-        if (!Array.isArray(car.features)) return false;
-        return need.every((eq) => car.features.includes(eq));
-      });
-    }
-
-    // Sorting
-    const s = sortBy?.value || "new";
-    if (s === "price_asc") list.sort((a, b) => a.price - b.price);
-    if (s === "price_desc") list.sort((a, b) => b.price - a.price);
-    if (s === "year_desc") list.sort((a, b) => b.year - a.year);
-    if (s === "year_asc") list.sort((a, b) => a.year - b.year);
-    if (s === "new") list.sort((a, b) => b.id - a.id);
-
-    // renderCars(list);
-    // if (resultInfo) resultInfo.textContent = `${list.length} nəticə tapıldı.`;
-    //if (statusBox) statusBox.textContent = `Demo data: ${CARS.length} elan.`; 
-    // ✅ Filter nəticəsini pager-ə ver
-
-  // list artıq sort olunub (sənin sort hissən)
-  // ✅ əvvəl VIP/Premium, sonra digərləri
-  PREMIUM_CARS = list.filter(x => x.vip || x.premium);
-  LATEST_CARS  = list.filter(x => !(x.vip || x.premium));
-
-  // pager cursors sıfırlansın
-  resetPagerDual();
-
-  // info
-  if (resultInfo) resultInfo.textContent = `${list.length} nəticə tapıldı.`;
-  // if (statusBox) statusBox.textContent = `Demo data: ${ALL_CARS.length} elan.`;
-  if (statusBox) statusBox.textContent = `Demo data: ${SOURCE_CARS.length} elan.`;
-
+    qModel.disabled = false;
+    qModel.dispatchEvent(new Event("change", { bubbles: true }));
+  } catch (err) {
+    console.error("MODELS ERROR:", err);
   }
+}
+
 
   function resetAll() {
     // base
@@ -804,71 +745,68 @@
   }
 
   // ===== Advanced panel open/close (smooth friendly) =====
-  const closeAllTurboSelects = () => {
-    document.querySelectorAll(".tsel.is-open").forEach((w) => {
-      if (w !== wrap) w.classList.remove("is-open");
+ const closeAllTurboSelects = () => {
+  document.querySelectorAll(".tsel.is-open").forEach((w) => {
+    w.classList.remove("is-open");
+  });
+};
+
+function initAdvancedPanel() {
+  if (!btnAdvanced || !advPanel) return;
+
+  const open = () => {
+    closeAllTurboSelects();
+    advPanel.removeAttribute("hidden");
+    advPanel.setAttribute("aria-hidden", "false");
+
+    requestAnimationFrame(() => {
+      advPanel.classList.add("is-open");
     });
   };
 
-  function initAdvancedPanel() {
-    if (!btnAdvanced || !advPanel) return;
+  const close = () => {
+    advPanel.classList.remove("is-open");
+    advPanel.setAttribute("aria-hidden", "true");
 
-    const open = () => {
-    closeAllTurboSelects();          // ✅ əlavə et
-    wrap.classList.add("is-open");
-    renderList(input.value);
-    setBtnLabel();
-    if (searchable) {
-      setTimeout(() => { input.focus(); input.select(); }, 0);
-    }
+    setTimeout(() => {
+      advPanel.setAttribute("hidden", "");
+    }, 220);
   };
 
-    const close = () => {
-      advPanel.classList.remove("is-open");
-      advPanel.setAttribute("aria-hidden", "true");
+  const toggle = () => {
+    const isOpen =
+      advPanel.classList.contains("is-open") &&
+      !advPanel.hasAttribute("hidden");
 
-      // transition-friendly hide
-      let done = false;
-      const finish = () => {
-        if (done) return;
-        done = true;
-        advPanel.setAttribute("hidden", "");
-        advPanel.removeEventListener("transitionend", onEnd);
-      };
-      const onEnd = () => finish();
-      advPanel.addEventListener("transitionend", onEnd);
-      setTimeout(finish, 220);
-    };
+    isOpen ? close() : open();
+  };
 
-    const toggle = () => (advPanel.classList.contains("is-open") ? close() : open());
+  btnAdvanced.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggle();
+  });
 
-    btnAdvanced.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      toggle();
-    });
+  btnAdvancedClose && btnAdvancedClose.addEventListener("click", (e) => {
+    e.preventDefault();
+    close();
+  });
 
-    btnAdvancedClose && btnAdvancedClose.addEventListener("click", (e) => {
-      e.preventDefault();
-      close();
-    });
+  advApply && advApply.addEventListener("click", () => {
+    btnSearch && btnSearch.click();
+    close();
+  });
 
-    advApply && advApply.addEventListener("click", () => {
-      btnSearch && btnSearch.click();
-      close();
-    });
+  advClear && advClear.addEventListener("click", () => {
+    btnReset && btnReset.click();
+  });
 
-    advClear && advClear.addEventListener("click", () => {
-      btnReset && btnReset.click();
-    });
-
-    // outside click -> close
-    document.addEventListener("click", (e) => {
-      if (advPanel.hasAttribute("hidden")) return;
-      if (e.target.closest("#advPanel") || e.target.closest("#btnAdvanced")) return;
-      close();
-    });
-  }
+  document.addEventListener("click", (e) => {
+    if (advPanel.hasAttribute("hidden")) return;
+    if (e.target.closest("#advPanel") || e.target.closest("#btnAdvanced")) return;
+    close();
+  });
+}
 
   // ===== Hamburger menu (open/close) =====
   function initHamburgerMenu() {
@@ -928,7 +866,7 @@
   // ===== Init everything =====
   document.addEventListener("DOMContentLoaded", () => {
     // 1) auto-fill selects/ranges (full)
-    initAdvancedAutoFill();
+    //initAdvancedAutoFill();
 
     // 2) chips (credit/barter/condition flags) if you have them
     bindChipsIfExist();
@@ -945,6 +883,12 @@
     // 6) initial render
     // 6) initial render
     applyFilters();
+    
+    loadMakesFromApi();
+
+qBrand?.addEventListener("change", () => {
+  loadModelsFromApi(qBrand.value);
+});
     
   });
   function ensureAdvFields() {
@@ -1665,7 +1609,7 @@
       }
     }
 
-    document.addEventListener("DOMContentLoaded", initFilterSelects);
+    // document.addEventListener("DOMContentLoaded", initFilterSelects);
   })();
 
   function resetPagerDual(){
