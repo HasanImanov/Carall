@@ -410,7 +410,7 @@
   if (qYearMax?.value) params.append("yearMax", qYearMax.value);
 
   try {
-    const res = await fetch(`https://carall.az/api/cars?${params.toString()}`);
+    const res = await fetch(`https://carall.az/api/Listings?${params.toString()}`);
     const data = await res.json();
 
     renderCars(data);
