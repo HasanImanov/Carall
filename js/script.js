@@ -10,6 +10,8 @@
   // - outside click hamısını bağlasın
   // - ESC hamısını bağlasın
   // ============================
+
+  console.log("Last Deploy")
   (function TSEL_GLOBAL_MANAGER(){
     if (window.__TSEL_GLOBAL_MANAGER__) return;
     window.__TSEL_GLOBAL_MANAGER__ = true;
