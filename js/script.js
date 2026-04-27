@@ -2301,9 +2301,7 @@
       token
     );
 
-  // =========================
-  // ❌ LOGIN YOXDUR
-  // =========================
+  // LOGIN YOXDUR
   if (!isLogged) {
     el.href = "login.html";
     el.classList.remove("has-user", "open");
@@ -2319,15 +2317,11 @@
     return;
   }
 
-  // =========================
-  // ✅ LOGIN OLUB
-  // =========================
+  // LOGIN OLUB — ad backenddən session-a yazılır
   const displayName =
     session.name ||
     session.fullName ||
     session.userName ||
-    session.phone ||
-    session.email ||
     "Profil";
 
   el.href = "#";
@@ -2355,7 +2349,6 @@
     </div>
   `;
 
-  // dropdown toggle
   el.addEventListener("click", function (e) {
     e.preventDefault();
     e.stopPropagation();
@@ -2366,14 +2359,10 @@
     el.classList.remove("open");
   });
 
-  // ✅ PROFİL KEÇİDİ (fix)
   el.querySelector("#profileLink")?.addEventListener("click", function (e) {
     e.stopPropagation();
   });
 
-  // =========================
-  // 🔥 LOGOUT
-  // =========================
   el.querySelector("#logoutBtn")?.addEventListener("click", async function (e) {
     e.preventDefault();
     e.stopPropagation();
@@ -2383,8 +2372,8 @@
         await fetch("https://carall.az/api/auth/logout", {
           method: "POST",
           headers: {
-            "Authorization": "Bearer " + token,
-            "Accept": "application/json"
+            Authorization: "Bearer " + token,
+            Accept: "application/json"
           }
         });
       }

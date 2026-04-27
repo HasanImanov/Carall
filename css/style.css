@@ -2993,3 +2993,39 @@ body.modal-open{
     max-width: 80px;
   }
 }
+.header-user-pill:hover {
+  background: #f8fafc;
+  border-color: #d6dbe3;
+}
+
+.header-user-dropdown {
+  padding: 8px;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.header-user-dropdown a,
+.header-user-dropdown button {
+  border-radius: 10px;
+}
+
+.header-user-dropdown a:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.header-user-dropdown button:hover {
+  background: #fff1f1;
+  color: #ca1016;
+}
+
+.nav__iconlink.has-user {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.header-user-pill {
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 6px 18px rgba(0,0,0,.07);
+}
