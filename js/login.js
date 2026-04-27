@@ -1,5 +1,5 @@
-// login.js — REAL BACKEND LOGIN ($ istifadə olunmur)
-console.log("Login Lasttt update");
+// login.js — FINAL VERSION
+console.log("Login FINAL VERSION");
 
 const SESSION_KEY = "carall_session_v1";
 
@@ -55,6 +55,9 @@ tabs.forEach(t => {
 
 setTab(localStorage.getItem("carall_login_tab") || "personal");
 
+// =========================
+// 🔥 LOGIN SUBMIT
+// =========================
 qsa(".login-form").forEach(form => {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -93,6 +96,9 @@ qsa(".login-form").forEach(form => {
         return showMsg(data.message || data.error || "Login alınmadı.");
       }
 
+      // =========================
+      // 🔥 TOKEN
+      // =========================
       const accessToken =
         data.accessToken ||
         data.access_token ||
@@ -118,6 +124,9 @@ qsa(".login-form").forEach(form => {
         localStorage.setItem("refresh_token", refreshToken);
       }
 
+      // =========================
+      // 🔥 USER DATA
+      // =========================
       const user =
         data.user ||
         data.data?.user ||
@@ -128,16 +137,29 @@ qsa(".login-form").forEach(form => {
         user.name ||
         user.fullName ||
         user.firstName ||
+        user.first_name ||
         user.username ||
         user.displayName ||
+        user.display_name ||
+        user.companyName ||
+        user.company_name ||
         "";
 
+      // =========================
+      // 🔥 SESSION (BURDA ƏSAS)
+      // =========================
       localStorage.setItem(SESSION_KEY, JSON.stringify({
         phone,
         type,
         loggedIn: true,
         name
       }));
+
+      console.log("SESSION SAVED:", {
+        phone,
+        type,
+        name
+      });
 
       showMsg("Uğurlu giriş ✅", "ok");
 
