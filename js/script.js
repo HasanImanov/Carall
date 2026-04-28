@@ -930,33 +930,33 @@ qBrand?.addEventListener("change", () => {
     el.innerHTML = `<option value="">${ph}</option>` + list.map(v => `<option value="${v}">${v}</option>`).join("");
   }
 
-  function fillAdvOptions() {
-    const cars = window.CARS || window.cars || [];
-    if (!cars.length) return;
+  // function fillAdvOptions() {
+  //   const cars = window.CARS || window.cars || [];
+  //   if (!cars.length) return;
 
-    fillSelect("qColor",  cars.map(c=>c.color),  "Hamısı");
-    fillSelect("qBody",   cars.map(c=>c.body),   "Hamısı");
-    fillSelect("qDrive",  cars.map(c=>c.drive),  "Hamısı");
+  //   fillSelect("qColor",  cars.map(c=>c.color),  "Hamısı");
+  //   fillSelect("qBody",   cars.map(c=>c.body),   "Hamısı");
+  //   fillSelect("qDrive",  cars.map(c=>c.drive),  "Hamısı");
 
-    // əsas filterlərdə gearbox/fuel var, amma adv üçün ayrıca yaratdıq
-    fillSelect("qGearbox2", cars.map(c=>c.gearbox), "Hamısı");
-    fillSelect("qFuel2",    cars.map(c=>c.fuel),    "Hamısı");
+  //   // əsas filterlərdə gearbox/fuel var, amma adv üçün ayrıca yaratdıq
+  //   fillSelect("qGearbox2", cars.map(c=>c.gearbox), "Hamısı");
+  //   fillSelect("qFuel2",    cars.map(c=>c.fuel),    "Hamısı");
 
-    fillSelect("qOwners", cars.map(c=>c.owners), "Hamısı");
-    fillSelect("qSeats",  cars.map(c=>c.seats),  "Hamısı");
-    fillSelect("qMarket", cars.map(c=>c.market), "Hamısı");
-    fillSelect("qStatus", cars.map(c=>c.status), "Hamısı");
-  }
+  //   fillSelect("qOwners", cars.map(c=>c.owners), "Hamısı");
+  //   fillSelect("qSeats",  cars.map(c=>c.seats),  "Hamısı");
+  //   fillSelect("qMarket", cars.map(c=>c.market), "Hamısı");
+  //   fillSelect("qStatus", cars.map(c=>c.status), "Hamısı");
+  // }
 
   document.addEventListener("DOMContentLoaded", () => {
     ensureAdvFields();
-    fillAdvOptions();
+    // fillAdvOptions();
 
     // panel açılıb bağlananda da dolu qalsın
     const btn = document.getElementById("btnAdvanced");
     btn?.addEventListener("click", () => {
       ensureAdvFields();
-      fillAdvOptions();
+      //fillAdvOptions();
     });
   });
   function makeTurboSelect(select, { searchable=true, placeholder="Seçin", clearText="Sıfırla" } = {}) {
@@ -1391,10 +1391,10 @@ qBrand?.addEventListener("change", () => {
       createdAt: Date.now()
     }));
   })();
-  const ALL_CARS = [...cars];        // backend/json gələndə də burası dəyişməyəcək
-  let FILTERED_CARS = [...ALL_CARS];
-  let SORTED_CARS   = [...FILTERED_CARS];
-  let VISIBLE_CARS  = [];
+  // const ALL_CARS = [...cars];        // backend/json gələndə də burası dəyişməyəcək
+  // let FILTERED_CARS = [...ALL_CARS];
+  // let SORTED_CARS   = [...FILTERED_CARS];
+  // let VISIBLE_CARS  = [];
 
   // pager state
   let cursor = 0;
@@ -1691,260 +1691,260 @@ qBrand?.addEventListener("change", () => {
   // =============================
   // VIP/PREMIUM PAGER (infinite for VIP block)
   // =============================
-  document.addEventListener("DOMContentLoaded", () => {
-    const premGrid = document.getElementById("premiumGrid");
-    const vipSentinel = document.getElementById("vipSentinel");
-    const vipText = document.getElementById("vipSentinelText");
+  // document.addEventListener("DOMContentLoaded", () => {
+  //   const premGrid = document.getElementById("premiumGrid");
+  //   const vipSentinel = document.getElementById("vipSentinel");
+  //   const vipText = document.getElementById("vipSentinelText");
 
-    const ALL = window.ALL_CARS || window.CARS || window.cars || [];
-    if (!premGrid || !vipSentinel || !ALL.length) return;
+  //   const ALL = window.ALL_CARS || window.CARS || window.cars || [];
+  //   if (!premGrid || !vipSentinel || !ALL.length) return;
 
-    // yalnız adType source of truth
-    const VIP_ALL = ALL.filter(c => c && (c.adType === 2 || c.adType === 3));
+  //   // yalnız adType source of truth
+  //   const VIP_ALL = ALL.filter(c => c && (c.adType === 2 || c.adType === 3));
 
-    const FIRST = 8;
-    const NEXT = 8;
-    let cursor = 0;
+  //   const FIRST = 8;
+  //   const NEXT = 8;
+  //   let cursor = 0;
 
-    function setVipLoading(on) {
-      if (!vipText) return;
-      vipText.innerHTML = on ? "Yüklənir…" : "";
-    }
+  //   function setVipLoading(on) {
+  //     if (!vipText) return;
+  //     vipText.innerHTML = on ? "Yüklənir…" : "";
+  //   }
 
-    function renderFirst() {
-      premGrid.innerHTML = "";
-      cursor = 0;
+  //   function renderFirst() {
+  //     premGrid.innerHTML = "";
+  //     cursor = 0;
 
-      const first = VIP_ALL.slice(0, FIRST);
-      cursor = first.length;
+  //     const first = VIP_ALL.slice(0, FIRST);
+  //     cursor = first.length;
 
-      renderCars(first, premGrid, false);
+  //     renderCars(first, premGrid, false);
 
-      // əgər hamısı bitibsə sentinel boş qalsın
-      if (cursor >= VIP_ALL.length) {
-        setVipLoading(false);
-        return;
-      }
+  //     // əgər hamısı bitibsə sentinel boş qalsın
+  //     if (cursor >= VIP_ALL.length) {
+  //       setVipLoading(false);
+  //       return;
+  //     }
 
-      setVipLoading(false);
-    }
+  //     setVipLoading(false);
+  //   }
 
-    function loadMoreVip() {
-      if (cursor >= VIP_ALL.length) return;
+  //   function loadMoreVip() {
+  //     if (cursor >= VIP_ALL.length) return;
 
-      setVipLoading(true);
+  //     setVipLoading(true);
 
-      // kiçik delay – UX üçün
-      setTimeout(() => {
-        const next = VIP_ALL.slice(cursor, cursor + NEXT);
-        cursor += next.length;
+  //     // kiçik delay – UX üçün
+  //     setTimeout(() => {
+  //       const next = VIP_ALL.slice(cursor, cursor + NEXT);
+  //       cursor += next.length;
 
-        // ✅ append
-        renderCars(next, premGrid, true);
+  //       // ✅ append
+  //       renderCars(next, premGrid, true);
 
-        setVipLoading(false);
-      }, 150);
-    }
+  //       setVipLoading(false);
+  //     }, 150);
+  //   }
 
-    // start render
-    renderFirst();
+  //   // start render
+  //   renderFirst();
 
-    // infinite observer
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry || !entry.isIntersecting) return;
-        loadMoreVip();
-      },
-      { rootMargin: "400px 0px" }
-    );
+  //   // infinite observer
+  //   const io = new IntersectionObserver(
+  //     ([entry]) => {
+  //       if (!entry || !entry.isIntersecting) return;
+  //       loadMoreVip();
+  //     },
+  //     { rootMargin: "400px 0px" }
+  //   );
 
-    io.observe(vipSentinel);
-  });
+  //   io.observe(vipSentinel);
+  // });
   // ===============================
   // HOME FORCE FIX (no renderCars edits)
   // ===============================
-  (function HOME_FORCE_FIX(){
-    const latestSel  = "#latestGrid";
-    const premSel    = "#premiumGrid";
-    const vipSel     = "#vipGrid";
+  // (function HOME_FORCE_FIX(){
+  //   const latestSel  = "#latestGrid";
+  //   const premSel    = "#premiumGrid";
+  //   const vipSel     = "#vipGrid";
 
-    const BATCH_LIMIT = 5; // renderCars hard-limit 5 olsa da, batch-larla dolduracağıq
-    let applying = false;
-    let lastSig = "";
+  //   const BATCH_LIMIT = 5; // renderCars hard-limit 5 olsa da, batch-larla dolduracağıq
+  //   let applying = false;
+  //   let lastSig = "";
 
-    function qs(s){ return document.querySelector(s); }
+  //   function qs(s){ return document.querySelector(s); }
 
-    function buckets(allCars){
-      return {
-        latest:  allCars.filter(x => String(x.adType) === "1"),
-        premium: allCars.filter(x => String(x.adType) === "2"),
-        vip:     allCars.filter(x => String(x.adType) === "3"),
-      };
-    }
+  //   function buckets(allCars){
+  //     return {
+  //       latest:  allCars.filter(x => String(x.adType) === "1"),
+  //       premium: allCars.filter(x => String(x.adType) === "2"),
+  //       vip:     allCars.filter(x => String(x.adType) === "3"),
+  //     };
+  //   }
 
-    // renderCars() 5-dən artıq basmırsa, batch-larla bas
-    function renderCarsInBatches(list, grid, batch = BATCH_LIMIT){
-      if (!grid) return;
-      grid.innerHTML = "";
-      for (let i = 0; i < list.length; i += batch) {
-        const chunk = list.slice(i, i + batch);
-        renderCars(chunk, grid, { append: i > 0 });
-      }
-    }
+  //   // renderCars() 5-dən artıq basmırsa, batch-larla bas
+  //   function renderCarsInBatches(list, grid, batch = BATCH_LIMIT){
+  //     if (!grid) return;
+  //     grid.innerHTML = "";
+  //     for (let i = 0; i < list.length; i += batch) {
+  //       const chunk = list.slice(i, i + batch);
+  //       renderCars(chunk, grid, { append: i > 0 });
+  //     }
+  //   }
 
-    function forceRender(){
-      if (applying) return;
-      const allCars = window.ALL_CARS;
-      if (!Array.isArray(allCars) || allCars.length === 0) return;
+  //   function forceRender(){
+  //     if (applying) return;
+  //     const allCars = window.ALL_CARS;
+  //     if (!Array.isArray(allCars) || allCars.length === 0) return;
 
-      const latestGrid = qs(latestSel);
-      const premGrid   = qs(premSel);
-      const vipGrid    = qs(vipSel);
+  //     const latestGrid = qs(latestSel);
+  //     const premGrid   = qs(premSel);
+  //     const vipGrid    = qs(vipSel);
 
-      if (!latestGrid && !premGrid && !vipGrid) return;
+  //     if (!latestGrid && !premGrid && !vipGrid) return;
 
-      const { latest, premium, vip } = buckets(allCars);
+  //     const { latest, premium, vip } = buckets(allCars);
 
-      // signature: data+dom vəziyyəti eynidirsə boşuna təkrar etməsin
-      const sig = [
-        allCars.length,
-        latest.length, premium.length, vip.length,
-        latestGrid ? latestGrid.querySelectorAll(".cardlink").length : -1,
-        premGrid   ? premGrid.querySelectorAll(".cardlink").length   : -1
-      ].join("|");
+  //     // signature: data+dom vəziyyəti eynidirsə boşuna təkrar etməsin
+  //     const sig = [
+  //       allCars.length,
+  //       latest.length, premium.length, vip.length,
+  //       latestGrid ? latestGrid.querySelectorAll(".cardlink").length : -1,
+  //       premGrid   ? premGrid.querySelectorAll(".cardlink").length   : -1
+  //     ].join("|");
 
-      if (sig === lastSig) return;
-      lastSig = sig;
+  //     if (sig === lastSig) return;
+  //     lastSig = sig;
 
-      applying = true;
+  //     applying = true;
 
-      // Burada köhnə DOM-u öldürürük və düzgün render edirik
-      if (latestGrid) renderCarsInBatches(latest, latestGrid);
-      if (premGrid)   renderCarsInBatches(premium, premGrid);
-      if (vipGrid)    renderCarsInBatches(vip, vipGrid);
+  //     // Burada köhnə DOM-u öldürürük və düzgün render edirik
+  //     if (latestGrid) renderCarsInBatches(latest, latestGrid);
+  //     if (premGrid)   renderCarsInBatches(premium, premGrid);
+  //     if (vipGrid)    renderCarsInBatches(vip, vipGrid);
 
-      console.log("[HOME_FORCE_FIX] rendered:",
-        "ALL", allCars.length,
-        "latest", latest.length,
-        "premium", premium.length,
-        "vip", vip.length,
-        "DOM latest", latestGrid ? latestGrid.querySelectorAll(".cardlink").length : 0,
-        "DOM premium", premGrid ? premGrid.querySelectorAll(".cardlink").length : 0
-      );
+  //     console.log("[HOME_FORCE_FIX] rendered:",
+  //       "ALL", allCars.length,
+  //       "latest", latest.length,
+  //       "premium", premium.length,
+  //       "vip", vip.length,
+  //       "DOM latest", latestGrid ? latestGrid.querySelectorAll(".cardlink").length : 0,
+  //       "DOM premium", premGrid ? premGrid.querySelectorAll(".cardlink").length : 0
+  //     );
 
-      applying = false;
-    }
+  //     applying = false;
+  //   }
 
-    // 1) Data hazır olan kimi render et
-    const wait = setInterval(() => {
-      if (Array.isArray(window.ALL_CARS) && window.ALL_CARS.length) {
-        clearInterval(wait);
-        forceRender();
-      }
-    }, 50);
-    setTimeout(() => clearInterval(wait), 8000);
+  //   // 1) Data hazır olan kimi render et
+  //   const wait = setInterval(() => {
+  //     if (Array.isArray(window.ALL_CARS) && window.ALL_CARS.length) {
+  //       clearInterval(wait);
+  //       forceRender();
+  //     }
+  //   }, 50);
+  //   setTimeout(() => clearInterval(wait), 8000);
 
-    // 2) Köhnə kod sonradan DOM-u dəyişsə, yenə düzəlt
-    const obsTargets = [qs(latestSel), qs(premSel), qs(vipSel)].filter(Boolean);
-    if (obsTargets.length) {
-      const mo = new MutationObserver(() => {
-        // debounce kimi: eyni anda çox dəyişiklik gələndə 1 dəfə işləsin
-        setTimeout(forceRender, 0);
-      });
-      obsTargets.forEach(el => mo.observe(el, { childList: true, subtree: true }));
-    }
+  //   // 2) Köhnə kod sonradan DOM-u dəyişsə, yenə düzəlt
+  //   const obsTargets = [qs(latestSel), qs(premSel), qs(vipSel)].filter(Boolean);
+  //   if (obsTargets.length) {
+  //     const mo = new MutationObserver(() => {
+  //       // debounce kimi: eyni anda çox dəyişiklik gələndə 1 dəfə işləsin
+  //       setTimeout(forceRender, 0);
+  //     });
+  //     obsTargets.forEach(el => mo.observe(el, { childList: true, subtree: true }));
+  //   }
 
-    // 3) Scroll/resize zamanı köhnə kod “yenidən yazırsa” yenə düzəlt
-    window.addEventListener("scroll", () => setTimeout(forceRender, 0), { passive: true });
-    window.addEventListener("resize", () => setTimeout(forceRender, 0));
-  })();
+  //   // 3) Scroll/resize zamanı köhnə kod “yenidən yazırsa” yenə düzəlt
+  //   window.addEventListener("scroll", () => setTimeout(forceRender, 0), { passive: true });
+  //   window.addEventListener("resize", () => setTimeout(forceRender, 0));
+  // })();
 
-  (() => {
-    const latestGrid = document.querySelector("#latestGrid");
-    if (!latestGrid) return; // home deyil
+  // (() => {
+  //   const latestGrid = document.querySelector("#latestGrid");
+  //   if (!latestGrid) return; // home deyil
 
-    const PAGE_SIZE = 8;
+  //   const PAGE_SIZE = 8;
 
-    let latestList = [];
-    let cursor = 0;
-    let busy = false;
-    const rendered = new Set();
+  //   let latestList = [];
+  //   let cursor = 0;
+  //   let busy = false;
+  //   const rendered = new Set();
 
-    function getType1List() {
-      // SƏN DEDİN: 2 və 3 premium/vip çıxır, yalnız type=1 qalır
-      return (window.ALL_CARS || []).filter(x => String(x.adType) === "1");
-    }
+  //   function getType1List() {
+  //     // SƏN DEDİN: 2 və 3 premium/vip çıxır, yalnız type=1 qalır
+  //     return (window.ALL_CARS || []).filter(x => String(x.adType) === "1");
+  //   }
 
-    function resetAndFirstRender() {
-      latestList = getType1List();
-      cursor = 0;
-      busy = false;
-      rendered.clear();
+  //   function resetAndFirstRender() {
+  //     latestList = getType1List();
+  //     cursor = 0;
+  //     busy = false;
+  //     rendered.clear();
 
-      latestGrid.innerHTML = "";
-      loadMore(); // ilk 8
-    }
+  //     latestGrid.innerHTML = "";
+  //     loadMore(); // ilk 8
+  //   }
 
-    function loadMore() {
-      if (busy) return;
-      busy = true;
+  //   function loadMore() {
+  //     if (busy) return;
+  //     busy = true;
 
-      const chunk = latestList.slice(cursor, cursor + PAGE_SIZE);
+  //     const chunk = latestList.slice(cursor, cursor + PAGE_SIZE);
 
-      // dedupe by id (təhlükəsizlik)
-      const safe = chunk.filter(c => {
-        const id = String(c.id);
-        if (rendered.has(id)) return false;
-        rendered.add(id);
-        return true;
-      });
+  //     // dedupe by id (təhlükəsizlik)
+  //     const safe = chunk.filter(c => {
+  //       const id = String(c.id);
+  //       if (rendered.has(id)) return false;
+  //       rendered.add(id);
+  //       return true;
+  //     });
 
-      // ilk dəfə append=false, sonra true
-      const isAppend = cursor > 0;
-      renderCars(safe, latestGrid, isAppend);
+  //     // ilk dəfə append=false, sonra true
+  //     const isAppend = cursor > 0;
+  //     renderCars(safe, latestGrid, isAppend);
 
-      cursor += chunk.length;
-      busy = false;
+  //     cursor += chunk.length;
+  //     busy = false;
 
-      // istəsən düyməni gizlət:
-      // if (cursor >= latestList.length) moreBtn.style.display = "none";
-    }
+  //     // istəsən düyməni gizlət:
+  //     // if (cursor >= latestList.length) moreBtn.style.display = "none";
+  //   }
 
-    // Data hazır olan kimi işə sal (paper.js gec doldurur deyə)
-    const wait = setInterval(() => {
-      if (Array.isArray(window.ALL_CARS) && window.ALL_CARS.length) {
-        clearInterval(wait);
-        // tək dəfə init
-        if (window.__HOME_LATEST_INIT__) return;
-        window.__HOME_LATEST_INIT__ = true;
+  //   // Data hazır olan kimi işə sal (paper.js gec doldurur deyə)
+  //   const wait = setInterval(() => {
+  //     if (Array.isArray(window.ALL_CARS) && window.ALL_CARS.length) {
+  //       clearInterval(wait);
+  //       // tək dəfə init
+  //       if (window.__HOME_LATEST_INIT__) return;
+  //       window.__HOME_LATEST_INIT__ = true;
 
-        resetAndFirstRender();
-      }
-    }, 50);
-    setTimeout(() => clearInterval(wait), 8000);
+  //       resetAndFirstRender();
+  //     }
+  //   }, 50);
+  //   setTimeout(() => clearInterval(wait), 8000);
 
-    // “Hamısına bax” düyməsini bağla:
-    // 1) Əgər səndə id varsa, buranı birbaşa yaz:
-    const moreBtn =
-      document.querySelector("#latestMore") || // varsa ideal budur
-      (() => {
-        // id yoxdursa: latestGrid-in yaxınlığında "Hamısına bax" tapmağa çalışır
-        const sec = latestGrid.closest("section") || latestGrid.parentElement;
-        if (!sec) return null;
-        return Array.from(sec.querySelectorAll("a,button"))
-          .find(el => (el.textContent || "").trim().toLowerCase().includes("hamısına bax"));
-      })();
+  //   // “Hamısına bax” düyməsini bağla:
+  //   // 1) Əgər səndə id varsa, buranı birbaşa yaz:
+  //   const moreBtn =
+  //     document.querySelector("#latestMore") || // varsa ideal budur
+  //     (() => {
+  //       // id yoxdursa: latestGrid-in yaxınlığında "Hamısına bax" tapmağa çalışır
+  //       const sec = latestGrid.closest("section") || latestGrid.parentElement;
+  //       if (!sec) return null;
+  //       return Array.from(sec.querySelectorAll("a,button"))
+  //         .find(el => (el.textContent || "").trim().toLowerCase().includes("hamısına bax"));
+  //     })();
 
-    if (moreBtn) {
-      moreBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        loadMore(); // 8-8 artır
-      });
-    }
+  //   if (moreBtn) {
+  //     moreBtn.addEventListener("click", (e) => {
+  //       e.preventDefault();
+  //       loadMore(); // 8-8 artır
+  //     });
+  //   }
 
-    // Debug üçün istəsən:
-    // window.__latestLoadMore = loadMore;
-  })();
+  //   // Debug üçün istəsən:
+  //   // window.__latestLoadMore = loadMore;
+  // })();
   document.addEventListener("DOMContentLoaded", () => {
       const a = document.getElementById("latestMore");
       if (!a) return;
@@ -2022,60 +2022,60 @@ qBrand?.addEventListener("change", () => {
       return orig.call(this, safe, grid, true);
     };
   })();
-  (function HOME_LATEST_SCROLL_FIX(){
-    if (window.__HOME_LATEST_SCROLL_FIX__) return;
-    window.__HOME_LATEST_SCROLL_FIX__ = true;
+  // (function HOME_LATEST_SCROLL_FIX(){
+  //   if (window.__HOME_LATEST_SCROLL_FIX__) return;
+  //   window.__HOME_LATEST_SCROLL_FIX__ = true;
 
-    const grid = document.getElementById("latestGrid");
-    const sentinel = document.getElementById("pagerSentinel");
-    if (!grid || !sentinel) return;
+  //   const grid = document.getElementById("latestGrid");
+  //   const sentinel = document.getElementById("pagerSentinel");
+  //   if (!grid || !sentinel) return;
 
-    const PAGE = 8;
-    let list = [];
-    let cursor = 0;
-    let busy = false;
+  //   const PAGE = 8;
+  //   let list = [];
+  //   let cursor = 0;
+  //   let busy = false;
 
-    const getAll = () => window.ALL_CARS || window.CARS || window.cars || [];
+  //   const getAll = () => window.ALL_CARS || window.CARS || window.cars || [];
 
-    const build = () => {
-      const all = getAll();
-      if (!Array.isArray(all) || !all.length) return [];
-      return all
-        .filter(x => String(x?.adType) === "1")
-        .sort((a,b)=> (b.createdAt || b.id || 0) - (a.createdAt || a.id || 0));
-    };
+  //   const build = () => {
+  //     const all = getAll();
+  //     if (!Array.isArray(all) || !all.length) return [];
+  //     return all
+  //       .filter(x => String(x?.adType) === "1")
+  //       .sort((a,b)=> (b.createdAt || b.id || 0) - (a.createdAt || a.id || 0));
+  //   };
 
-    function renderNext(){
-      if (busy) return;
-      busy = true;
+  //   function renderNext(){
+  //     if (busy) return;
+  //     busy = true;
 
-      if (!list.length) list = build();
+  //     if (!list.length) list = build();
 
-      const chunk = list.slice(cursor, cursor + PAGE);
-      if (!chunk.length) { busy = false; return; }
+  //     const chunk = list.slice(cursor, cursor + PAGE);
+  //     if (!chunk.length) { busy = false; return; }
 
-      renderCars(chunk, grid, { append: cursor > 0 });
-      cursor += chunk.length;
+  //     renderCars(chunk, grid, { append: cursor > 0 });
+  //     cursor += chunk.length;
 
-      busy = false;
-    }
+  //     busy = false;
+  //   }
 
-    // first
-    const wait = setInterval(()=>{
-      if (getAll().length){
-        clearInterval(wait);
-        grid.innerHTML = "";
-        list = build();
-        cursor = 0;
-        renderNext();
-      }
-    }, 50);
-    setTimeout(()=>clearInterval(wait), 8000);
+  //   // first
+  //   const wait = setInterval(()=>{
+  //     if (getAll().length){
+  //       clearInterval(wait);
+  //       grid.innerHTML = "";
+  //       list = build();
+  //       cursor = 0;
+  //       renderNext();
+  //     }
+  //   }, 50);
+  //   setTimeout(()=>clearInterval(wait), 8000);
 
-    new IntersectionObserver(([e])=>{
-      if (e?.isIntersecting) renderNext();
-    }, { rootMargin:"450px 0px" }).observe(sentinel);
-  })();
+  //   new IntersectionObserver(([e])=>{
+  //     if (e?.isIntersecting) renderNext();
+  //   }, { rootMargin:"450px 0px" }).observe(sentinel);
+  // })();
 
   document.addEventListener("DOMContentLoaded", () => {
     const y = document.getElementById("footerYear");
