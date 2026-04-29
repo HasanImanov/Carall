@@ -1,44 +1,24 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // ---------------------------
-  // Helpers
-  // ---------------------------
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
   const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
-  function setErrForHidden(hiddenEl, msg = "") {
-    const field = hiddenEl?.closest(".field");
-    const err = field?.querySelector(".field__err");
-    if (err) err.textContent = msg;
-  }
+  const form = document.getElementById("listingForm");
+  const steps = $$(".step");
+  const dots = $$(".dot");
+  const stepCount = document.getElementById("stepCount");
+  const backBtn = document.getElementById("backBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const summaryText = document.getElementById("summaryText");
 
-  // ✅ NEW: error helper for normal fields (Ad / Email)
-  function setErrForEl(el, msg = "") {
-    const field = el?.closest?.(".field");
-    const err = field?.querySelector?.(".field__err");
-    if (err) err.textContent = msg;
-  }
+  const photosInput = document.getElementById("photosInput");
+  const addPhotosBtn = document.getElementById("addPhotosBtn");
+  const uploader = document.getElementById("uploader");
+  const photosGrid = document.getElementById("photosGrid");
+  const photosErr = document.getElementById("photosErr");
 
-  // ✅ NEW: email validator
-  function isValidEmail(v) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || "").trim());
-  }
-
-  // (istəsən yalnız gmail olsun: aç)
-  // function isGmail(v){
-  //   return /@gmail\.com$/i.test(String(v || "").trim());
-  // }
-
-  // ---------------------------
-  // Data
-  // ---------------------------
-  const MAKE_MODELS = {
-    Mercedes: ["C200", "C250", "E200", "E300", "S500", "GLA", "GLC", "GLE"],
-    BMW: ["318", "320", "330", "520", "530", "X3", "X5", "M3"],
-    Toyota: ["Camry", "Corolla", "Prius", "RAV4", "Land Cruiser"],
-    Hyundai: ["Elantra", "Sonata", "Tucson", "Santa Fe", "Accent"],
-    Kia: ["Rio", "Cerato", "Sportage", "Sorento", "Optima"],
-  };
+  let step = 1;
+  let photos = [];
 
   const YEARS = (() => {
     const arr = [];
@@ -48,18 +28,29 @@ document.addEventListener("DOMContentLoaded", () => {
     return arr;
   })();
 
-  // ---------------------------
-  // Stepper
-  // ---------------------------
-  const form = document.getElementById("listingForm");
-  const steps = $$(".step");
-  const dots = $$(".dot");
-  const stepCount = document.getElementById("stepCount");
-  const backBtn = document.getElementById("backBtn");
-  const nextBtn = document.getElementById("nextBtn");
-  const summaryText = document.getElementById("summaryText");
+  function setErrForHidden(hiddenEl, msg = "") {
+    const field = hiddenEl?.closest(".field");
+    const err = field?.querySelector(".field__err");
+    if (err) err.textContent = msg;
+  }
 
-  let step = 1;
+  function setErrForEl(el, msg = "") {
+    const field = el?.closest?.(".field");
+    const err = field?.querySelector?.(".field__err");
+    if (err) err.textContent = msg;
+  }
+
+  function isValidEmail(v) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || "").trim());
+  }
+
+  function closeAllTsel(exceptWrap = null) {
+    $$(".tsel.is-open").forEach((w) => {
+      if (exceptWrap && w === exceptWrap) return;
+      w.classList.remove("is-open");
+      w.querySelector(".tsel__panel")?.setAttribute("aria-hidden", "true");
+    });
+  }
 
   function setStep(n) {
     step = clamp(n, 1, steps.length);
@@ -67,13 +58,16 @@ document.addEventListener("DOMContentLoaded", () => {
     steps.forEach((s) =>
       s.classList.toggle("is-active", Number(s.dataset.step) === step)
     );
-    dots.forEach((d, i) => d.classList.toggle("is-on", i === step - 1));
-    if (stepCount) stepCount.textContent = `${step} / ${steps.length}`;
 
+    dots.forEach((d, i) => d.classList.toggle("is-on", i === step - 1));
+
+    if (stepCount) stepCount.textContent = `${step} / ${steps.length}`;
     if (backBtn) backBtn.disabled = step === 1;
-    if (nextBtn)
+
+    if (nextBtn) {
       nextBtn.textContent =
         step === steps.length ? "Elanı yerləşdir ✅" : "Davam et →";
+    }
 
     if (step === 4) renderSummary();
 
@@ -81,11 +75,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function validateStep() {
-    // clear current step errors
     $$(".step.is-active .field__err").forEach((e) => (e.textContent = ""));
-    const photosErr = document.getElementById("photosErr");
 
-    // Step 1 required
     if (step === 1) {
       const makeValue = document.getElementById("makeValue");
       const modelValue = document.getElementById("modelValue");
@@ -95,61 +86,56 @@ document.addEventListener("DOMContentLoaded", () => {
         setErrForHidden(makeValue, "Marka mütləqdir.");
         return false;
       }
+
       if (!modelValue?.value) {
         setErrForHidden(modelValue, "Model mütləqdir.");
         return false;
       }
+
       if (!yearValue?.value) {
         setErrForHidden(yearValue, "İl mütləqdir.");
         return false;
       }
 
-      const km = form?.elements?.km?.value?.trim?.() ?? "";
-      if (!km) {
-        const kmEl = form?.elements?.km;
-        const field = kmEl?.closest?.(".field");
-        const err = field?.querySelector?.(".field__err");
-        if (err) err.textContent = "Yürüş mütləqdir.";
+      const km = form?.elements?.km;
+      if (!km?.value?.trim()) {
+        setErrForEl(km, "Yürüş mütləqdir.");
         return false;
       }
     }
 
-    // Step 2 required
     if (step === 2) {
-      const price = form?.elements?.price?.value?.trim?.() ?? "";
-      if (!price) {
-        const el = form?.elements?.price;
-        const field = el?.closest?.(".field");
-        const err = field?.querySelector?.(".field__err");
-        if (err) err.textContent = "Qiymət mütləqdir.";
+      const price = form?.elements?.price;
+      const priceVal = price?.value?.trim() || "";
+
+      if (!priceVal) {
+        setErrForEl(price, "Qiymət mütləqdir.");
         return false;
       }
-      if (Number(price) <= 0) {
-        const el = form?.elements?.price;
-        const field = el?.closest?.(".field");
-        const err = field?.querySelector?.(".field__err");
-        if (err) err.textContent = "Qiymət düzgün deyil.";
+
+      if (Number(priceVal) <= 0) {
+        setErrForEl(price, "Qiymət düzgün deyil.");
         return false;
       }
     }
 
-    // Step 3 photos min 3
     if (step === 3) {
       if (photos.length < 3) {
         if (photosErr) photosErr.textContent = "Minimum 3 şəkil əlavə et.";
         return false;
       }
+
       if (photosErr) photosErr.textContent = "";
     }
 
-    // Step 4 required (city optional)
     if (step === 4) {
-      // ✅ NEW: fullname + email required
       const fullNameEl = document.getElementById("fullName");
       const emailEl = document.getElementById("email");
+      const phoneEl = form?.elements?.phone;
 
-      const fullname = fullNameEl?.value?.trim?.() ?? "";
-      const email = emailEl?.value?.trim?.() ?? "";
+      const fullname = fullNameEl?.value?.trim() || "";
+      const email = emailEl?.value?.trim() || "";
+      const phone = phoneEl?.value?.trim() || "";
 
       if (!fullname) {
         setErrForEl(fullNameEl, "Ad mütləqdir.");
@@ -160,20 +146,14 @@ document.addEventListener("DOMContentLoaded", () => {
         setErrForEl(emailEl, "Email mütləqdir.");
         return false;
       }
+
       if (!isValidEmail(email)) {
         setErrForEl(emailEl, "Email formatı yanlışdır.");
         return false;
       }
 
-      // yalnız gmail istəsən aç:
-      // if (!isGmail(email)) { setErrForEl(emailEl, "Yalnız Gmail qəbul olunur."); return false; }
-
-      const phone = form?.elements?.phone?.value?.trim?.() ?? "";
-      if (!phone) {
-        const el = form?.elements?.phone;
-        const field = el?.closest?.(".field");
-        const err = field?.querySelector?.(".field__err");
-        if (err) err.textContent = "Telefon mütləqdir.";
+      if (!phone || phone === "+994 ") {
+        setErrForEl(phoneEl, "Telefon mütləqdir.");
         return false;
       }
     }
@@ -183,57 +163,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderSummary() {
     if (!summaryText) return;
-    const make = document.getElementById("makeValue")?.value || "-";
-    const model = document.getElementById("modelValue")?.value || "-";
+
+    const make = document.getElementById("makeText")?.textContent || "-";
+    const model = document.getElementById("modelText")?.textContent || "-";
     const year = document.getElementById("yearValue")?.value || "-";
     const price = form?.elements?.price?.value || "-";
     const currency = form?.elements?.currency?.value || "AZN";
     const city = form?.elements?.city?.value || "-";
-
-    // ✅ NEW: show fullname + email in summary (optional display)
-    const fullname = document.getElementById("fullName")?.value?.trim?.() || "-";
-    const email = document.getElementById("email")?.value?.trim?.() || "-";
+    const fullname = document.getElementById("fullName")?.value?.trim() || "-";
+    const email = document.getElementById("email")?.value?.trim() || "-";
 
     summaryText.textContent =
       `${make} ${model} (${year}) — ${price} ${currency}. ` +
       `Şəhər: ${city}. Şəkil: ${photos.length}. ` +
       `Əlaqə: ${fullname}, ${email}.`;
-  }
-
-  backBtn?.addEventListener("click", () => {
-    closeAllTsel();
-    setStep(step - 1);
-  });
-
-  nextBtn?.addEventListener("click", () => {
-    closeAllTsel();
-    if (!validateStep()) return;
-
-    if (step < steps.length) {
-      setStep(step + 1);
-      return;
-    }
-
-    openCarallModal("created", {
-     text: "Elanınız qəbul edildi və yoxlanışa göndərildi. Təsdiqləndikdən sonra saytda dərc olunacaq.",
-  primaryText: "Elanlarıma bax",
-  primaryHref: "profile.html",
-  secondaryText: "Ana səhifəyə qayıt",
-  secondaryHref: "index.html"
-  });
-
-    // window.location.href = "index.html#list";
-  });
-
-  // ---------------------------
-  // .tsel Dropdown Core
-  // ---------------------------
-  function closeAllTsel(exceptWrap = null) {
-    $$(".tsel.is-open").forEach((w) => {
-      if (exceptWrap && w === exceptWrap) return;
-      w.classList.remove("is-open");
-      w.querySelector(".tsel__panel")?.setAttribute("aria-hidden", "true");
-    });
   }
 
   function wireTsel({
@@ -255,41 +198,36 @@ document.addEventListener("DOMContentLoaded", () => {
     const hidden = document.getElementById(hiddenId);
     const panel = wrap?.querySelector?.(".tsel__panel");
 
-    if (!wrap || !btn || !text || !search || !list || !hidden || !panel) {
-      console.warn("tsel missing:", {
-        wrapId,
-        btnId,
-        textId,
-        searchId,
-        listId,
-        hiddenId,
-      });
-      return null;
-    }
+    if (!wrap || !btn || !text || !search || !list || !hidden || !panel) return null;
 
-    function setValue(val) {
-      hidden.value = val;
-      text.textContent = val ? val : emptyText;
+    function setValue(val, label = "") {
+      hidden.value = val || "";
+      text.textContent = val ? (label || val) : emptyText;
       setErrForHidden(hidden, "");
       if (typeof onPick === "function") onPick(val);
     }
 
     function render(items, q = "") {
       const qq = q.trim().toLowerCase();
-      const filtered = !qq ? items : items.filter((x) => x.toLowerCase().includes(qq));
+      const filtered = !qq
+        ? items
+        : items.filter((x) => String(x.label).toLowerCase().includes(qq));
+
       list.innerHTML = "";
 
       filtered.forEach((item) => {
         const row = document.createElement("div");
-        row.className = "tsel__row" + (hidden.value === item ? " is-active" : "");
-        row.textContent = item;
-        row.dataset.value = item;
+        row.className = "tsel__row" + (String(hidden.value) === String(item.value) ? " is-active" : "");
+        row.textContent = item.label;
+        row.dataset.value = item.value;
+
         row.addEventListener("click", (e) => {
           e.preventDefault();
           e.stopPropagation();
-          setValue(item);
+          setValue(item.value, item.label);
           closeAllTsel();
         });
+
         list.appendChild(row);
       });
     }
@@ -305,13 +243,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (willOpen) {
         wrap.classList.add("is-open");
         panel.setAttribute("aria-hidden", "false");
-        const items = getItems();
         search.value = "";
-        render(items, "");
+        render(getItems(), "");
         setTimeout(() => search.focus(), 0);
       } else {
-        wrap.classList.remove("is-open");
-        panel.setAttribute("aria-hidden", "true");
+        closeAllTsel();
       }
     });
 
@@ -321,46 +257,13 @@ document.addEventListener("DOMContentLoaded", () => {
       r.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        setValue("");
+        setValue("", emptyText);
         closeAllTsel();
       });
     });
 
     return { wrap, btn, text, hidden, setValue, render };
   }
-
-  // ---------------------------
-  // Wire Make / Model / Year
-  // ---------------------------
-  const makeCtl = wireTsel({
-    wrapId: "tselMake",
-    btnId: "makeBtn",
-    textId: "makeText",
-    searchId: "makeSearch",
-    listId: "makeList",
-    hiddenId: "makeValue",
-    getItems: () => Object.keys(MAKE_MODELS),
-    onPick: () => {
-      modelCtl?.setValue("");
-      if (modelCtl) {
-        modelCtl.btn.disabled = !makeCtl.hidden.value;
-        modelCtl.text.textContent = makeCtl.hidden.value ? "Hamısı" : "Əvvəl marka seç";
-      }
-    },
-  });
-
-  const modelCtl = wireTsel({
-    wrapId: "tselModel",
-    btnId: "modelBtn",
-    textId: "modelText",
-    searchId: "modelSearch",
-    listId: "modelList",
-    hiddenId: "modelValue",
-    getItems: () => {
-      const mk = document.getElementById("makeValue")?.value || "";
-      return mk ? (MAKE_MODELS[mk] || []) : [];
-    },
-  });
 
   const yearCtl = wireTsel({
     wrapId: "tselYear",
@@ -369,66 +272,119 @@ document.addEventListener("DOMContentLoaded", () => {
     searchId: "yearSearch",
     listId: "yearList",
     hiddenId: "yearValue",
-    getItems: () => YEARS,
+    getItems: () => YEARS.map((y) => ({ value: y, label: y })),
   });
 
-  if (modelCtl) {
-    modelCtl.btn.disabled = true;
-    modelCtl.text.textContent = "Əvvəl marka seç";
+  async function loadMakes() {
+    try {
+      const res = await fetch("https://carall.az/api/lookups/makes");
+      const makes = await res.json();
+
+      const makeList = document.getElementById("makeList");
+      if (!makeList) return;
+
+      makeList.innerHTML = makes.map(m => `
+        <div class="tsel__row" data-id="${m.id}">
+          ${m.name}
+        </div>
+      `).join("");
+
+      makeList.querySelectorAll(".tsel__row").forEach(row => {
+        row.addEventListener("click", () => {
+          const makeId = row.dataset.id;
+          const makeName = row.textContent.trim();
+
+          document.getElementById("makeText").textContent = makeName;
+          document.getElementById("makeValue").value = makeId;
+
+          document.getElementById("modelText").textContent = "Hamısı";
+          document.getElementById("modelValue").value = "";
+          document.getElementById("modelBtn").disabled = false;
+
+          setErrForHidden(document.getElementById("makeValue"), "");
+          loadModels(makeId);
+          closeAllTsel();
+        });
+      });
+
+    } catch (err) {
+      console.error("MAKE ERROR:", err);
+    }
   }
 
-  document.addEventListener("click", (e) => {
-    if (e.target.closest(".tsel")) return;
-    closeAllTsel();
-  });
+  async function loadModels(makeId) {
+    if (!makeId) return;
 
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeAllTsel();
-  });
+    try {
+      const res = await fetch(`https://carall.az/api/lookups/models/${makeId}`);
+      const models = await res.json();
 
-  // ---------------------------
-  // Description counter
-  // ---------------------------
-  const desc = form?.elements?.desc;
-  const descCount = document.getElementById("descCount");
-  if (desc && descCount) {
-    const upd = () => (descCount.textContent = String(desc.value.length));
-    desc.addEventListener("input", upd);
-    upd();
+      const modelList = document.getElementById("modelList");
+      if (!modelList) return;
+
+      modelList.innerHTML = models.map(m => `
+        <div class="tsel__row" data-id="${m.id}">
+          ${m.name}
+        </div>
+      `).join("");
+
+      modelList.querySelectorAll(".tsel__row").forEach(row => {
+        row.addEventListener("click", () => {
+          document.getElementById("modelText").textContent = row.textContent.trim();
+          document.getElementById("modelValue").value = row.dataset.id;
+          setErrForHidden(document.getElementById("modelValue"), "");
+          closeAllTsel();
+        });
+      });
+
+    } catch (err) {
+      console.error("MODEL ERROR:", err);
+    }
   }
 
-  // ---------------------------
-  // Photos uploader + cover + reorder (mouse drag)
-  // ---------------------------
-  const photosInput = document.getElementById("photosInput");
-  const addPhotosBtn = document.getElementById("addPhotosBtn");
-  const uploader = document.getElementById("uploader");
-  const photosGrid = document.getElementById("photosGrid");
-  const photosErr = document.getElementById("photosErr");
+  async function fillSelect(selector, url, mapText = "name") {
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
 
-  let photos = [];
+      const select = document.querySelector(selector);
+      if (!select) return;
+
+      select.innerHTML =
+        `<option value="">Seç</option>` +
+        data.map(x => `<option value="${x.id}">${x[mapText]}</option>`).join("");
+
+    } catch (err) {
+      console.error("LOOKUP ERROR:", selector, err);
+    }
+  }
 
   function addFiles(fileList) {
     const files = Array.from(fileList || []);
+
     for (const file of files) {
       if (!file.type?.startsWith?.("image/")) continue;
-      const id = (crypto?.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()));
+
+      const id = crypto?.randomUUID
+        ? crypto.randomUUID()
+        : String(Date.now() + Math.random());
+
       const url = URL.createObjectURL(file);
       photos.push({ id, file, url });
     }
+
     renderPhotos();
   }
 
-  // Cover = photos[0]
   function setCoverById(id) {
     const idx = photos.findIndex((p) => p.id === id);
     if (idx <= 0) return;
+
     const item = photos.splice(idx, 1)[0];
     photos.unshift(item);
     renderPhotos();
   }
 
-  // Reorder by drag
   let dragId = null;
 
   function movePhoto(fromId, toId) {
@@ -464,19 +420,16 @@ document.addEventListener("DOMContentLoaded", () => {
         <button class="ph__x" type="button" aria-label="Sil">×</button>
       `;
 
-      // delete
       el.querySelector(".ph__x")?.addEventListener("click", () => {
         URL.revokeObjectURL(p.url);
         photos = photos.filter((x) => x.id !== p.id);
         renderPhotos();
       });
 
-      // set cover
       el.querySelector(".ph__cover")?.addEventListener("click", () => {
         setCoverById(p.id);
       });
 
-      // drag handlers
       el.addEventListener("dragstart", (e) => {
         dragId = p.id;
         el.classList.add("is-dragging");
@@ -485,8 +438,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       el.addEventListener("dragend", () => {
         dragId = null;
-        el.classList.remove("is-dragging");
-        el.classList.remove("is-over");
+        el.classList.remove("is-dragging", "is-over");
       });
 
       el.addEventListener("dragover", (e) => {
@@ -495,15 +447,12 @@ document.addEventListener("DOMContentLoaded", () => {
         el.classList.add("is-over");
       });
 
-      el.addEventListener("dragleave", () => {
-        el.classList.remove("is-over");
-      });
+      el.addEventListener("dragleave", () => el.classList.remove("is-over"));
 
       el.addEventListener("drop", (e) => {
         e.preventDefault();
         el.classList.remove("is-over");
-        const targetId = el.dataset.id;
-        movePhoto(dragId, targetId);
+        movePhoto(dragId, el.dataset.id);
       });
 
       photosGrid.appendChild(el);
@@ -514,59 +463,99 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  addPhotosBtn?.addEventListener("click", () => photosInput?.click());
+  async function submitListing() {
+    try {
+      nextBtn.disabled = true;
+      nextBtn.textContent = "Göndərilir...";
 
-  photosInput?.addEventListener("change", (e) => {
-    addFiles(e.target.files);
-    photosInput.value = "";
-  });
+      const payload = {
+        makeId: Number(document.getElementById("makeValue").value),
+        modelId: Number(document.getElementById("modelValue").value),
+        year: Number(document.getElementById("yearValue").value),
 
-  // drag & drop upload
-  if (uploader) {
-    ["dragenter", "dragover"].forEach((evt) => {
-      uploader.addEventListener(evt, (e) => e.preventDefault());
-    });
-    uploader.addEventListener("drop", (e) => {
-      e.preventDefault();
-      addFiles(e.dataTransfer?.files);
-    });
+        colorId: Number(document.getElementById("colorSelect").value) || null,
+        bodyTypeId: Number(document.querySelector('select[name="body"]').value) || null,
+        fuelTypeId: Number(document.querySelector('select[name="fuel"]').value),
+        transmissionId: Number(document.querySelector('select[name="gear"]').value),
+
+        mileage: Number(document.querySelector('input[name="km"]').value),
+        price: Number(document.querySelector('input[name="price"]').value),
+        currency: document.querySelector('select[name="currency"]').value || "AZN",
+
+        description: document.querySelector('textarea[name="desc"]').value || "",
+        fullName: document.getElementById("fullName").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        phone: document.querySelector('input[name="phone"]').value.trim(),
+        cityId: document.getElementById("citySelect")?.value
+          ? Number(document.getElementById("citySelect").value)
+          : null,
+
+        credit: !!document.querySelector('input[name="credit"]')?.checked,
+        barter: !!document.querySelector('input[name="barter"]')?.checked,
+        urgent: !!document.querySelector('input[name="urgent"]')?.checked,
+        whatsapp: !!document.querySelector('input[name="whatsapp"]')?.checked
+      };
+
+      const fd = new FormData();
+      fd.append("Data", JSON.stringify(payload));
+
+      photos.forEach(p => {
+        fd.append("Images", p.file);
+      });
+
+      const res = await fetch("https://carall.az/api/Listings", {
+        method: "POST",
+        body: fd
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("POST ERROR:", res.status, errText);
+        alert("Elan göndərilmədi. Console-da xətaya bax.");
+        return;
+      }
+
+      const data = await res.json();
+      console.log("SUCCESS:", data);
+
+      openCarallModal("created", {
+        text: "Elanınız qəbul edildi və yoxlanışa göndərildi. Təsdiqləndikdən sonra saytda dərc olunacaq.",
+        primaryText: "Elanlarıma bax",
+        primaryHref: "profile.html",
+        secondaryText: "Ana səhifəyə qayıt",
+        secondaryHref: "index.html"
+      });
+
+    } catch (err) {
+      console.error("POST ERROR:", err);
+      alert("Xəta baş verdi. Console-da bax.");
+    } finally {
+      nextBtn.disabled = false;
+      nextBtn.textContent = "Elanı yerləşdir ✅";
+    }
   }
 
-  // ---------------------------
-  // Init
-  // ---------------------------
-  setStep(1);
-
-  // ---------------------------
-  // Phone mask: +994 (0XX) XXX-XX-XX
-  // ---------------------------
-  initPhoneMask();
-
   function initPhoneMask() {
-    const input = form?.elements?.phone; // name="phone"
+    const input = form?.elements?.phone;
     if (!input) return;
 
     const PREFIX = "+994 ";
-
     const onlyDigits = (s) => (s || "").replace(/\D/g, "");
 
     function formatAZ(rawDigits) {
       let d = rawDigits;
 
-      // user +994 yazıbsa, 994-i kəs
       if (d.startsWith("994")) d = d.slice(3);
 
-      // max 10 rəqəm (0XX XXX XX XX)
       d = d.slice(0, 10);
 
-      // 0 yoxdursa əlavə et
       if (d.length > 0 && d[0] !== "0") d = "0" + d;
       d = d.slice(0, 10);
 
-      const op = d.slice(0, 3); // 0XX
-      const p1 = d.slice(3, 6); // XXX
-      const p2 = d.slice(6, 8); // XX
-      const p3 = d.slice(8, 10); // XX
+      const op = d.slice(0, 3);
+      const p1 = d.slice(3, 6);
+      const p2 = d.slice(6, 8);
+      const p3 = d.slice(8, 10);
 
       let out = PREFIX;
 
@@ -593,7 +582,6 @@ document.addEventListener("DOMContentLoaded", () => {
       input.setSelectionRange(len, len);
     }
 
-    // start value
     if (!input.value || !input.value.startsWith(PREFIX)) {
       input.value = PREFIX;
     }
@@ -604,7 +592,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     input.addEventListener("keydown", (e) => {
-      // prefix silinməsin
       if (e.key === "Backspace" && input.selectionStart <= PREFIX.length) {
         e.preventDefault();
         input.value = PREFIX;
@@ -626,18 +613,69 @@ document.addEventListener("DOMContentLoaded", () => {
       caretEnd();
     });
   }
+
+  backBtn?.addEventListener("click", () => {
+    closeAllTsel();
+    setStep(step - 1);
+  });
+
+  nextBtn?.addEventListener("click", async () => {
+    closeAllTsel();
+    if (!validateStep()) return;
+
+    if (step < steps.length) {
+      setStep(step + 1);
+      return;
+    }
+
+    await submitListing();
+  });
+
+  addPhotosBtn?.addEventListener("click", () => photosInput?.click());
+
+  photosInput?.addEventListener("change", (e) => {
+    addFiles(e.target.files);
+    photosInput.value = "";
+  });
+
+  if (uploader) {
+    ["dragenter", "dragover"].forEach((evt) => {
+      uploader.addEventListener(evt, (e) => e.preventDefault());
+    });
+
+    uploader.addEventListener("drop", (e) => {
+      e.preventDefault();
+      addFiles(e.dataTransfer?.files);
+    });
+  }
+
+  document.addEventListener("click", (e) => {
+    if (e.target.closest(".tsel")) return;
+    closeAllTsel();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeAllTsel();
+  });
+
+  loadMakes();
+  fillSelect("#colorSelect", "https://carall.az/api/lookups/colors");
+  fillSelect('select[name="body"]', "https://carall.az/api/lookups/vehicle-types");
+  fillSelect('select[name="fuel"]', "https://carall.az/api/lookups/fuel-types");
+  fillSelect('select[name="gear"]', "https://carall.az/api/lookups/transmissions", "type");
+
+  initPhoneMask();
+  setStep(1);
 });
-  window.openCarallModal = function(type = "edited", options = {}) {
+
+window.openCarallModal = function(type = "edited", options = {}) {
   const modal = document.getElementById("caModal");
   const title = document.getElementById("caModalTitle");
   const text = document.getElementById("caModalText");
   const primary = document.getElementById("caModalPrimary");
   const secondary = document.getElementById("caModalSecondary");
 
-  if (!modal || !title || !text || !primary || !secondary) {
-    console.error("Modal elementləri tapılmadı");
-    return;
-  }
+  if (!modal || !title || !text || !primary || !secondary) return;
 
   const map = {
     created: {
