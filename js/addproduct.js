@@ -663,11 +663,29 @@ document.addEventListener("DOMContentLoaded", () => {
   fillSelect('select[name="body"]', "https://carall.az/api/lookups/vehicle-types");
   fillSelect('select[name="fuel"]', "https://carall.az/api/lookups/fuel-types");
   fillSelect('select[name="gear"]', "https://carall.az/api/lookups/transmissions", "type");
+loadCities(); 
 
   initPhoneMask();
   setStep(1);
 });
 
+
+async function loadCities() {
+  try {
+    const res = await fetch("https://carall.az/api/lookups/cities");
+    const cities = await res.json();
+
+    const select = document.getElementById("citySelect");
+    if (!select) return;
+
+    select.innerHTML =
+      `<option value="">Seç</option>` +
+      cities.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
+
+  } catch (err) {
+    console.error("CITY ERROR:", err);
+  }
+}
 window.openCarallModal = function(type = "edited", options = {}) {
   const modal = document.getElementById("caModal");
   const title = document.getElementById("caModalTitle");
