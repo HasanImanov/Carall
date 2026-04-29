@@ -460,8 +460,8 @@ async function applyFilters() {
       return;
     }
 
-    const data = await res.json();
-    renderCars(data);
+    const result = await res.json();
+renderCars(result.data || []);
   } catch (err) {
     console.error("FILTER ERROR:", err);
   }
@@ -590,9 +590,9 @@ async function loadModelsFromApi(makeId) {
   });
 
   // ===== Bind filter events (base) =====
-  [qCountry, qBrand, qModel, qCity, qYear, qYearMax].forEach((el) => el && el.addEventListener("change", applyFilters));
-  [qMinPrice, qMaxPrice].forEach((el) => el && el.addEventListener("input", applyFilters));
-  sortBy && sortBy.addEventListener("change", applyFilters);
+  // [qCountry, qBrand, qModel, qCity, qYear, qYearMax].forEach((el) => el && el.addEventListener("change", applyFilters));
+  // [qMinPrice, qMaxPrice].forEach((el) => el && el.addEventListener("input", applyFilters));
+  // sortBy && sortBy.addEventListener("change", applyFilters);
 
   btnSearch && btnSearch.addEventListener("click", applyFilters);
   btnReset && btnReset.addEventListener("click", resetAll);
@@ -866,10 +866,19 @@ function initAdvancedPanel() {
   });
 
   document.addEventListener("click", (e) => {
-    if (advPanel.hasAttribute("hidden")) return;
-    if (e.target.closest("#advPanel") || e.target.closest("#btnAdvanced")) return;
-    close();
-  });
+  if (advPanel.hasAttribute("hidden")) return;
+
+  if (
+    e.target.closest("#advPanel") ||
+    e.target.closest("#btnAdvanced") ||
+    e.target.closest(".tsel") ||
+    e.target.closest(".tsel__panel")
+  ) {
+    return;
+  }
+
+  close();
+});
 }
 
   // ===== Hamburger menu (open/close) =====
@@ -960,10 +969,11 @@ function initAdvancedPanel() {
     advGrid.appendChild(mkSelect("Ötürücü", "qDrive"));
     advGrid.appendChild(mkSelect("Sürətlər qutusu", "qGearbox"));
     advGrid.appendChild(mkSelect("Yanacaq növü", "qFuel"));
-    advGrid.appendChild(mkSelect("Sahiblərinin sayı", "qOwners"));
-    advGrid.appendChild(mkSelect("Yerlərin sayı", "qSeats"));
     advGrid.appendChild(mkSelect("Hansı bazar üçün yığılıb", "qAssembled"));
     advGrid.appendChild(mkSelect("Vəziyyət", "qCondition"));
+    advGrid.appendChild(mkSelect("Sahiblərinin sayı", "qOwners"));
+    advGrid.appendChild(mkSelect("Yerlərin sayı", "qSeats"));
+
   }
 
 
@@ -2342,57 +2352,57 @@ async function loadAccessoriesFromApi() {
     const y = document.getElementById("footerYear");
     if (y) y.textContent = new Date().getFullYear();
   });
-  (function advDelegationFix(){
-    const open = () => {
-      const p = document.getElementById("advPanel");
-      if (!p) return;
+  // (function advDelegationFix(){
+  //   const open = () => {
+  //     const p = document.getElementById("advPanel");
+  //     if (!p) return;
 
-      p.removeAttribute("hidden");
-      p.setAttribute("aria-hidden", "false");
-      requestAnimationFrame(() => p.classList.add("is-open"));
-    };
+  //     p.removeAttribute("hidden");
+  //     p.setAttribute("aria-hidden", "false");
+  //     requestAnimationFrame(() => p.classList.add("is-open"));
+  //   };
 
-    const close = () => {
-      const p = document.getElementById("advPanel");
-      if (!p) return;
+  //   const close = () => {
+  //     const p = document.getElementById("advPanel");
+  //     if (!p) return;
 
-      p.classList.remove("is-open");
-      p.setAttribute("aria-hidden", "true");
-      setTimeout(() => p.setAttribute("hidden",""), 220);
-    };
+  //     p.classList.remove("is-open");
+  //     p.setAttribute("aria-hidden", "true");
+  //     setTimeout(() => p.setAttribute("hidden",""), 220);
+  //   };
 
-    const toggle = () => {
-      const p = document.getElementById("advPanel");
-      if (!p) return;
-      const isOpen = p.classList.contains("is-open") && !p.hasAttribute("hidden");
-      isOpen ? close() : open();
-    };
+  //   const toggle = () => {
+  //     const p = document.getElementById("advPanel");
+  //     if (!p) return;
+  //     const isOpen = p.classList.contains("is-open") && !p.hasAttribute("hidden");
+  //     isOpen ? close() : open();
+  //   };
 
-    // ✅ delegation: element dəyişsə də tutacaq
-    document.addEventListener("click", (e) => {
-      const btn = e.target.closest("#btnAdvanced");
-      if (!btn) return;
-      e.preventDefault();
-      e.stopPropagation();
-      toggle();
-    }, true);
+  //   // ✅ delegation: element dəyişsə də tutacaq
+  //   document.addEventListener("click", (e) => {
+  //     const btn = e.target.closest("#btnAdvanced");
+  //     if (!btn) return;
+  //     e.preventDefault();
+  //     e.stopPropagation();
+  //     toggle();
+  //   }, true);
 
-    // outside click close
-    document.addEventListener("click", (e) => {
-      const p = document.getElementById("advPanel");
-      if (!p || p.hasAttribute("hidden")) return;
-      if (e.target.closest("#advPanel") || e.target.closest("#btnAdvanced")) return;
-      close();
-    }, true);
+  //   // outside click close
+  //   document.addEventListener("click", (e) => {
+  //     const p = document.getElementById("advPanel");
+  //     if (!p || p.hasAttribute("hidden")) return;
+  //     if (e.target.closest("#advPanel") || e.target.closest("#btnAdvanced")) return;
+  //     close();
+  //   }, true);
 
-    // ESC close
-    window.addEventListener("keydown", (e) => {
-      if (e.key !== "Escape") return;
-      const p = document.getElementById("advPanel");
-      if (!p || p.hasAttribute("hidden")) return;
-      close();
-    });
-  })();
+  //   // ESC close
+  //   window.addEventListener("keydown", (e) => {
+  //     if (e.key !== "Escape") return;
+  //     const p = document.getElementById("advPanel");
+  //     if (!p || p.hasAttribute("hidden")) return;
+  //     close();
+  //   });
+  // })();
   /* =========================
     CarAll Universal Success Modal
   ========================= */

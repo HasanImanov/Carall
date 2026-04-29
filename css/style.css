@@ -1525,8 +1525,12 @@ img { max-width: 100%; }
 /* =========================
    Turbo-like Search Dropdown
    ========================= */
-.tsel{ position:relative; width:100%;  z-index: 20;
+.tsel{ position:relative; width:100%;  z-index: 5;
  }
+ .field:has(.tsel.is-open) {
+  z-index: 99999 !important;
+  position: relative;
+}
 
 .tsel__btn{
   width:100%;
@@ -1557,7 +1561,7 @@ img { max-width: 100%; }
   pointer-events:none;
   transition:transform .18s ease;
 }
-.tsel.is-open .tsel__chev{ transform:translateY(-50%) rotate(180deg);   z-index: 9999;
+.tsel.is-open .tsel__chev{ transform:translateY(-50%) rotate(180deg);   z-index: 9999 !important;
 }
 
 .tsel__panel{
@@ -1570,7 +1574,7 @@ img { max-width: 100%; }
   box-shadow:0 18px 45px rgba(15,23,42,.14);
   overflow:hidden;
   display:none;
-    z-index: 10000;
+    z-index: 10000 !important;
 }
 .tsel.is-open .tsel__panel{ display:block; }
 
