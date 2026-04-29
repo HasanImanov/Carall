@@ -400,9 +400,6 @@
   // ===== Main filter logic =====
 async function applyFilters() {
   try {
-    const selectedConditions = Array.from(
-      document.querySelectorAll("#qCondition .chip.is-on")
-    ).map(el => Number(el.dataset.id));
 
     const selectedAccessories = Array.from(
       document.querySelectorAll("#equipChips .chip.is-on")
@@ -444,7 +441,9 @@ async function applyFilters() {
         : null,
 
       accessoryIds: selectedAccessories.length ? selectedAccessories : null,
-      roofTypeIds: selectedConditions.length ? selectedConditions : null
+      roofTypeId: document.getElementById("qCondition")?.value
+  ? Number(document.getElementById("qCondition").value)
+  : null
     };
 
     const res = await fetch("https://carall.az/api/Listings/full_filter", {
@@ -964,8 +963,7 @@ function initAdvancedPanel() {
     advGrid.appendChild(mkSelect("Sahiblərinin sayı", "qOwners"));
     advGrid.appendChild(mkSelect("Yerlərin sayı", "qSeats"));
     advGrid.appendChild(mkSelect("Hansı bazar üçün yığılıb", "qAssembled"));
-    advGrid.appendChild(mkSelect("Status", "qStatus"));
-    advGrid.appendChild(mkChips("Vəziyyət", "qCondition"));
+    advGrid.appendChild(mkSelect("Vəziyyət", "qCondition"));
   }
 
 
@@ -986,26 +984,19 @@ function initAdvancedPanel() {
     console.error("ASSEMBLED ERROR:", err);
   }
 }
-  async function loadRoofTypesFromApi() {
-  const container = document.getElementById("qCondition");
-  if (!container) return;
+async function loadRoofTypesFromApi() {
+  const qCondition = document.getElementById("qCondition");
+  if (!qCondition) return;
 
   try {
     const res = await fetch("https://carall.az/api/lookups/type-of-roofs");
     const data = await res.json();
 
-    container.innerHTML = data.map(x => `
-      <button class="chip" data-id="${x.id}">
-        ${x.name}
-      </button>
-    `).join("");
+    qCondition.innerHTML =
+      `<option value="">Hamısı</option>` +
+      data.map(x => `<option value="${x.id}">${x.name}</option>`).join("");
 
-    // toggle active
-    container.querySelectorAll(".chip").forEach(btn => {
-      btn.addEventListener("click", () => {
-btn.classList.toggle("is-on");      });
-    });
-
+    qCondition.dispatchEvent(new Event("change", { bubbles: true }));
   } catch (err) {
     console.error("ROOF TYPES ERROR:", err);
   }
