@@ -11,7 +11,7 @@
   // - ESC hamısını bağlasın
   // ============================
 
-  console.log("Last updates");
+  console.log("Last update");
   (function TSEL_GLOBAL_MANAGER(){
     if (window.__TSEL_GLOBAL_MANAGER__) return;
     window.__TSEL_GLOBAL_MANAGER__ = true;
@@ -398,23 +398,70 @@
   }
 
   // ===== Main filter logic =====
-  async function applyFilters() {
-  const params = new URLSearchParams();
-
-  if (qBrand?.value) params.append("makeId", qBrand.value);
-  if (qModel?.value) params.append("modelId", qModel.value);
-  if (qCity?.value) params.append("city", qCity.value);
-
-  if (qMinPrice?.value) params.append("minPrice", qMinPrice.value);
-  if (qMaxPrice?.value) params.append("maxPrice", qMaxPrice.value);
-
-  if (qYear?.value) params.append("yearMin", qYear.value);
-  if (qYearMax?.value) params.append("yearMax", qYearMax.value);
-
+async function applyFilters() {
   try {
-    const res = await fetch(`https://carall.az/api/Listings?${params.toString()}`);
-    const data = await res.json();
+    const selectedConditions = Array.from(
+      document.querySelectorAll("#qCondition .chip.is-on")
+    ).map(el => Number(el.dataset.id));
 
+    const selectedAccessories = Array.from(
+      document.querySelectorAll("#equipChips .chip.is-on")
+    ).map(el => Number(el.dataset.id));
+
+    const body = {
+      makeId: qBrand?.value ? Number(qBrand.value) : null,
+      modelId: qModel?.value ? Number(qModel.value) : null,
+      countryId: qCountry?.value ? Number(qCountry.value) : null,
+      cityId: qCity?.value ? Number(qCity.value) : null,
+
+      minPrice: qMinPrice?.value ? Number(qMinPrice.value) : null,
+      maxPrice: qMaxPrice?.value ? Number(qMaxPrice.value) : null,
+      yearMin: qYear?.value ? Number(qYear.value) : null,
+      yearMax: qYearMax?.value ? Number(qYearMax.value) : null,
+
+      fuelTypeId: document.getElementById("qFuel")?.value
+        ? Number(document.getElementById("qFuel").value)
+        : null,
+
+      transmissionId: document.getElementById("qGearbox")?.value
+        ? Number(document.getElementById("qGearbox").value)
+        : null,
+
+      bodyTypeId: document.getElementById("qBody")?.value
+        ? Number(document.getElementById("qBody").value)
+        : null,
+
+      colorId: document.getElementById("qColor")?.value
+        ? Number(document.getElementById("qColor").value)
+        : null,
+
+      engineVolumeId: document.getElementById("qEngineVolume")?.value
+        ? Number(document.getElementById("qEngineVolume").value)
+        : null,
+
+      assembledForId: document.getElementById("qAssembled")?.value
+        ? Number(document.getElementById("qAssembled").value)
+        : null,
+
+      accessoryIds: selectedAccessories.length ? selectedAccessories : null,
+      roofTypeIds: selectedConditions.length ? selectedConditions : null
+    };
+
+    const res = await fetch("https://carall.az/api/Listings/full_filter", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (!res.ok) {
+      console.error("FULL FILTER API ERROR:", res.status);
+      return;
+    }
+
+    const data = await res.json();
     renderCars(data);
   } catch (err) {
     console.error("FILTER ERROR:", err);
@@ -442,7 +489,23 @@ async function loadMakesFromApi() {
     console.error("MAKES ERROR:", err);
   }
 }
+async function loadVehicleTypesFromApi() {
+  const qBody = document.getElementById("qBody");
+  if (!qBody) return;
 
+  try {
+    const res = await fetch("https://carall.az/api/lookups/vehicle-types");
+    const data = await res.json();
+
+    qBody.innerHTML =
+      `<option value="">Hamısı</option>` +
+      data.map(x => `<option value="${x.id}">${x.name}</option>`).join("");
+
+    qBody.dispatchEvent(new Event("change", { bubbles: true }));
+  } catch (err) {
+    console.error("VEHICLE TYPES ERROR:", err);
+  }
+}
 
 
 async function loadModelsFromApi(makeId) {
@@ -680,25 +743,25 @@ async function loadModelsFromApi(makeId) {
   }
 
   // ===== Equipment chips (Turbo.az like) =====
-  function initEquipmentChips() {
-    if (!equipChipsWrap) return;
+  // function initEquipmentChips() {
+  //   if (!equipChipsWrap) return;
 
-    equipChipsWrap.innerHTML = ALL_EQUIPMENTS.map((name) => `
-      <button type="button" class="chip" data-eq="${name}">${name}</button>
-    `).join("");
+  //   equipChipsWrap.innerHTML = ALL_EQUIPMENTS.map((name) => `
+  //     <button type="button" class="chip" data-eq="${name}">${name}</button>
+  //   `).join("");
 
-    equipChipsWrap.addEventListener("click", (e) => {
-      const chip = e.target.closest(".chip");
-      if (!chip) return;
-      const eq = chip.dataset.eq;
+  //   equipChipsWrap.addEventListener("click", (e) => {
+  //     const chip = e.target.closest(".chip");
+  //     if (!chip) return;
+  //     const eq = chip.dataset.eq;
 
-      if (UI.selectedEquip.has(eq)) UI.selectedEquip.delete(eq);
-      else UI.selectedEquip.add(eq);
+  //     if (UI.selectedEquip.has(eq)) UI.selectedEquip.delete(eq);
+  //     else UI.selectedEquip.add(eq);
 
-      chip.classList.toggle("is-on");
-      applyFilters();
-    });
-  }
+  //     chip.classList.toggle("is-on");
+  //     applyFilters();
+  //   });
+  // }
 
   // ===== Chips/toggles (if you have these buttons in HTML) =====
   // Expected IDs (optional):
@@ -865,34 +928,6 @@ function initAdvancedPanel() {
     });
   }
 
-  // ===== Init everything =====
-  document.addEventListener("DOMContentLoaded", () => {
-    // 1) auto-fill selects/ranges (full)
-    //initAdvancedAutoFill();
-
-    // 2) chips (credit/barter/condition flags) if you have them
-    bindChipsIfExist();
-
-    // 3) equipment chips always (Turbo.az like)
-    initEquipmentChips();
-
-    // 4) advanced panel toggle
-    initAdvancedPanel();
-
-    // 5) hamburger
-    initHamburgerMenu();
-
-    // 6) initial render
-    // 6) initial render
-    applyFilters();
-    
-    loadMakesFromApi();
-
-qBrand?.addEventListener("change", () => {
-  loadModelsFromApi(qBrand.value);
-});
-    
-  });
   function ensureAdvFields() {
     const advGrid = document.getElementById("advGrid");
     if (!advGrid) return;
@@ -911,16 +946,250 @@ qBrand?.addEventListener("change", () => {
     };
 
     // FULL advanced selects
+    advGrid.appendChild(mkSelect("Mühərrik həcmi", "qEngineVolume"));
     advGrid.appendChild(mkSelect("Rəng", "qColor"));
     advGrid.appendChild(mkSelect("Ban növü", "qBody"));
     advGrid.appendChild(mkSelect("Ötürücü", "qDrive"));
-    advGrid.appendChild(mkSelect("Sürətlər qutusu", "qGearbox2"));
-    advGrid.appendChild(mkSelect("Yanacaq növü", "qFuel2"));
+    advGrid.appendChild(mkSelect("Sürətlər qutusu", "qGearbox"));
+    advGrid.appendChild(mkSelect("Yanacaq növü", "qFuel"));
     advGrid.appendChild(mkSelect("Sahiblərinin sayı", "qOwners"));
     advGrid.appendChild(mkSelect("Yerlərin sayı", "qSeats"));
-    advGrid.appendChild(mkSelect("Hansı bazar üçün yığılıb", "qMarket"));
-    advGrid.appendChild(mkSelect("Status", "qStatus"));
+    advGrid.appendChild(mkSelect("Hansı bazar üçün yığılıb", "qAssembled"));
+    advGrid.appendChild(mkChips("Vəziyyət", "qCondition"));
   }
+
+
+  async function loadAssembledFromApi() {
+  const qAssembled = document.getElementById("qAssembled");
+  if (!qAssembled) return;
+
+  try {
+    const res = await fetch("https://carall.az/api/lookups/assembled-for");
+    const data = await res.json();
+
+    qAssembled.innerHTML =
+      `<option value="">Hamısı</option>` +
+      data.map(x => `<option value="${x.id}">${x.name}</option>`).join("");
+
+    qAssembled.dispatchEvent(new Event("change", { bubbles: true }));
+  } catch (err) {
+    console.error("ASSEMBLED ERROR:", err);
+  }
+}
+  async function loadRoofTypesFromApi() {
+  const container = document.getElementById("qCondition");
+  if (!container) return;
+
+  try {
+    const res = await fetch("https://carall.az/api/lookups/type-of-roofs");
+    const data = await res.json();
+
+    container.innerHTML = data.map(x => `
+      <button class="chip" data-id="${x.id}">
+        ${x.name}
+      </button>
+    `).join("");
+
+    // toggle active
+    container.querySelectorAll(".chip").forEach(btn => {
+      btn.addEventListener("click", () => {
+        btn.classList.toggle("active");
+      });
+    });
+
+  } catch (err) {
+    console.error("ROOF TYPES ERROR:", err);
+  }
+}
+
+  async function loadEngineVolumesFromApi() {
+  const qEngineVolume = document.getElementById("qEngineVolume");
+  if (!qEngineVolume) return;
+
+  try {
+    const res = await fetch("https://carall.az/api/lookups/engine-volumes");
+    const data = await res.json();
+
+    qEngineVolume.innerHTML =
+      `<option value="">Hamısı</option>` +
+      data.map(x => `<option value="${x.id}">${x.power}</option>`).join("");
+
+    qEngineVolume.dispatchEvent(new Event("change", { bubbles: true }));
+  } catch (err) {
+    console.error("ENGINE VOLUMES ERROR:", err);
+  }
+}
+
+  let COUNTRIES = [];
+
+async function loadCountriesFromApi() {
+  if (!qCountry) return;
+
+  try {
+    const res = await fetch("https://carall.az/api/lookups/countries");
+    const data = await res.json();
+
+    COUNTRIES = data;
+
+    qCountry.innerHTML =
+      `<option value="">Hamısı</option>` +
+      data.map(x => `<option value="${x.id}">${x.name}</option>`).join("");
+
+    qCountry.dispatchEvent(new Event("change", { bubbles: true }));
+  } catch (err) {
+    console.error("COUNTRIES ERROR:", err);
+  }
+}
+
+
+  async function loadFuelTypesFromApi() {
+  const qFuel = document.getElementById("qFuel");
+  if (!qFuel) return;
+
+  try {
+    const res = await fetch("https://carall.az/api/lookups/fuel-types");
+    const data = await res.json();
+
+    qFuel.innerHTML =
+      `<option value="">Hamısı</option>` +
+      data.map(x => `<option value="${x.id}">${x.name}</option>`).join("");
+
+    qFuel.dispatchEvent(new Event("change", { bubbles: true }));
+  } catch (err) {
+    console.error("FUEL TYPES ERROR:", err);
+  }
+}
+
+async function loadColorsFromApi() {
+  const qColor = document.getElementById("qColor");
+  if (!qColor) return;
+
+  try {
+    const res = await fetch("https://carall.az/api/lookups/colors");
+    const data = await res.json();
+
+    qColor.innerHTML =
+      `<option value="">Hamısı</option>` +
+      data.map(x => `<option value="${x.id}">${x.name}</option>`).join("");
+
+    qColor.dispatchEvent(new Event("change", { bubbles: true }));
+  } catch (err) {
+    console.error("COLORS ERROR:", err);
+  }
+}
+
+async function loadCitiesFromApi(countryId) {
+  if (!qCity) return;
+
+  if (!countryId) {
+    qCity.innerHTML = `<option value="">Hamısı</option>`;
+    qCity.dispatchEvent(new Event("change", { bubbles: true }));
+    return;
+  }
+
+  try {
+    const res = await fetch(`https://carall.az/api/lookups/countries/${countryId}/cities`);
+    const data = await res.json();
+
+    qCity.innerHTML =
+      `<option value="">Hamısı</option>` +
+      data.map(x => `<option value="${x.id}">${x.name}</option>`).join("");
+
+    qCity.dispatchEvent(new Event("change", { bubbles: true }));
+  } catch (err) {
+    console.error("CITIES ERROR:", err);
+  }
+}
+
+async function loadTransmissionsFromApi() {
+  const qGearbox = document.getElementById("qGearbox");
+  if (!qGearbox) return;
+
+  try {
+    const res = await fetch("https://carall.az/api/lookups/transmissions");
+    const data = await res.json();
+
+    qGearbox.innerHTML =
+      `<option value="">Hamısı</option>` +
+      data.map(x => `<option value="${x.id}">${x.type}</option>`).join("");
+
+    qGearbox.dispatchEvent(new Event("change", { bubbles: true }));
+  } catch (err) {
+    console.error("TRANSMISSIONS ERROR:", err);
+  }
+}
+
+async function loadAccessoriesFromApi() {
+  if (!equipChipsWrap) return;
+
+  try {
+    const res = await fetch("https://carall.az/api/lookups/accessories");
+    const data = await res.json();
+
+    equipChipsWrap.innerHTML = data.map(x => `
+      <button type="button" class="chip" data-id="${x.id}">
+        ${x.name}
+      </button>
+    `).join("");
+
+    equipChipsWrap.querySelectorAll(".chip").forEach(btn => {
+      btn.addEventListener("click", () => {
+        btn.classList.toggle("is-on");
+      });
+    });
+  } catch (err) {
+    console.error("ACCESSORIES ERROR:", err);
+  }
+}
+  // ===== Init everything =====
+  document.addEventListener("DOMContentLoaded", () => {
+  // UI init
+  bindChipsIfExist();
+  loadAccessoriesFromApi();
+  initAdvancedPanel();
+  initHamburgerMenu();
+
+  ensureAdvFields();
+
+  // FILTER (ilk load)
+  applyFilters();
+
+  // ===== API LOADERS =====
+  loadMakesFromApi();
+  loadVehicleTypesFromApi();
+  loadFuelTypesFromApi();
+  loadColorsFromApi();
+  loadCountriesFromApi();
+  loadTransmissionsFromApi();
+  loadEngineVolumesFromApi();
+  loadAssembledFromApi();
+  // ===== EVENTS =====
+
+  // Marka → Model
+  qBrand?.addEventListener("change", () => {
+    loadModelsFromApi(qBrand.value);
+  });
+
+  // Ölkə → Şəhər
+  qCountry?.addEventListener("change", () => {
+    loadCitiesFromApi(qCountry.value);
+  });
+
+  // ===== ADV PANEL OPEN =====
+  const btn = document.getElementById("btnAdvanced");
+  btn?.addEventListener("click", () => {
+    ensureAdvFields();
+    loadVehicleTypesFromApi();
+    loadFuelTypesFromApi();
+    loadColorsFromApi();
+    loadTransmissionsFromApi();
+    loadEngineVolumesFromApi();
+    loadAssembledFromApi();
+    setTimeout(initTurboSelects, 0);
+  });
+});
+  
+
 
   function fillSelect(id, values, ph) {
     const el = document.getElementById(id);
@@ -948,17 +1217,7 @@ qBrand?.addEventListener("change", () => {
   //   fillSelect("qStatus", cars.map(c=>c.status), "Hamısı");
   // }
 
-  document.addEventListener("DOMContentLoaded", () => {
-    ensureAdvFields();
-    // fillAdvOptions();
-
-    // panel açılıb bağlananda da dolu qalsın
-    const btn = document.getElementById("btnAdvanced");
-    btn?.addEventListener("click", () => {
-      ensureAdvFields();
-      //fillAdvOptions();
-    });
-  });
+  
   function makeTurboSelect(select, { searchable=true, placeholder="Seçin", clearText="Sıfırla" } = {}) {
     if (!select || select.dataset.turboized) return;
     select.dataset.turboized = "1";
