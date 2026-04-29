@@ -11,7 +11,7 @@
   // - ESC hamısını bağlasın
   // ============================
 
-  console.log("Last update");
+  console.log("Last updates");
   (function TSEL_GLOBAL_MANAGER(){
     if (window.__TSEL_GLOBAL_MANAGER__) return;
     window.__TSEL_GLOBAL_MANAGER__ = true;
