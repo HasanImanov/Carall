@@ -471,33 +471,39 @@ async function loadModels(makeId) {
       nextBtn.disabled = true;
       nextBtn.textContent = "Göndərilir...";
 
-      const payload = {
-        makeId: Number(document.getElementById("makeValue").value),
-        modelId: Number(document.getElementById("modelValue").value),
-        year: Number(document.getElementById("yearValue").value),
+      const fullnameVal = document.getElementById("fullName").value.trim();
 
-        colorId: Number(document.getElementById("colorSelect").value) || null,
-        bodyTypeId: Number(document.querySelector('select[name="body"]').value) || null,
-        fuelTypeId: Number(document.querySelector('select[name="fuel"]').value),
-        transmissionId: Number(document.querySelector('select[name="gear"]').value),
+const payload = {
+  Name: fullnameVal,   // 🔥 əsas budur
+  name: fullnameVal,   // ehtiyat üçün
+  fullName: fullnameVal,
 
-        mileage: Number(document.querySelector('input[name="km"]').value),
-        price: Number(document.querySelector('input[name="price"]').value),
-        currency: document.querySelector('select[name="currency"]').value || "AZN",
+  makeId: Number(document.getElementById("makeValue").value),
+  modelId: Number(document.getElementById("modelValue").value),
+  year: Number(document.getElementById("yearValue").value),
 
-        description: document.querySelector('textarea[name="desc"]').value || "",
-        fullName: document.getElementById("fullName").value.trim(),
-        email: document.getElementById("email").value.trim(),
-        phone: document.querySelector('input[name="phone"]').value.trim(),
-        cityId: document.getElementById("citySelect")?.value
-          ? Number(document.getElementById("citySelect").value)
-          : null,
+  colorId: Number(document.getElementById("colorSelect").value) || null,
+  bodyTypeId: Number(document.querySelector('select[name="body"]').value) || null,
+  fuelTypeId: Number(document.querySelector('select[name="fuel"]').value),
+  transmissionId: Number(document.querySelector('select[name="gear"]').value),
 
-        credit: !!document.querySelector('input[name="credit"]')?.checked,
-        barter: !!document.querySelector('input[name="barter"]')?.checked,
-        urgent: !!document.querySelector('input[name="urgent"]')?.checked,
-        whatsapp: !!document.querySelector('input[name="whatsapp"]')?.checked
-      };
+  mileage: Number(document.querySelector('input[name="km"]').value),
+  price: Number(document.querySelector('input[name="price"]').value),
+  currency: document.querySelector('select[name="currency"]').value || "AZN",
+
+  description: document.querySelector('textarea[name="desc"]').value || "",
+  email: document.getElementById("email").value.trim(),
+  phone: document.querySelector('input[name="phone"]').value.trim(),
+
+  cityId: document.getElementById("citySelect")?.value
+    ? Number(document.getElementById("citySelect").value)
+    : null,
+
+  credit: !!document.querySelector('input[name="credit"]')?.checked,
+  barter: !!document.querySelector('input[name="barter"]')?.checked,
+  urgent: !!document.querySelector('input[name="urgent"]')?.checked,
+  whatsapp: !!document.querySelector('input[name="whatsapp"]')?.checked
+};
 
       const fd = new FormData();
       fd.append("Data", JSON.stringify(payload));
