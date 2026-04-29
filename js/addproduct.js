@@ -467,93 +467,91 @@ async function loadModels(makeId) {
   }
 
   async function submitListing() {
-    try {
-      nextBtn.disabled = true;
-      nextBtn.textContent = "Göndərilir...";
+  try {
+    nextBtn.disabled = true;
+    nextBtn.textContent = "Göndərilir...";
 
-      const fullnameVal = document.getElementById("fullName").value.trim();
+    const fullnameVal = document.getElementById("fullName").value.trim();
+    const emailVal = document.getElementById("email").value.trim();
+    const phoneVal = document.querySelector('input[name="phone"]').value.trim();
 
-const fullnameVal = document.getElementById("fullName").value.trim();
-const emailVal = document.getElementById("email").value.trim();
-const phoneVal = document.querySelector('input[name="phone"]').value.trim();
+    const payload = {
+      Name: fullnameVal,
+      name: fullnameVal,
+      fullName: fullnameVal,
+      userAccountName: fullnameVal,
+      sellerName: fullnameVal,
+      contactName: fullnameVal,
+      ownerName: fullnameVal,
 
-const payload = {
-  Name: fullnameVal,
-  name: fullnameVal,
-  fullName: fullnameVal,
-  userAccountName: fullnameVal,
-  sellerName: fullnameVal,
-  contactName: fullnameVal,
-  ownerName: fullnameVal,
+      email: emailVal,
+      Email: emailVal,
+      phone: phoneVal,
+      Phone: phoneVal,
 
-  email: emailVal,
-  Email: emailVal,
-  phone: phoneVal,
-  Phone: phoneVal,
+      makeId: Number(document.getElementById("makeValue").value),
+      modelId: Number(document.getElementById("modelValue").value),
+      year: Number(document.getElementById("yearValue").value),
 
-  makeId: Number(document.getElementById("makeValue").value),
-  modelId: Number(document.getElementById("modelValue").value),
-  year: Number(document.getElementById("yearValue").value),
+      colorId: Number(document.getElementById("colorSelect").value) || null,
+      bodyTypeId: Number(document.querySelector('select[name="body"]').value) || null,
+      fuelTypeId: Number(document.querySelector('select[name="fuel"]').value),
+      transmissionId: Number(document.querySelector('select[name="gear"]').value),
 
-  colorId: Number(document.getElementById("colorSelect").value) || null,
-  bodyTypeId: Number(document.querySelector('select[name="body"]').value) || null,
-  fuelTypeId: Number(document.querySelector('select[name="fuel"]').value),
-  transmissionId: Number(document.querySelector('select[name="gear"]').value),
+      mileage: Number(document.querySelector('input[name="km"]').value),
+      price: Number(document.querySelector('input[name="price"]').value),
+      currency: document.querySelector('select[name="currency"]').value || "AZN",
 
-  mileage: Number(document.querySelector('input[name="km"]').value),
-  price: Number(document.querySelector('input[name="price"]').value),
-  currency: document.querySelector('select[name="currency"]').value || "AZN",
+      description: document.querySelector('textarea[name="desc"]').value || "",
 
-  description: document.querySelector('textarea[name="desc"]').value || "",
+      cityId: document.getElementById("citySelect")?.value
+        ? Number(document.getElementById("citySelect").value)
+        : null,
 
-  cityId: document.getElementById("citySelect")?.value
-    ? Number(document.getElementById("citySelect").value)
-    : null,
+      credit: !!document.querySelector('input[name="credit"]')?.checked,
+      barter: !!document.querySelector('input[name="barter"]')?.checked,
+      urgent: !!document.querySelector('input[name="urgent"]')?.checked,
+      whatsapp: !!document.querySelector('input[name="whatsapp"]')?.checked
+    };
 
-  credit: !!document.querySelector('input[name="credit"]')?.checked,
-  barter: !!document.querySelector('input[name="barter"]')?.checked,
-  urgent: !!document.querySelector('input[name="urgent"]')?.checked,
-  whatsapp: !!document.querySelector('input[name="whatsapp"]')?.checked
-};
+    const fd = new FormData();
+    fd.append("Data", JSON.stringify(payload));
 
-      const fd = new FormData();
-      fd.append("Data", JSON.stringify(payload));
+    photos.forEach(p => {
+      fd.append("Images", p.file);
+    });
 
-      photos.forEach(p => {
-        fd.append("Images", p.file);
-      });
+    const res = await fetch("https://carall.az/api/Listings", {
+      method: "POST",
+      body: fd
+    });
 
-      const res = await fetch("https://carall.az/api/Listings", {
-        method: "POST",
-        body: fd
-      });
-
-      if (!res.ok) {
-        const errText = await res.text();
-        console.error("POST ERROR:", res.status, errText);
-        alert("Elan göndərilmədi. Console-da xətaya bax.");
-        return;
-      }
-
-      const data = await res.json();
-      console.log("SUCCESS:", data);
-
-      openCarallModal("created", {
-        text: "Elanınız qəbul edildi və yoxlanışa göndərildi. Təsdiqləndikdən sonra saytda dərc olunacaq.",
-        primaryText: "Elanlarıma bax",
-        primaryHref: "profile.html",
-        secondaryText: "Ana səhifəyə qayıt",
-        secondaryHref: "index.html"
-      });
-
-    } catch (err) {
-      console.error("POST ERROR:", err);
-      alert("Xəta baş verdi. Console-da bax.");
-    } finally {
-      nextBtn.disabled = false;
-      nextBtn.textContent = "Elanı yerləşdir ✅";
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error("POST ERROR:", res.status, errText);
+      alert("Elan göndərilmədi. Console-a bax.");
+      return;
     }
+
+    const data = await res.json();
+    console.log("SUCCESS:", data);
+
+    openCarallModal("created", {
+      text: "Elanınız qəbul edildi və yoxlanışa göndərildi.",
+      primaryText: "Elanlarıma bax",
+      primaryHref: "profile.html",
+      secondaryText: "Ana səhifəyə qayıt",
+      secondaryHref: "index.html"
+    });
+
+  } catch (err) {
+    console.error("POST ERROR:", err);
+    alert("Xəta baş verdi.");
+  } finally {
+    nextBtn.disabled = false;
+    nextBtn.textContent = "Elanı yerləşdir ✅";
   }
+}
 
   function initPhoneMask() {
     const input = form?.elements?.phone;
