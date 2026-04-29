@@ -473,10 +473,23 @@ async function loadModels(makeId) {
 
       const fullnameVal = document.getElementById("fullName").value.trim();
 
+const fullnameVal = document.getElementById("fullName").value.trim();
+const emailVal = document.getElementById("email").value.trim();
+const phoneVal = document.querySelector('input[name="phone"]').value.trim();
+
 const payload = {
-  Name: fullnameVal,   // 🔥 əsas budur
-  name: fullnameVal,   // ehtiyat üçün
+  Name: fullnameVal,
+  name: fullnameVal,
   fullName: fullnameVal,
+  userAccountName: fullnameVal,
+  sellerName: fullnameVal,
+  contactName: fullnameVal,
+  ownerName: fullnameVal,
+
+  email: emailVal,
+  Email: emailVal,
+  phone: phoneVal,
+  Phone: phoneVal,
 
   makeId: Number(document.getElementById("makeValue").value),
   modelId: Number(document.getElementById("modelValue").value),
@@ -492,8 +505,6 @@ const payload = {
   currency: document.querySelector('select[name="currency"]').value || "AZN",
 
   description: document.querySelector('textarea[name="desc"]').value || "",
-  email: document.getElementById("email").value.trim(),
-  phone: document.querySelector('input[name="phone"]').value.trim(),
 
   cityId: document.getElementById("citySelect")?.value
     ? Number(document.getElementById("citySelect").value)
