@@ -274,73 +274,76 @@ document.addEventListener("DOMContentLoaded", () => {
     hiddenId: "yearValue",
     getItems: () => YEARS.map((y) => ({ value: y, label: y })),
   });
+  
 
-  async function loadMakes() {
-    try {
-      const res = await fetch("https://carall.az/api/lookups/makes");
-      const makes = await res.json();
+ let MAKES = [];
+let MODELS = [];
 
-      const makeList = document.getElementById("makeList");
-      if (!makeList) return;
+const makeCtl = wireTsel({
+  wrapId: "tselMake",
+  btnId: "makeBtn",
+  textId: "makeText",
+  searchId: "makeSearch",
+  listId: "makeList",
+  hiddenId: "makeValue",
+  getItems: () => MAKES,
+  onPick: (makeId) => {
+    const modelText = document.getElementById("modelText");
+    const modelValue = document.getElementById("modelValue");
+    const modelBtn = document.getElementById("modelBtn");
 
-      makeList.innerHTML = makes.map(m => `
-        <div class="tsel__row" data-id="${m.id}">
-          ${m.name}
-        </div>
-      `).join("");
+    if (modelText) modelText.textContent = "Hamısı";
+    if (modelValue) modelValue.value = "";
+    if (modelBtn) modelBtn.disabled = !makeId;
 
-      makeList.querySelectorAll(".tsel__row").forEach(row => {
-        row.addEventListener("click", () => {
-          const makeId = row.dataset.id;
-          const makeName = row.textContent.trim();
+    MODELS = [];
+    modelCtl?.render(MODELS, "");
 
-          document.getElementById("makeText").textContent = makeName;
-          document.getElementById("makeValue").value = makeId;
-
-          document.getElementById("modelText").textContent = "Hamısı";
-          document.getElementById("modelValue").value = "";
-          document.getElementById("modelBtn").disabled = false;
-
-          setErrForHidden(document.getElementById("makeValue"), "");
-          loadModels(makeId);
-          closeAllTsel();
-        });
-      });
-
-    } catch (err) {
-      console.error("MAKE ERROR:", err);
-    }
+    if (makeId) loadModels(makeId);
   }
+});
 
-  async function loadModels(makeId) {
-    if (!makeId) return;
+const modelCtl = wireTsel({
+  wrapId: "tselModel",
+  btnId: "modelBtn",
+  textId: "modelText",
+  searchId: "modelSearch",
+  listId: "modelList",
+  hiddenId: "modelValue",
+  getItems: () => MODELS,
+});
 
-    try {
-      const res = await fetch(`https://carall.az/api/lookups/models/${makeId}`);
-      const models = await res.json();
+async function loadMakes() {
+  try {
+    const res = await fetch("https://carall.az/api/lookups/makes");
+    const makes = await res.json();
 
-      const modelList = document.getElementById("modelList");
-      if (!modelList) return;
+    MAKES = makes.map((m) => ({
+      value: String(m.id),
+      label: m.name
+    }));
 
-      modelList.innerHTML = models.map(m => `
-        <div class="tsel__row" data-id="${m.id}">
-          ${m.name}
-        </div>
-      `).join("");
-
-      modelList.querySelectorAll(".tsel__row").forEach(row => {
-        row.addEventListener("click", () => {
-          document.getElementById("modelText").textContent = row.textContent.trim();
-          document.getElementById("modelValue").value = row.dataset.id;
-          setErrForHidden(document.getElementById("modelValue"), "");
-          closeAllTsel();
-        });
-      });
-
-    } catch (err) {
-      console.error("MODEL ERROR:", err);
-    }
+    makeCtl?.render(MAKES, "");
+  } catch (err) {
+    console.error("MAKE ERROR:", err);
   }
+}
+
+async function loadModels(makeId) {
+  try {
+    const res = await fetch(`https://carall.az/api/lookups/models/${makeId}`);
+    const models = await res.json();
+
+    MODELS = models.map((m) => ({
+      value: String(m.id),
+      label: m.name
+    }));
+
+    modelCtl?.render(MODELS, "");
+  } catch (err) {
+    console.error("MODEL ERROR:", err);
+  }
+}
 
   async function fillSelect(selector, url, mapText = "name") {
     try {
