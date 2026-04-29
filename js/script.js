@@ -11,7 +11,7 @@
   // - ESC hamısını bağlasın
   // ============================
 
-  console.log("Last update")
+  console.log("Last updates");
   (function TSEL_GLOBAL_MANAGER(){
     if (window.__TSEL_GLOBAL_MANAGER__) return;
     window.__TSEL_GLOBAL_MANAGER__ = true;
@@ -1965,63 +1965,63 @@ qBrand?.addEventListener("change", () => {
     - block only "worse" overwrites
     - dedupe only on append
     ========================= */
-  (function LATEST_SMART_GUARD(){
-    if (window.__LATEST_SMART_GUARD__) return;
-    window.__LATEST_SMART_GUARD__ = true;
+  // (function LATEST_SMART_GUARD(){
+  //   if (window.__LATEST_SMART_GUARD__) return;
+  //   window.__LATEST_SMART_GUARD__ = true;
 
-    const orig = window.renderCars;
-    if (typeof orig !== "function") return;
+  //   const orig = window.renderCars;
+  //   if (typeof orig !== "function") return;
 
-    const seen = new Set();
+  //   const seen = new Set();
 
-    function domCount(grid){
-      try { return grid.querySelectorAll(".cardlink").length; } catch { return 0; }
-    }
+  //   function domCount(grid){
+  //     try { return grid.querySelectorAll(".cardlink").length; } catch { return 0; }
+  //   }
 
-    window.renderCars = function(list, targetEl = null, append = false){
-      if (append && typeof append === "object") append = !!append.append;
+  //   window.renderCars = function(list, targetEl = null, append = false){
+  //     if (append && typeof append === "object") append = !!append.append;
 
-      const grid = targetEl || document.getElementById("carsGrid");
-      const isLatest = grid && grid.id === "latestGrid";
-      if (!isLatest) return orig.apply(this, arguments);
+  //     const grid = targetEl || document.getElementById("carsGrid");
+  //     const isLatest = grid && grid.id === "latestGrid";
+  //     if (!isLatest) return orig.apply(this, arguments);
 
-      const incomingLen = Array.isArray(list) ? list.length : 0;
+  //     const incomingLen = Array.isArray(list) ? list.length : 0;
 
-      // ✅ REPLACE (append=false): allow only if it "improves" current grid
-      if (!append) {
-        const cur = domCount(grid);
+  //     // ✅ REPLACE (append=false): allow only if it "improves" current grid
+  //     if (!append) {
+  //       const cur = domCount(grid);
 
-        // Əgər grid boşdursa -> burax
-        // Əgər incoming daha çoxdursa (məs: 8 gəlib 5-i əvəz edir) -> burax
-        // Əks halda (məs: 5 gəlib 8-i əvəz etmək istəyir) -> BLOK
-        if (cur > 0 && incomingLen > 0 && incomingLen < cur) {
-          console.warn("[LATEST] blocked smaller overwrite:", incomingLen, "<", cur);
-          return;
-        }
+  //       // Əgər grid boşdursa -> burax
+  //       // Əgər incoming daha çoxdursa (məs: 8 gəlib 5-i əvəz edir) -> burax
+  //       // Əks halda (məs: 5 gəlib 8-i əvəz etmək istəyir) -> BLOK
+  //       if (cur > 0 && incomingLen > 0 && incomingLen < cur) {
+  //         console.warn("[LATEST] blocked smaller overwrite:", incomingLen, "<", cur);
+  //         return;
+  //       }
 
-        // seen doldur (append-də dup olmasın)
-        seen.clear();
-        (Array.isArray(list) ? list : []).forEach(c => {
-          const id = String(c?.id ?? "");
-          if (id) seen.add(id);
-        });
+  //       // seen doldur (append-də dup olmasın)
+  //       seen.clear();
+  //       (Array.isArray(list) ? list : []).forEach(c => {
+  //         const id = String(c?.id ?? "");
+  //         if (id) seen.add(id);
+  //       });
 
-        return orig.call(this, list, grid, false);
-      }
+  //       return orig.call(this, list, grid, false);
+  //     }
 
-      // ✅ APPEND: dedupe
-      const safe = (Array.isArray(list) ? list : []).filter(c => {
-        const id = String(c?.id ?? "");
-        if (!id) return false;
-        if (seen.has(id)) return false;
-        seen.add(id);
-        return true;
-      });
+  //     // ✅ APPEND: dedupe
+  //     const safe = (Array.isArray(list) ? list : []).filter(c => {
+  //       const id = String(c?.id ?? "");
+  //       if (!id) return false;
+  //       if (seen.has(id)) return false;
+  //       seen.add(id);
+  //       return true;
+  //     });
 
-      if (!safe.length) return;
-      return orig.call(this, safe, grid, true);
-    };
-  })();
+  //     if (!safe.length) return;
+  //     return orig.call(this, safe, grid, true);
+  //   };
+  // })();
   // (function HOME_LATEST_SCROLL_FIX(){
   //   if (window.__HOME_LATEST_SCROLL_FIX__) return;
   //   window.__HOME_LATEST_SCROLL_FIX__ = true;
