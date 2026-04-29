@@ -944,6 +944,15 @@ function initAdvancedPanel() {
       `;
       return wrap;
     };
+    const mkChips = (label, id) => {
+  const wrap = document.createElement("div");
+  wrap.className = "field field--full";
+  wrap.innerHTML = `
+    <label class="field__label">${label}</label>
+    <div class="chips" id="${id}"></div>
+  `;
+  return wrap;
+};
 
     // FULL advanced selects
     advGrid.appendChild(mkSelect("Mühərrik həcmi", "qEngineVolume"));
@@ -955,6 +964,7 @@ function initAdvancedPanel() {
     advGrid.appendChild(mkSelect("Sahiblərinin sayı", "qOwners"));
     advGrid.appendChild(mkSelect("Yerlərin sayı", "qSeats"));
     advGrid.appendChild(mkSelect("Hansı bazar üçün yığılıb", "qAssembled"));
+    advGrid.appendChild(mkSelect("Status", "qStatus"));
     advGrid.appendChild(mkChips("Vəziyyət", "qCondition"));
   }
 
@@ -993,8 +1003,7 @@ function initAdvancedPanel() {
     // toggle active
     container.querySelectorAll(".chip").forEach(btn => {
       btn.addEventListener("click", () => {
-        btn.classList.toggle("active");
-      });
+btn.classList.toggle("is-on");      });
     });
 
   } catch (err) {
@@ -1163,6 +1172,7 @@ async function loadAccessoriesFromApi() {
   loadTransmissionsFromApi();
   loadEngineVolumesFromApi();
   loadAssembledFromApi();
+  loadRoofTypesFromApi();
   // ===== EVENTS =====
 
   // Marka → Model
@@ -1185,6 +1195,7 @@ async function loadAccessoriesFromApi() {
     loadTransmissionsFromApi();
     loadEngineVolumesFromApi();
     loadAssembledFromApi();
+    loadRoofTypesFromApi();
     setTimeout(initTurboSelects, 0);
   });
 });
