@@ -411,7 +411,10 @@ async function loadListingsFromBackend({ reset = false } = {}) {
 
     const result = await res.json();
     const raw = result.data || result.items || result.listings || [];
+    console.log("INDEX RAW:", raw);
+
     const mapped = raw.map(mapListing);
+    console.log("INDEX MAPPED:", mapped);
 
     const grid = latestGrid || document.getElementById("carsGrid");
     renderCars(mapped, grid, !reset);
