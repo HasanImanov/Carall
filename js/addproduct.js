@@ -537,12 +537,12 @@ async function loadModels(makeId) {
     console.log("SUCCESS:", data);
 
     openCarallModal("created", {
-      text: "Elanınız qəbul edildi və yoxlanışa göndərildi.",
-      primaryText: "Elanlarıma bax",
-      primaryHref: "profile.html",
-      secondaryText: "Ana səhifəyə qayıt",
-      secondaryHref: "index.html"
-    });
+  text: "Elanınız qəbul edildi və yoxlanışa göndərildi.",
+  primaryText: "Elanlarıma bax",
+  primaryHref: "profile.html",
+  secondaryText: "Ana səhifəyə qayıt",
+  secondaryHref: "index.html"
+});
 
   } catch (err) {
     console.error("POST ERROR:", err);

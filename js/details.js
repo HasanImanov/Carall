@@ -1,6 +1,6 @@
   const safe = (v, fb = "—") =>
     v === null || v === undefined || String(v).trim() === "" ? fb : String(v);
-(() => {
+( async () => {
   if (window.__CARALL_DETAILS_LOADED__) {
   console.warn("DETAILS JS already loaded — skipping");
   return;
@@ -10,8 +10,53 @@ window.__CARALL_DETAILS_LOADED__ = true;
   const qs = new URLSearchParams(location.search);
   const id = qs.get("id");
 
-  const cars = window.cars || [];
   const $ = (x) => document.getElementById(x);
+
+async function loadCarFromBackend(id) {
+  try {
+    const res = await fetch(`https://carall.az/api/Listings/${id}`, {
+      method: "GET",
+      headers: {
+        "Accept": "application/json"
+      }
+    });
+
+    if (!res.ok) {
+      console.error("DETAIL API ERROR:", res.status);
+      return null;
+    }
+
+    const x = await res.json();
+
+    return {
+  id: x.id,
+
+  brandId: x.brandId || x.makeId || x.make?.id || null,
+  modelId: x.modelId || x.model?.id || null,
+
+  brand: x.brand || x.makeName || x.brandName || x.make?.name || "—",
+  model: x.model || x.modelName || x.model?.name || "—",
+  price: x.price || 0,
+  year: x.year || "—",
+  city: x.city || x.cityName || x.city?.name || "—",
+  country: x.country || x.countryCode || "AZ",
+  img: x.img || x.image || x.mainImage || x.mainPhotoUrl || x.imageUrl || "",
+  images: x.images || x.imageUrls || x.photos || [],
+  mileage: x.mileage || x.odometerReading || 0,
+  fuel: x.fuel || x.fuelTypeName || x.fuelType?.name || "",
+  gearbox: x.gearbox || x.transmissionType || x.transmissionName || x.transmission?.type || "",
+  description: x.description || "",
+  features: x.features || x.accessories || [],
+  ownerType: x.ownerType || x.sellerType || "private",
+  ownerId: x.ownerId || x.sellerId || null,
+  ownerName: x.ownerName || x.sellerName || x.contactName || "Satıcı",
+  ownerPhone: x.ownerPhone || x.sellerPhone || x.phone || ""
+};
+  } catch (err) {
+    console.error("DETAIL BACKEND ERROR:", err);
+    return null;
+  }
+}
 
   
 
@@ -54,15 +99,26 @@ window.__CARALL_DETAILS_LOADED__ = true;
   }
 
   // ===== Car tap =====
-  const car = Array.isArray(cars) ? cars.find((c) => String(c.id) === String(id)) : null;
+ let cars = window.cars || [];
+let car = Array.isArray(cars)
+  ? cars.find((c) => String(c.id) === String(id))
+  : null;
 
-  if (!car) {
-    if (carTitle) carTitle.textContent = "Elan tapılmadı";
-    if (carSub) carSub.textContent = `ID: ${id} — uyğun elan yoxdur.`;
-    if (carPrice) carPrice.textContent = "—";
-    if (updatedAt) updatedAt.textContent = "Yenilənib: —";
-    return;
-  }
+// Əgər carsdata-da tapılmasa, backenddən gətir
+if (!car) {
+  car = await loadCarFromBackend(id);
+}
+
+// Backenddə də tapılmasa, səhifədə mesaj göstər
+if (!car) {
+  if (carTitle) carTitle.textContent = "Elan tapılmadı";
+  if (carSub) carSub.textContent = `ID: ${id} — uyğun elan yoxdur.`;
+  if (carPrice) carPrice.textContent = "—";
+  if (updatedAt) updatedAt.textContent = "Yenilənib: —";
+  return;
+}
+
+
   // ===== AUTO SELLER BIND =====
 function buildSellerFromData(car){
   const salons = window.SALONS || [];
@@ -176,7 +232,9 @@ if (!car.seller) {
   };
 
   if (typeof injectBreadcrumb === "function") injectBreadcrumb(car);
-if (typeof injectSimilarAdsStrict === "function") injectSimilarAdsStrict(car, cars);
+if (typeof injectSimilarAdsFromBackend === "function") {
+  injectSimilarAdsFromBackend(car);
+}
 if (typeof renderSellerFromOwner === "function") renderSellerFromOwner(car);
 if (typeof initPromoteButtons === "function") initPromoteButtons(car);
 if (typeof injectOwnerActions === "function") injectOwnerActions(car);
@@ -1173,8 +1231,7 @@ function injectSimilarAdsStrict(currentCar, allCars){
 
   // ✅ STRICT: yalnız eyni marka+model
   const list = (allCars || [])
-    .filter(c => c && String(c.id) !== curId)
-    .filter(c => String(c.brand || "").trim() === brand && String(c.model || "").trim() === model);
+  .filter(c => c && String(c.id) !== curId);
 
   // Section yaradıb info2-dən sonra qoyuruq
   const sec = document.createElement("section");
@@ -1254,6 +1311,98 @@ function injectSimilarAdsStrict(currentCar, allCars){
   }).join("");
 }
 
+async function injectSimilarAdsFromBackend(currentCar) {
+  if (document.getElementById("simSec")) return;
+
+  const brandId = currentCar.brandId || currentCar.makeId || null;
+  const modelId = currentCar.modelId || null;
+
+  try {
+    const res = await fetch("https://carall.az/api/Listings/full_filter", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify({
+        brandIds: brandId ? [Number(brandId)] : [],
+        modelIds: modelId ? [Number(modelId)] : [],
+
+        cityIds: [],
+        vehicleTypeIds: [],
+        fuelTypeIds: [],
+        colorIds: [],
+        engineVolumeIds: [],
+        transmissionIds: [],
+        typeOfRoofIds: [],
+        accessoryIds: [],
+        assembledForIds: [],
+        statuses: [],
+        valutas: [],
+
+        minPrice: 0,
+        maxPrice: 0,
+        minYear: 0,
+        maxYear: 0,
+        minOwnersCount: 0,
+        maxOwnersCount: 0,
+        minOdometerReading: 0,
+        maxOdometerReading: 0,
+        minDoor: 0,
+        maxDoor: 0,
+        minNoOfPassenger: 0,
+        maxNoOfPassenger: 0,
+        minEnginePower: 0,
+        maxEnginePower: 0,
+
+        isVip: null,
+        isPremium: null,
+        isCredit: null,
+        isBarter: null,
+        isShowroom: null,
+
+        createdFrom: null,
+        createdTo: null,
+
+        sort: "new",
+        page: 1,
+        pageSize: 5,
+        includeTotalCount: false
+      })
+    });
+
+    if (!res.ok) {
+      console.error("SIMILAR API ERROR:", res.status);
+      return;
+    }
+
+    const result = await res.json();
+    const raw = result.data || result.items || result.listings || [];
+
+    const list = raw
+      .filter((x) => String(x.id) !== String(currentCar.id))
+      .slice(0, 4)
+      .map((x) => ({
+        id: x.id,
+        brandId: x.brandId || x.makeId || x.make?.id || null,
+        modelId: x.modelId || x.model?.id || null,
+        brand: x.brand || x.makeName || x.brandName || x.make?.name || currentCar.brand || "",
+        model: x.model || x.modelName || x.model?.name || currentCar.model || "",
+        price: x.price || 0,
+        year: x.year || "",
+        city: x.city || x.cityName || x.city?.name || "",
+        img: x.img || x.image || x.mainImage || x.mainPhotoUrl || x.imageUrl || "images/Logo.png",
+        images: x.images || x.imageUrls || x.photos || [],
+        mileage: x.mileage || x.odometerReading || 0,
+        engine: x.engine || x.engineVolume || ""
+      }));
+
+    injectSimilarAdsStrict(currentCar, list);
+
+  } catch (err) {
+    console.error("SIMILAR BACKEND ERROR:", err);
+  }
+}
 // helper-lər (səndə varsa təkrar yazma)
 function fmtPriceAZ(p){
   if (p === null || p === undefined || p === "") return "—";
