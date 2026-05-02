@@ -40,8 +40,20 @@ async function loadCarFromBackend(id) {
   year: x.year || "—",
   city: x.city || x.cityName || x.city?.name || "—",
   country: x.country || x.countryCode || "AZ",
-  img: x.img || x.image || x.mainImage || x.mainPhotoUrl || x.imageUrl || "",
-  images: x.images || x.imageUrls || x.photos || [],
+  img:
+  x.img || x.image || x.mainImage || x.mainPhotoUrl || x.imageUrl ||
+  x.images?.[0]?.original || x.images?.[0]?.Original ||
+  x.images?.[0]?.large || x.images?.[0]?.Large ||
+  x.images?.[0]?.small || x.images?.[0]?.Small ||
+  "",
+  images: Array.isArray(x.images)
+  ? x.images.map(img =>
+      img.original || img.Original ||
+      img.large || img.Large ||
+      img.small || img.Small ||
+      img.url || img.imageUrl || img
+    )
+  : (x.imageUrls || x.photos || []), 
   mileage: x.mileage || x.odometerReading || 0,
   fuel: x.fuel || x.fuelTypeName || x.fuelType?.name || "",
   gearbox: x.gearbox || x.transmissionType || x.transmissionName || x.transmission?.type || "",
