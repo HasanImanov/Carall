@@ -1242,16 +1242,14 @@ function injectSimilarAdsStrict(currentCar, allCars){
   const curId = String(currentCar?.id);
 
   // ✅ STRICT: yalnız eyni marka+model
-  const list = (allCars || [])
-  .filter(c => c && String(c.id) !== curId);
-
+  const list = allCars || [];
   // Section yaradıb info2-dən sonra qoyuruq
   const sec = document.createElement("section");
   sec.className = "card simsec";
   sec.id = "simSec";
 
   // “Hamısını göstər” — filtrli index
-  const allHref = `index.html?brand=${encodeURIComponent(brand)}&model=${encodeURIComponent(model)}`;
+  const allHref = "index.html";
 
   if (!list.length) {
     // ✅ Bənzər yoxdursa — mesaj
@@ -1378,23 +1376,20 @@ async function injectSimilarAdsFromBackend(currentCar) {
 
         sort: "new",
         page: 1,
-        pageSize: 5,
+        pageSize: 8,
         includeTotalCount: false
       })
     });
 
-    if (!res.ok) {
-      console.error("SIMILAR API ERROR:", res.status);
-      return;
-    }
+    if (!res.ok) throw new Error("SIMILAR API ERROR " + res.status);
 
     const result = await res.json();
-    const raw = result.data || result.items || result.listings || [];
+    const raw = result.data || result.items || result.listings || result || [];
 
     const list = raw
-      .filter((x) => String(x.id) !== String(currentCar.id))
+      .filter(x => x && String(x.id) !== String(currentCar.id))
       .slice(0, 4)
-      .map((x) => ({
+      .map(x => ({
         id: x.id,
         brandId: x.brandId || x.makeId || x.make?.id || null,
         modelId: x.modelId || x.model?.id || null,
@@ -1403,7 +1398,12 @@ async function injectSimilarAdsFromBackend(currentCar) {
         price: x.price || 0,
         year: x.year || "",
         city: x.city || x.cityName || x.city?.name || "",
-        img: x.img || x.image || x.mainImage || x.mainPhotoUrl || x.imageUrl || "images/Logo.png",
+        img:
+          x.img || x.image || x.mainImage || x.mainPhotoUrl || x.imageUrl ||
+          x.images?.[0]?.original || x.images?.[0]?.Original ||
+          x.images?.[0]?.large || x.images?.[0]?.Large ||
+          x.images?.[0]?.small || x.images?.[0]?.Small ||
+          "images/Logo.png",
         images: x.images || x.imageUrls || x.photos || [],
         mileage: x.mileage || x.odometerReading || 0,
         engine: x.engine || x.engineVolume || ""
@@ -1412,7 +1412,10 @@ async function injectSimilarAdsFromBackend(currentCar) {
     injectSimilarAdsStrict(currentCar, list);
 
   } catch (err) {
-    console.error("SIMILAR BACKEND ERROR:", err);
+    console.warn("Similar backend alınmadı, JS fallback işləyir:", err);
+
+    const fallbackCars = window.cars || window.CARS || [];
+    injectSimilarAdsStrict(currentCar, fallbackCars);
   }
 }
 // helper-lər (səndə varsa təkrar yazma)
