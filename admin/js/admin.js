@@ -1,5 +1,5 @@
 const API_BASE = "https://carall.az/api";
-const LISTINGS_API = `${API_BASE}/Listings`;
+const LISTINGS_API = `${API_BASE}/Listings/cards`;
 
 let ALL_LISTINGS = [];
 
@@ -23,9 +23,21 @@ function money(v) {
   return Number(v || 0).toLocaleString("az-AZ") + " ₼";
 }
 
+function normalize(data) {
+  if (Array.isArray(data)) return data;
+
+  return (
+    data.data ||
+    data.items ||
+    data.listings ||
+    data.result ||
+    []
+  );
+}
+
 function getImg(x) {
-  if (x.imageUrl) return x.imageUrl;
   if (x.mainImage) return x.mainImage;
+  if (x.imageUrl) return x.imageUrl;
   if (x.image) return x.image;
 
   if (Array.isArray(x.images) && x.images.length) {
@@ -33,14 +45,19 @@ function getImg(x) {
     return first.url || first.imageUrl || first.path || first;
   }
 
+  if (Array.isArray(x.imageUrls) && x.imageUrls.length) {
+    return x.imageUrls[0];
+  }
+
   return "../images/no-image.png";
 }
 
 function getBrand(x) {
   return (
-    x.makeName ||
     x.brand ||
+    x.makeName ||
     x.brandName ||
+    x.carDetails?.brand ||
     x.carDetails?.makeName ||
     x.modelYear?.model?.make?.name ||
     "—"
@@ -49,8 +66,9 @@ function getBrand(x) {
 
 function getModel(x) {
   return (
-    x.modelName ||
     x.model ||
+    x.modelName ||
+    x.carDetails?.model ||
     x.carDetails?.modelName ||
     x.modelYear?.model?.name ||
     "—"
@@ -58,11 +76,20 @@ function getModel(x) {
 }
 
 function getYear(x) {
-  return x.year || x.modelYear?.year || x.carDetails?.year || "—";
+  return (
+    x.modelYear ||
+    x.year ||
+    x.carDetails?.year ||
+    "—"
+  );
 }
 
 function getPrice(x) {
   return x.price || x.carDetails?.price || 0;
+}
+
+function getCity(x) {
+  return x.city || x.cityName || x.carDetails?.city || "—";
 }
 
 function getUserName(x) {
@@ -76,13 +103,16 @@ function getUserName(x) {
 
 function getDate(x) {
   const d = x.createDate || x.createdAt || x.createdDate;
+
   if (!d) return "—";
 
   return new Date(d).toLocaleDateString("az-AZ");
 }
 
 function getStatus(x) {
-  if (x.status !== undefined) return Number(x.status);
+  if (x.status !== undefined && x.status !== null) {
+    return Number(x.status);
+  }
 
   if (x.statusName === "Approved") return 1;
   if (x.statusName === "Rejected") return 2;
@@ -98,18 +128,36 @@ function statusText(status) {
   return "Bilinmir";
 }
 
-function normalize(data) {
-  if (Array.isArray(data)) return data;
-  return data.items || data.data || data.listings || data.result || [];
+function renderUsersPlaceholder() {
+  if (!usersTbody) return;
+
+  usersTbody.innerHTML = `
+    <tr>
+      <td colspan="5">User endpoint yoxdur</td>
+    </tr>
+  `;
 }
 
 async function loadListings() {
-  listingsTbody.innerHTML = `<tr><td colspan="7">Yüklənir...</td></tr>`;
+  if (!listingsTbody) return;
+
+  listingsTbody.innerHTML = `
+    <tr>
+      <td colspan="7">Yüklənir...</td>
+    </tr>
+  `;
 
   try {
-    const res = await fetch(LISTINGS_API);
+    const res = await fetch(LISTINGS_API, {
+      method: "GET",
+      headers: {
+        "Accept": "application/json"
+      }
+    });
 
-    if (!res.ok) throw new Error(`API error: ${res.status}`);
+    if (!res.ok) {
+      throw new Error(`Listings API error: ${res.status}`);
+    }
 
     const data = await res.json();
 
@@ -120,7 +168,7 @@ async function loadListings() {
     renderUsersPlaceholder();
 
   } catch (err) {
-    console.error(err);
+    console.error("Admin listings error:", err);
 
     listingsTbody.innerHTML = `
       <tr>
@@ -135,24 +183,26 @@ function renderStats() {
   const pending = ALL_LISTINGS.filter(x => getStatus(x) === 0).length;
   const approved = ALL_LISTINGS.filter(x => getStatus(x) === 1).length;
 
-  statUsers.textContent = "0";
-  statListings.textContent = total;
-  statPending.textContent = pending;
-  statApproved.textContent = approved;
+  if (statUsers) statUsers.textContent = "0";
+  if (statListings) statListings.textContent = total;
+  if (statPending) statPending.textContent = pending;
+  if (statApproved) statApproved.textContent = approved;
 
-  if (pending > 0) {
-    notifCount.hidden = false;
-    notifCount.textContent = pending;
-  } else {
-    notifCount.hidden = true;
+  if (notifCount) {
+    if (pending > 0) {
+      notifCount.hidden = false;
+      notifCount.textContent = pending;
+    } else {
+      notifCount.hidden = true;
+    }
   }
 }
 
 function renderListings() {
   let list = [...ALL_LISTINGS];
 
-  const q = listingSearch.value.trim().toLowerCase();
-  const st = statusFilter.value;
+  const q = listingSearch ? listingSearch.value.trim().toLowerCase() : "";
+  const st = statusFilter ? statusFilter.value : "";
 
   if (q) {
     list = list.filter(x => {
@@ -161,6 +211,7 @@ function renderListings() {
         getBrand(x),
         getModel(x),
         getYear(x),
+        getCity(x),
         getUserName(x),
         getPrice(x)
       ].join(" ").toLowerCase();
@@ -174,7 +225,11 @@ function renderListings() {
   }
 
   if (!list.length) {
-    listingsTbody.innerHTML = `<tr><td colspan="7">Elan tapılmadı</td></tr>`;
+    listingsTbody.innerHTML = `
+      <tr>
+        <td colspan="7">Elan tapılmadı</td>
+      </tr>
+    `;
     return;
   }
 
@@ -185,12 +240,19 @@ function renderListings() {
     return `
       <tr>
         <td>
-          <img class="admin-car-img" src="${getImg(x)}" alt="">
+          <img
+            class="admin-car-img"
+            src="${getImg(x)}"
+            alt="${safe(getBrand(x))} ${safe(getModel(x))}"
+            onerror="this.src='../images/no-image.png'"
+          >
         </td>
 
         <td>
           <strong>${safe(getBrand(x))} ${safe(getModel(x))}</strong>
-          <small>${safe(getYear(x))}</small>
+          <small style="display:block;color:#6b7280;margin-top:4px;">
+            ${safe(getYear(x))} • ${safe(getCity(x))}
+          </small>
         </td>
 
         <td>${money(getPrice(x))}</td>
@@ -215,15 +277,12 @@ function renderListings() {
   }).join("");
 }
 
-function renderUsersPlaceholder() {
-  usersTbody.innerHTML = `
-    <tr>
-      <td colspan="5">User endpoint yoxdur</td>
-    </tr>
-  `;
+if (listingSearch) {
+  listingSearch.addEventListener("input", renderListings);
 }
 
-listingSearch.addEventListener("input", renderListings);
-statusFilter.addEventListener("change", renderListings);
+if (statusFilter) {
+  statusFilter.addEventListener("change", renderListings);
+}
 
 document.addEventListener("DOMContentLoaded", loadListings);
