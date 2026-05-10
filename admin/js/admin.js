@@ -49,7 +49,7 @@ function getImg(x) {
     return x.imageUrls[0];
   }
 
-  return "../images/no-image.png";
+  return "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80'%3E%3Crect width='120' height='80' fill='%23e5e7eb'/%3E%3Ctext x='60' y='43' text-anchor='middle' font-size='13' fill='%236b7280'%3ENo image%3C/text%3E%3C/svg%3E";
 }
 
 function getBrand(x) {
