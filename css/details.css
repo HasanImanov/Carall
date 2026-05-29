@@ -1350,3 +1350,97 @@ body{
 .btnOutline {
   background: linear-gradient(180deg, #ffffff, #f3f4f6);
 }
+/* =========================
+   CUSTOMS CARD
+========================= */
+
+.customsCard{
+  margin-top: 12px;
+  border: 1px solid rgba(17,24,39,.10);
+  border-radius: 16px;
+  padding: 14px;
+  background: linear-gradient(180deg,#ffffff,#f8fafc);
+}
+
+.customsTop{
+  display:flex;
+  align-items:center;
+  gap: 12px;
+}
+
+.customsIcon{
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(59,130,246,.10);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size: 22px;
+}
+
+.customsTitle{
+  font-weight: 1000;
+  font-size: 15px;
+}
+
+.customsSub{
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.customsPrices{
+  margin-top: 14px;
+}
+
+.customsRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+
+  padding: 10px 0;
+
+  border-bottom: 1px solid rgba(17,24,39,.06);
+
+  font-size: 14px;
+}
+
+.customsRow strong{
+  font-size: 15px;
+  font-weight: 1100;
+}
+
+.customsRow--total{
+  border-bottom: none;
+  padding-top: 14px;
+}
+
+.customsRow--total strong{
+  font-size: 20px;
+  color:#2563eb;
+}
+
+.customsBtn{
+  width:100%;
+  margin-top: 12px;
+
+  border:none;
+  border-radius: 14px;
+
+  background:#111827;
+  color:#fff;
+
+  padding: 13px 14px;
+
+  font-weight: 1000;
+  cursor:pointer;
+
+  transition:.18s ease;
+}
+
+.customsBtn:hover{
+  transform: translateY(-1px);
+}

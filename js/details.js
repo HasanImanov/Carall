@@ -2242,3 +2242,84 @@ document.addEventListener("click", function(e) {
     window.closeCarallModal();
   }
 });
+
+/* =========================
+   CUSTOMS CALCULATOR
+========================= */
+
+(function(){
+
+  const customsAmount = document.getElementById("customsAmount");
+  const customsTotal = document.getElementById("customsTotal");
+
+  if(!customsAmount || !customsTotal) return;
+
+  // car data
+  const price =
+    Number(car?.price) ||
+    Number(car?.priceAZN) ||
+    0;
+
+  const engine =
+    Number(car?.engine) ||
+    Number(car?.engineVolume) ||
+    2000;
+
+  const year =
+    Number(car?.year) ||
+    2020;
+
+  const fuel =
+    (car?.fuel || "").toLowerCase();
+
+  // age
+  const currentYear = new Date().getFullYear();
+  const age = currentYear - year;
+
+  // customs
+  let customs = price * 0.15;
+
+  // excise
+  let excise = 0;
+
+  if(engine <= 2000){
+    excise = engine * 0.30;
+  }else{
+    excise = engine * 1.20;
+  }
+
+  // old cars
+  if(age > 5){
+    excise *= 1.25;
+  }
+
+  // hybrid discount
+  if(fuel.includes("hybrid")){
+    excise *= 0.7;
+  }
+
+  // VAT
+  const vat = (price + customs + excise) * 0.18;
+
+  // fixed
+  const fixed = 120;
+
+  // total customs
+  const totalCustoms =
+    customs +
+    excise +
+    vat +
+    fixed;
+
+  // final car price
+  const finalPrice =
+    price +
+    totalCustoms;
+
+  customsAmount.textContent =
+    "+" + Math.round(totalCustoms).toLocaleString("az-AZ") + " AZN";
+
+  customsTotal.textContent =
+    Math.round(finalPrice).toLocaleString("az-AZ") + " AZN";
+
+})();
