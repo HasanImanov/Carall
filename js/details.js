@@ -42,6 +42,7 @@ async function loadCarFromBackend(id) {
   country: x.country || x.countryCode || "AZ",
   img:
   x.img || x.image || x.mainImage || x.mainPhotoUrl || x.imageUrl ||
+  (typeof x.images?.[0] === "string" ? x.images[0] : null) ||
   x.images?.[0]?.original || x.images?.[0]?.Original ||
   x.images?.[0]?.large || x.images?.[0]?.Large ||
   x.images?.[0]?.small || x.images?.[0]?.Small ||
@@ -1400,10 +1401,11 @@ async function injectSimilarAdsFromBackend(currentCar) {
         city: x.city || x.cityName || x.city?.name || "",
         img:
           x.img || x.image || x.mainImage || x.mainPhotoUrl || x.imageUrl ||
+          (typeof x.images?.[0] === "string" ? x.images[0] : null) ||
           x.images?.[0]?.original || x.images?.[0]?.Original ||
           x.images?.[0]?.large || x.images?.[0]?.Large ||
           x.images?.[0]?.small || x.images?.[0]?.Small ||
-          "images/Logo.png",
+          "images/no-image.png",
         images: x.images || x.imageUrls || x.photos || [],
         mileage: x.mileage || x.odometerReading || 0,
         engine: x.engine || x.engineVolume || ""
