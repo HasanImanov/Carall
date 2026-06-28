@@ -79,7 +79,7 @@
     if (car?.img) return car.img;
     const imgs = car?.images || car?.imgs || car?.photos || [];
     if (Array.isArray(imgs) && imgs.length) return imgs[0];
-    return car?.image || car?.imgUrl || "images/car.jpg";
+    return car?.image || car?.imgUrl || "images/no-image.png";
   }
 
   function getDemoSalonId(carId, salonsCount) {

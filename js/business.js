@@ -12,7 +12,7 @@
 
   const DEMO = {
     logo: "images/biz-logo.png",
-    car: "images/car.jpg"
+    car: "images/no-image.png"
   };
 
   function fmtNumber(n) {
@@ -308,7 +308,7 @@
               class="bd-carCell__img"
               src="${escapeHtml(car.img)}"
               alt="${escapeHtml(car.brand)} ${escapeHtml(car.model)}"
-              onerror="this.src='images/car.jpg'"
+              onerror="this.onerror=null; this.src='images/no-image.png'"
             />
             <div class="bd-carCell__body">
               <div class="bd-carCell__title">${escapeHtml(car.brand)} ${escapeHtml(car.model)}</div>
