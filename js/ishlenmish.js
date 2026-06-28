@@ -1,7 +1,4 @@
 
-console.log("ishlenmish.js loaded ✅");
-console.log("BRANDS ready?", window.PARTS_BRANDS?.length);
-console.log("PLACES ready?", Object.keys(window.PARTS_PLACES||{}).length);
 
 
 (() => {

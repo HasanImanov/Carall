@@ -1942,17 +1942,14 @@ function initPromoteButtons(car){
   const b3 = document.getElementById("btnPremium");
 
   b1?.addEventListener("click", () => {
-    console.log("İrəli çək", car?.id);
     // openPromoteModal(car, "boost");
   });
 
   b2?.addEventListener("click", () => {
-    console.log("VIP", car?.id);
     // openPromoteModal(car, "vip");
   });
 
   b3?.addEventListener("click", () => {
-    console.log("Premium", car?.id);
     // openPromoteModal(car, "premium");
   });
 }

@@ -1,4 +1,3 @@
-console.log("VERIFYY JS NEW VERSION LOADED");
 
 function v$(id) {
   return document.getElementById(id);
@@ -109,8 +108,6 @@ async function autoLoginAfterVerify(phone, password, type = "personal") {
 
   const loginData = await readResponseSafe(loginRes);
 
-  console.log("AUTO LOGIN STATUS:", loginRes.status);
-  console.log("AUTO LOGIN RESPONSE:", loginData);
 
   if (!loginRes.ok) return false;
 
@@ -160,24 +157,11 @@ async function verifyUser() {
 
     const data = await readResponseSafe(res);
 
-    console.log("VERIFY STATUS:", res.status);
-    console.log("VERIFY RESPONSE:", data);
 
     if (res.ok) {
-      const savedPhone =
-        sessionStorage.getItem("carall_pending_phone") ||
-        localStorage.getItem("pending_phone") ||
-        "";
-
-      const savedPassword =
-        sessionStorage.getItem("carall_pending_password") ||
-        localStorage.getItem("pending_password") ||
-        "";
-
-      const savedType =
-        sessionStorage.getItem("carall_pending_type") ||
-        localStorage.getItem("pending_type") ||
-        "personal";
+      const savedPhone = sessionStorage.getItem("carall_pending_phone") || "";
+      const savedPassword = sessionStorage.getItem("carall_pending_password") || "";
+      const savedType = sessionStorage.getItem("carall_pending_type") || "personal";
 
       if (savedPhone && savedPassword) {
         const ok = await autoLoginAfterVerify(savedPhone, savedPassword, savedType);
@@ -187,10 +171,6 @@ async function verifyUser() {
           sessionStorage.removeItem("carall_pending_phone");
           sessionStorage.removeItem("carall_pending_password");
           sessionStorage.removeItem("carall_pending_type");
-
-          localStorage.removeItem("pending_phone");
-          localStorage.removeItem("pending_password");
-          localStorage.removeItem("pending_type");
 
           openVerifyModal({
             title: "Uğurlu ✅",

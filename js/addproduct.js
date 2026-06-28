@@ -534,7 +534,6 @@ async function loadModels(makeId) {
     }
 
     const data = await res.json();
-    console.log("SUCCESS:", data);
 
     openCarallModal("created", {
   text: "Elanınız qəbul edildi və yoxlanışa göndərildi.",

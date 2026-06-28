@@ -6,6 +6,19 @@
   <title>Admin Dashboard – CarAll</title>
 
   <link rel="stylesheet" href="./css/admin.css?v=3">
+  <script>
+    // Giriş qoruması: token/sessiya yoxdursa, login səhifəsinə yönləndir.
+    // QEYD: Bu yalnız frontend tərəfdə müvəqqəti qorumadır — əsl təhlükəsizlik
+    // üçün backend tərəfdə admin rolu yoxlanışı (authorization) tələb olunur.
+    (function () {
+      var token = localStorage.getItem('access_token');
+      var session = null;
+      try { session = JSON.parse(localStorage.getItem('carall_session_v1')); } catch (e) {}
+      if (!token || !session || !session.loggedIn) {
+        window.location.href = '../login.html?return=' + encodeURIComponent(window.location.pathname);
+      }
+    })();
+  </script>
 </head>
 
 <body class="admin-body">
@@ -26,6 +39,16 @@
       🔔
       <span id="notifCount" hidden>0</span>
     </button>
+
+    <button id="adminLogout" type="button" style="margin-left:12px;background:none;border:1px solid #ddd;border-radius:6px;padding:6px 12px;cursor:pointer;">Çıxış</button>
+    <script>
+      document.getElementById('adminLogout').addEventListener('click', function(){
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('carall_session_v1');
+        window.location.href = '../login.html';
+      });
+    </script>
   </header>
 
   <main class="admin-page" id="dashboard">

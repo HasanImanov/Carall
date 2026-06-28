@@ -149,7 +149,7 @@
     s?.coverImage ||
     s?.image ||
     s?.img ||
-    "images/biz-cover.png"
+    "images/biz-cover.jpg"
     );
   }
 

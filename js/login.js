@@ -1,5 +1,4 @@
 // login.js — FINAL VERSION
-console.log("Login FINAL VERSION");
 
 const SESSION_KEY = "carall_session_v1";
 
@@ -90,7 +89,6 @@ qsa(".login-form").forEach(form => {
         data = {};
       }
 
-      console.log("LOGIN RESPONSE:", data);
 
       if (!res.ok) {
         return showMsg(data.message || data.error || "Login alınmadı.");
@@ -154,12 +152,6 @@ qsa(".login-form").forEach(form => {
         loggedIn: true,
         name
       }));
-
-      console.log("SESSION SAVED:", {
-        phone,
-        type,
-        name
-      });
 
       showMsg("Uğurlu giriş ✅", "ok");
 

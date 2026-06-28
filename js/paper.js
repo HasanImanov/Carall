@@ -85,7 +85,6 @@ function armScrollGate() {
     cursor = 0;
     grid.innerHTML = "";
 
-    console.log("[LATEST] ready:", { total: SORTED.length });
 const resultInfo = document.getElementById("resultInfo");
 if (resultInfo) resultInfo.textContent = `${SORTED.length} nəticə tapıldı.`;
 

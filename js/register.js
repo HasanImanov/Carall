@@ -1,6 +1,5 @@
 // js/register.js — register personal/business
 
-console.log("REGISTER JS NEW VERSION LOADED");
 
 const reg$ = (s, r = document) => r.querySelector(s);
 const reg$$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -130,7 +129,6 @@ reg$$(".reg-form").forEach((form) => {
         });
 
         const data = await readResponse(res);
-        console.log("REGISTER RESPONSE:", data);
 
         if (!res.ok) {
           return showMsg(data.message || "Qeydiyyat alınmadı.");
@@ -189,7 +187,6 @@ reg$$(".reg-form").forEach((form) => {
         });
 
         const data = await readResponse(res);
-        console.log("REGISTER RESPONSE:", data);
 
         if (!res.ok) {
           return showMsg(data.message || "Qeydiyyat alınmadı.");
