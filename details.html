@@ -8,7 +8,7 @@
   <!-- Ümumi stilin varsa saxla -->
   <link rel="stylesheet" href="css/style.css" />
   <!-- Details üçün ayrıca stil -->
-  <link rel="stylesheet" href="css/details.css" />
+  <link rel="stylesheet" href="css/details.css?v=13" />
   <link rel="stylesheet" href="css/favorites.css" />
 
 
@@ -225,6 +225,8 @@
               <span class="promoteSub">7 AZN-dən</span>
             </button>
           </div>
+          <!-- 🚗 Customs Widget -->
+
 
           <div class="sellerNote" id="sellerNote">
             Bizim məqsədimiz müştərilərimizə münasib qiymətə keyfiyyətli avtomobil təqdim etməkdir.
@@ -239,6 +241,34 @@
           </div>
 
           <button class="btnOutline" id="goDealerBtn" type="button">Dilərə keç</button>
+          <div class="customsCard" id="customsCard">
+  <div class="customsTop">
+    <div class="customsIcon">🚗</div>
+
+    <div>
+      <div class="customsTitle">Gömrük hesablaması</div>
+      <div class="customsSub">
+        Təxmini hesablanıb
+      </div>
+    </div>
+  </div>
+
+  <div class="customsPrices">
+    <div class="customsRow">
+      <span>Gömrük:</span>
+      <strong id="customsAmount">+0 AZN</strong>
+    </div>
+
+    <div class="customsRow customsRow--total">
+      <span>Yekun qiymət:</span>
+      <strong id="customsTotal">0 AZN</strong>
+    </div>
+  </div>
+
+  <button class="customsBtn" id="customsBtn" type="button">
+    Ətraflı hesabla
+  </button>
+</div>
         </div>
       </aside>
 
@@ -291,9 +321,9 @@
 </div>
 
   <!-- Data -->
-  <script src="js/carsdata.js"></script>
+  <!-- <script src="js/carsdata.js"></script> -->
   <!-- Details logic -->
-  <script src="js/details.js"></script>
+  <script src="js/details.js?v=16"></script>
   <script src="js/script.js"></script>
 
   <script>

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="az">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Dashboard – CarAll</title>
+
+  <link rel="stylesheet" href="./css/admin.css?v=3">
+</head>
+
+<body class="admin-body">
+
+  <header class="admin-topbar">
+    <div class="admin-brand">
+      <img src="../images/Logo.png" alt="CarAll">
+      <span>Admin Panel</span>
+    </div>
+
+    <nav class="admin-nav">
+      <a href="#dashboard" class="is-active">Dashboard</a>
+      <a href="#listingsSection">Elanlar</a>
+      <a href="#usersSection">Users</a>
+    </nav>
+
+    <button class="admin-bell" id="adminBell" type="button">
+      🔔
+      <span id="notifCount" hidden>0</span>
+    </button>
+  </header>
+
+  <main class="admin-page" id="dashboard">
+
+    <section class="admin-hero">
+      <div>
+        <h1>Dashboard</h1>
+        <p>İstifadəçilər və elanların idarə edilməsi</p>
+      </div>
+    </section>
+
+    <section class="stats-grid">
+      <div class="stat-card">
+        <span>Users</span>
+        <strong id="statUsers">0</strong>
+      </div>
+
+      <div class="stat-card">
+        <span>Bütün elanlar</span>
+        <strong id="statListings">0</strong>
+      </div>
+
+      <div class="stat-card warning">
+        <span>Pending</span>
+        <strong id="statPending">0</strong>
+      </div>
+
+      <div class="stat-card success">
+        <span>Təsdiqlənmiş</span>
+        <strong id="statApproved">0</strong>
+      </div>
+    </section>
+
+    <section class="admin-card" id="listingsSection">
+      <div class="admin-card__head">
+        <div>
+          <h2>Elanlar</h2>
+          <p>Pending elanları təsdiqlə və ya imtina et</p>
+        </div>
+
+        <div class="admin-actions">
+          <input id="listingSearch" type="search" placeholder="Marka, model, user axtar...">
+
+          <select id="statusFilter">
+            <option value="">Hamısı</option>
+            <option value="0">Pending</option>
+            <option value="1">Təsdiqlənmiş</option>
+            <option value="2">İmtina edilmiş</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Şəkil</th>
+              <th>Elan</th>
+              <th>Qiymət</th>
+              <th>User</th>
+              <th>Tarix</th>
+              <th>Status</th>
+              <th>Əməliyyat</th>
+            </tr>
+          </thead>
+
+          <tbody id="listingsTbody">
+            <tr>
+              <td colspan="7">Yüklənir...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="admin-card" id="usersSection">
+      <div class="admin-card__head">
+        <div>
+          <h2>Users</h2>
+          <p>Qeydiyyatdan keçmiş istifadəçilər</p>
+        </div>
+
+        <div class="admin-actions">
+          <input id="userSearch" type="search" placeholder="Ad, email, telefon axtar...">
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Ad</th>
+              <th>Email</th>
+              <th>Telefon</th>
+              <th>Rol</th>
+              <th>Tarix</th>
+            </tr>
+          </thead>
+
+          <tbody id="usersTbody">
+            <tr>
+              <td colspan="5">User endpoint yoxdur</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="./js/admin.js?v=14"></script>
+</body>
+</html>
