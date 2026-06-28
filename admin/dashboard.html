@@ -16,6 +16,21 @@
       try { session = JSON.parse(localStorage.getItem('carall_session_v1')); } catch (e) {}
       if (!token || !session || !session.loggedIn) {
         window.location.href = '../login.html?return=' + encodeURIComponent(window.location.pathname);
+        return;
+      }
+
+      // MÜVƏQQƏTİ admin şifrəsi — backend admin rol sistemi hazır olanda BU HİSSƏ SİLİNMƏLİDİR.
+      // Parolu dəyişmək üçün aşağıdaki ADMIN_PASS dəyərini redaktə edin.
+      var ADMIN_PASS = "Carall2026!";
+      var unlocked = sessionStorage.getItem('admin_unlocked') === '1';
+      if (!unlocked) {
+        var entered = window.prompt("Admin panel şifrəsi:");
+        if (entered !== ADMIN_PASS) {
+          alert("Yanlış şifrə.");
+          window.location.href = '../index.html';
+          return;
+        }
+        sessionStorage.setItem('admin_unlocked', '1');
       }
     })();
   </script>
@@ -46,6 +61,7 @@
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
         localStorage.removeItem('carall_session_v1');
+        sessionStorage.removeItem('admin_unlocked');
         window.location.href = '../login.html';
       });
     </script>
