@@ -47,7 +47,10 @@
     <nav class="admin-nav">
       <a href="#dashboard" class="is-active">Dashboard</a>
       <a href="#listingsSection">Elanlar</a>
-      <a href="#usersSection">Users</a>
+      <a href="#usersSection">İstifadəçilər</a>
+      <a href="#rentcarsSection">Rent a Car</a>
+      <a href="#showroomsSection">Avtosalonlar</a>
+      <a href="#sparepartsSection">Ehtiyyat hissələri</a>
     </nav>
 
     <button class="admin-bell" id="adminBell" type="button">
@@ -175,6 +178,108 @@
 
   </main>
 
+  <!-- ═══════════ RENT A CAR ═══════════ -->
+  <main class="admin-page" id="rentcarsSection" style="display:none">
+    <section class="admin-hero">
+      <div><h1>Rent a Car</h1><p>İcarə şirkətlərini idarə et</p></div>
+    </section>
+
+    <section class="admin-card">
+      <div class="admin-card__head">
+        <h2>Yeni icarə şirkəti əlavə et</h2>
+      </div>
+      <form id="rentcarForm" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px">
+        <div><label>Şirkət adı *</label><input type="text" id="rc_name" required placeholder="məs: Baku Rent Car"></div>
+        <div><label>Telefon</label><input type="text" id="rc_phone" placeholder="+994..."></div>
+        <div><label>Ünvan</label><input type="text" id="rc_address" placeholder="Bakı, küçə..."></div>
+        <div><label>Təsvir</label><input type="text" id="rc_desc" placeholder="Qısa məlumat"></div>
+        <div><label>Logo (şəkil)</label><input type="file" id="rc_logo" accept="image/*"></div>
+        <div style="display:flex;align-items:flex-end">
+          <button type="submit" class="btn-approve" style="width:100%">➕ Əlavə et</button>
+        </div>
+        <div id="rcMsg" style="grid-column:1/-1;font-weight:600"></div>
+      </form>
+    </section>
+
+    <section class="admin-card">
+      <div class="admin-card__head"><h2>Mövcud şirkətlər</h2></div>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Ad</th><th>Telefon</th><th>Ünvan</th><th>Əməliyyat</th></tr></thead>
+          <tbody id="rentcarsTbody"><tr><td colspan="4">Yüklənir...</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- ═══════════ AVTOSALONLAR ═══════════ -->
+  <main class="admin-page" id="showroomsSection" style="display:none">
+    <section class="admin-hero">
+      <div><h1>Avtosalonlar</h1><p>Showroomları idarə et</p></div>
+    </section>
+
+    <section class="admin-card">
+      <div class="admin-card__head"><h2>Yeni avtosalon əlavə et</h2></div>
+      <form id="showroomForm" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px">
+        <div><label>Salon adı *</label><input type="text" id="sr_name" required placeholder="məs: Premium Motors"></div>
+        <div><label>Telefon</label><input type="text" id="sr_phone" placeholder="+994..."></div>
+        <div><label>Ünvan</label><input type="text" id="sr_address" placeholder="Bakı, küçə..."></div>
+        <div><label>Şəhər</label><input type="text" id="sr_city" placeholder="Bakı"></div>
+        <div><label>Logo (şəkil)</label><input type="file" id="sr_logo" accept="image/*"></div>
+        <div style="display:flex;align-items:flex-end">
+          <button type="submit" class="btn-approve" style="width:100%">➕ Əlavə et</button>
+        </div>
+        <div id="srMsg" style="grid-column:1/-1;font-weight:600"></div>
+      </form>
+    </section>
+
+    <section class="admin-card">
+      <div class="admin-card__head"><h2>Mövcud salonlar</h2></div>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Ad</th><th>Telefon</th><th>Ünvan</th><th>Əməliyyat</th></tr></thead>
+          <tbody id="showroomsTbody"><tr><td colspan="4">Yüklənir...</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- ═══════════ EHTİYYAT HİSSƏLƏRİ ═══════════ -->
+  <main class="admin-page" id="sparepartsSection" style="display:none">
+    <section class="admin-hero">
+      <div><h1>Ehtiyyat hissələri</h1><p>SpareParts-ı idarə et</p></div>
+    </section>
+
+    <section class="admin-card">
+      <div class="admin-card__head"><h2>Yeni hissə əlavə et</h2></div>
+      <form id="spartForm" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px">
+        <div><label>Ad *</label><input type="text" id="sp_name" required placeholder="məs: Bosch Filtr"></div>
+        <div><label>Qiymət (AZN) *</label><input type="number" id="sp_price" required placeholder="0"></div>
+        <div><label>İstehsalçı</label><input type="text" id="sp_brand" placeholder="məs: Bosch"></div>
+        <div><label>Variant / Xüsusiyyət</label><input type="text" id="sp_variant" placeholder="məs: 5W-30"></div>
+        <div><label>Kateqoriya ID</label><input type="number" id="sp_catId" placeholder="1"></div>
+        <div><label>Marka ID</label><input type="number" id="sp_brandId" placeholder=""></div>
+        <div style="grid-column:1/-1"><label>Təsvir</label><input type="text" id="sp_desc" placeholder="Məhsul haqqında qısa məlumat" style="width:100%"></div>
+        <div><label>Şəkil</label><input type="file" id="sp_image" accept="image/*"></div>
+        <div style="display:flex;align-items:flex-end">
+          <button type="submit" class="btn-approve" style="width:100%">➕ Əlavə et</button>
+        </div>
+        <div id="spMsg" style="grid-column:1/-1;font-weight:600"></div>
+      </form>
+    </section>
+
+    <section class="admin-card">
+      <div class="admin-card__head"><h2>Mövcud hissələr</h2></div>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Ad</th><th>Marka</th><th>Qiymət</th><th>Əməliyyat</th></tr></thead>
+          <tbody id="spartsTbody"><tr><td colspan="4">Yüklənir...</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
   <script src="./js/admin.js?v=14"></script>
+  <script src="./js/admin-extra.js"></script>
 </body>
 </html>
