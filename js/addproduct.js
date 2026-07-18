@@ -517,9 +517,13 @@ async function loadModels(makeId) {
     // Avtosalon istifadəçisidirsə, showroomId əlavə et
     try {
       const sess = JSON.parse(localStorage.getItem('carall_session_v1') || '{}');
-      if (sess.isShowroom && sess.showroomId) {
+      // URL-dən showroomId oxu (salon.html-dən gəldisə)
+      const urlShowroomId = Number(new URLSearchParams(location.search).get('showroomId')) || null;
+      const sessionShowroomId = sess.isShowroom ? sess.showroomId : null;
+      const resolvedShowroomId = urlShowroomId || sessionShowroomId;
+      if (resolvedShowroomId) {
         payload.isShowroom  = true;
-        payload.showroomId  = sess.showroomId;
+        payload.showroomId  = resolvedShowroomId;
       }
     } catch { /* ignore */ }
 

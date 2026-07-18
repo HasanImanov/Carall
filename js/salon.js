@@ -24,6 +24,13 @@
   const qs = new URLSearchParams(location.search);
   const salonId = Number(qs.get("id") || 0);
 
+  // "Elan yerləşdir" linklərini showroomId ilə yenilə
+  if (salonId) {
+    document.querySelectorAll('a[href="addproduct.html"], a[href^="addproduct.html"]').forEach(a => {
+      a.href = `addproduct.html?showroomId=${salonId}`;
+    });
+  }
+
   const salons = Array.isArray(window.SALONS)
     ? window.SALONS
     : (typeof SALONS !== "undefined" ? SALONS : []);
