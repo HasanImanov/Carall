@@ -497,23 +497,59 @@
     saveFavs(favs);
   });
 
-  // ---- init ----
-  const salon = salons.find((x) => Number(x.id) === salonId);
-  renderSalonHero(salon);
+  // ---- init: API-dən salon + elanları çək ----
+  (async () => {
+    if (!salonId) {
+      renderSalonHero(null);
+      initPager([]);
+      return;
+    }
 
-  if (!salon) {
-    allList = [];
-    initPager([]);
-    return;
-  }
+    // Salon məlumatını çək
+    let salon = null;
+    try {
+      const res = await fetch(`https://carall.az/api/Showrooms/${salonId}`);
+      if (res.ok) salon = await res.json();
+    } catch { /* ignore */ }
 
-  const salonsCount = salons.length || 1;
+    renderSalonHero(salon);
 
-  allList = cars.filter((c) => {
-    const real = Number(c?.salonId);
-    if (Number.isFinite(real) && real > 0) return real === salonId;
-    return getDemoSalonId(c?.id, salonsCount) === salonId;
-  });
+    if (!salon) {
+      initPager([]);
+      return;
+    }
 
-  initPager(allList);
+    // Bu salona aid elanları çək (isShowroom=true + salonId filteri)
+    let salonCars = [];
+    try {
+      const res = await fetch(
+        `https://carall.az/api/Listings/filter`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ isShowroom: true, page: 1, pageSize: 100 })
+        }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        const items = Array.isArray(data) ? data
+          : Array.isArray(data.data) ? data.data
+          : Array.isArray(data.items) ? data.items : [];
+        // salonId-yə görə filtr et (əgər backend dəstəkləyirsə)
+        salonCars = items.filter(c =>
+          Number(c.showroomId ?? c.salonId ?? c.salon_id) === salonId
+        );
+      }
+    } catch { /* ignore */ }
+
+    allList = salonCars.map(c => ({
+      ...c,
+      img: c.img || c.image || c.mainImage ||
+        (typeof c.images?.[0] === 'string' ? c.images[0] : null) ||
+        c.images?.[0]?.original || c.images?.[0]?.large ||
+        'images/no-image.png'
+    }));
+
+    initPager(allList);
+  })();
 })();

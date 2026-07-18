@@ -23,11 +23,30 @@
 
   if (!grid || !searchEl) return;
 
-  const data = Array.isArray(window.SALONS)
-    ? window.SALONS
-    : (typeof SALONS !== "undefined" ? SALONS : []);
-
   const norm = (s) => String(s || "").toLowerCase().trim();
+
+  // ── API-dən salonları yüklə ──
+  if (countEl) countEl.textContent = 'Yüklənir...';
+
+  (async () => {
+    const all = [];
+    let page = 1;
+    const pageSize = 50;
+    try {
+      while (true) {
+        const res = await fetch(`https://carall.az/api/Showrooms?page=${page}&pageSize=${pageSize}`);
+        if (!res.ok) break;
+        const json = await res.json();
+        const items = Array.isArray(json) ? json
+          : Array.isArray(json.data) ? json.data
+          : Array.isArray(json.items) ? json.items : [];
+        all.push(...items);
+        if (items.length < pageSize) break;
+        page++;
+      }
+    } catch { /* şəbəkə xətası */ }
+
+    const data = all;
 
   const shuffle = (arr) => {
     const a = arr.slice();
@@ -274,4 +293,5 @@ card.innerHTML = `
 
   // ---- INIT ----
   resetPager(baseAll);
+  })(); // async IIFE
 })();
