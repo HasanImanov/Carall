@@ -306,19 +306,63 @@
     saveFavs(favs);
   });
 
-  const rent = rents.find((x) => Number(x.id) === rentId);
-  renderHero(rent);
-
-  allList = cars.filter((car) => {
-    if (String(car.ownerType || "").toLowerCase() === "rent" && Number(car.ownerId) === rentId) {
-      return true;
+  // ── API-dən icarə şirkəti + maşınları çək ──
+  (async () => {
+    if (!rentId) {
+      renderHero(null);
+      initPager([]);
+      return;
     }
-    return Number(car.rentId) === rentId;
-  });
 
-  if (!allList.length && rentId > 0 && rents.length) {
-    allList = cars.filter((car) => getDemoRentId(car.id, rents.length) === rentId);
-  }
+    let rent = null;
+    try {
+      const res = await fetch(`https://carall.az/api/RentCars/${rentId}`);
+      if (res.ok) rent = await res.json();
+    } catch { /* ignore */ }
 
-  initPager(allList);
+    renderHero(rent);
+
+    if (!rent) {
+      initPager([]);
+      return;
+    }
+
+    // Bu icarə şirkətinə aid maşınları çək
+    let rentCars = [];
+    try {
+      // RentCar obyektinin özündə cars/vehicles siyahısı ola bilər
+      if (Array.isArray(rent.cars)) {
+        rentCars = rent.cars;
+      } else if (Array.isArray(rent.vehicles)) {
+        rentCars = rent.vehicles;
+      } else {
+        // Listings filter ilə cəhd et
+        const res = await fetch(
+          'https://carall.az/api/Listings/filter',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ page: 1, pageSize: 100 })
+          }
+        );
+        if (res.ok) {
+          const data = await res.json();
+          const items = Array.isArray(data) ? data
+            : Array.isArray(data.data) ? data.data
+            : Array.isArray(data.items) ? data.items : [];
+          rentCars = items.filter(c => Number(c.rentId ?? c.rent_id) === rentId);
+        }
+      }
+    } catch { /* ignore */ }
+
+    allList = rentCars.map(c => ({
+      ...c,
+      img: c.img || c.image || c.mainImage ||
+        (typeof c.images?.[0] === 'string' ? c.images[0] : null) ||
+        c.images?.[0]?.original || c.images?.[0]?.large ||
+        'images/no-image.png'
+    }));
+
+    initPager(allList);
+  })();
 })();
