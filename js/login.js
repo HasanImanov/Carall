@@ -150,7 +150,9 @@ qsa(".login-form").forEach(form => {
         phone,
         type,
         loggedIn: true,
-        name
+        name,
+        showroomId:  user.showroomId  || user.showroom_id  || null,
+        isShowroom:  user.isShowroom  || user.is_showroom  || false
       }));
 
       showMsg("Uğurlu giriş ✅", "ok");

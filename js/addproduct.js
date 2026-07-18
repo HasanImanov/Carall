@@ -514,6 +514,15 @@ async function loadModels(makeId) {
       whatsapp: !!document.querySelector('input[name="whatsapp"]')?.checked
     };
 
+    // Avtosalon istifadəçisidirsə, showroomId əlavə et
+    try {
+      const sess = JSON.parse(localStorage.getItem('carall_session_v1') || '{}');
+      if (sess.isShowroom && sess.showroomId) {
+        payload.isShowroom  = true;
+        payload.showroomId  = sess.showroomId;
+      }
+    } catch { /* ignore */ }
+
     const fd = new FormData();
     fd.append("Data", JSON.stringify(payload));
 
