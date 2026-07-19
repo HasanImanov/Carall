@@ -2248,77 +2248,92 @@ document.addEventListener("click", function(e) {
 
 (function(){
 
+  const customsCard   = document.getElementById("customsCard");
   const customsAmount = document.getElementById("customsAmount");
-  const customsTotal = document.getElementById("customsTotal");
+  const customsTotal  = document.getElementById("customsTotal");
+  const customsBtn    = document.getElementById("customsBtn");
 
-  if(!customsAmount || !customsTotal) return;
+  if(!customsCard || !customsAmount || !customsTotal) return;
 
-  // car data
-  const price =
-    Number(car?.price) ||
-    Number(car?.priceAZN) ||
-    0;
+  // Yalnız xarici ölkə elanları üçün göstər
+  // country "AZ" və ya "Azərbaycan" olarsa, gizlət
+  const carCountry = (car?.country || "").toUpperCase().trim();
+  const carCountryId = Number(car?.countryId || car?.country_id || 0);
+  const isLocal = carCountryId === 1 ||
+                  carCountry === "AZ" ||
+                  carCountry === "AZERBAYCAN" ||
+                  carCountry === "AZƏRBAYCAN";
 
-  const engine =
-    Number(car?.engine) ||
-    Number(car?.engineVolume) ||
-    2000;
+  if(isLocal){
+    customsCard.style.display = "none";
+    return;
+  }
 
-  const year =
-    Number(car?.year) ||
-    2020;
+  // ── Avtomobil məlumatları ──
+  const priceUSD = Number(car?.price) || 0;
+  const engineCC = Number(car?.engineVolumeValue || car?.engineVolume?.value || car?.engineVolume || car?.engine) || 0;
+  const yearMade = Number(car?.year || car?.modelYear) || new Date().getFullYear();
+  const fuelType = (car?.fuel || car?.fuelType?.name || car?.fuelTypeName || "").toLowerCase();
+  const isFreeTradeCountry = ["RU","GE","MD","UA","UZ","TM","KZ","KG","TJ"]
+    .includes(carCountry); // Azad ticarət sazişi olan ölkələr
 
-  const fuel =
-    (car?.fuel || "").toLowerCase();
+  // ── DGK rəsmi formulası ──
+  // 1. Gömrük rüsumu
+  let customsRate = isFreeTradeCountry ? 0 : 0.15;
+  const isElectric = fuelType.includes("elektrik") || fuelType.includes("electric");
+  if(isElectric) customsRate = 0; // Elektrik avtomobillər rüsumdan azad
 
-  // age
-  const currentYear = new Date().getFullYear();
-  const age = currentYear - year;
+  const customsDuty = priceUSD * customsRate;
 
-  // customs
-  let customs = price * 0.15;
-
-  // excise
+  // 2. Aksiz vergisi (mühərrik həcminə görə, sm³)
+  // Mənbə: Azərbaycan Vergi Məcəlləsi, maddə 190
   let excise = 0;
 
-  if(engine <= 2000){
-    excise = engine * 0.30;
-  }else{
-    excise = engine * 1.20;
+  if(isElectric){
+    excise = 0; // Elektrik — aksiz yoxdur
+  } else {
+    const age = new Date().getFullYear() - yearMade;
+    let baseRate = 0;
+
+    if(engineCC <= 1000)       baseRate = engineCC * 0.10;
+    else if(engineCC <= 1500)  baseRate = engineCC * 0.20;
+    else if(engineCC <= 2000)  baseRate = engineCC * 0.35;
+    else if(engineCC <= 3000)  baseRate = engineCC * 0.60;
+    else                        baseRate = engineCC * 1.00;
+
+    // Yaş əmsalı
+    if(age > 7)       excise = baseRate * 1.5;
+    else if(age > 3)  excise = baseRate * 1.25;
+    else              excise = baseRate;
+
+    // Hibrid — 50% güzəşt
+    const isHybrid = fuelType.includes("hibrid") || fuelType.includes("hybrid");
+    if(isHybrid) excise *= 0.5;
   }
 
-  // old cars
-  if(age > 5){
-    excise *= 1.25;
+  // 3. ƏDV = (Gömrük dəyəri + Rüsum + Aksiz) × 18%
+  const vat = (priceUSD + customsDuty + excise) * 0.18;
+
+  // 4. Cəmi gömrük ödənişi
+  const totalCustoms = customsDuty + excise + vat;
+
+  // 5. Yekun qiymət
+  const finalPrice = priceUSD + totalCustoms;
+
+  // ── Göstər ──
+  if(priceUSD > 0){
+    customsAmount.textContent = "+" + Math.round(totalCustoms).toLocaleString("az-AZ") + " USD";
+    customsTotal.textContent  = Math.round(finalPrice).toLocaleString("az-AZ") + " USD";
+  } else {
+    customsAmount.textContent = "Qiymət bilinmir";
+    customsTotal.textContent  = "—";
   }
 
-  // hybrid discount
-  if(fuel.includes("hybrid")){
-    excise *= 0.7;
+  // ── "Ətraflı hesabla" düyməsi — DGK kalkulyatoruna yönləndir ──
+  if(customsBtn){
+    customsBtn.addEventListener("click", () => {
+      window.open("https://e.customs.gov.az/for-individuals/calculator", "_blank");
+    });
   }
-
-  // VAT
-  const vat = (price + customs + excise) * 0.18;
-
-  // fixed
-  const fixed = 120;
-
-  // total customs
-  const totalCustoms =
-    customs +
-    excise +
-    vat +
-    fixed;
-
-  // final car price
-  const finalPrice =
-    price +
-    totalCustoms;
-
-  customsAmount.textContent =
-    "+" + Math.round(totalCustoms).toLocaleString("az-AZ") + " AZN";
-
-  customsTotal.textContent =
-    Math.round(finalPrice).toLocaleString("az-AZ") + " AZN";
 
 })();
