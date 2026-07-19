@@ -45,7 +45,7 @@
 </a>
 
 
-  <a class="bnav__item" href="#contact" aria-label="Profile">
+  <a class="bnav__item" href="profile.html" aria-label="Profile">
     <svg class="bnav__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="12" cy="8" r="3"></circle>
       <path d="M4 21c1.5-4 14.5-4 16 0"></path>
@@ -96,7 +96,7 @@
     <a class="subnav__a" href="salons.html">Avtosalonlar</a>
     <a class="subnav__a" href="ishlenmish.html">İşlənmiş ehtiyat hissələr</a>
     <a class="subnav__a" href="ehtiyyat.html">Yeni ehtiyat hissələr</a>
-    <a class="subnav__a" href="rentacar.html">Rent a car</a>
+    <a class="subnav__a" href="rentcars.html">Rent a car</a>
   </div>
 </nav>
 
@@ -492,9 +492,9 @@
 
     <!-- CENTER: Links -->
     <nav class="c-footer__nav" aria-label="Footer links">
-      <a class="c-footer__link" href="qaydalar.html">Qaydalar</a>
-      <a class="c-footer__link" href="mexfilik.html">Məxfilik</a>
-      <a class="c-footer__link c-footer__cta" href="reklam.html">Reklam yerləşdir</a>
+      <a class="c-footer__link" href="index.html">Qaydalar</a>
+      <a class="c-footer__link" href="index.html">Məxfilik</a>
+      <a class="c-footer__link c-footer__cta" href="index.html">Reklam yerləşdir</a>
     </nav>
 
     <!-- RIGHT: Contact + Social -->
@@ -532,7 +532,7 @@
     </div>
 
     <div class="c-footer__mini">
-      <a class="c-footer__miniLink" href="reklam.html">Reklam yerləşdir</a>
+      <a class="c-footer__miniLink" href="index.html">Reklam yerləşdir</a>
     </div>
   </div>
 </footer>
@@ -542,5 +542,18 @@
   <script src="js/paper.js"></script>
   <script src="js/script.js?v=32"></script>
   <script src="js/notify.js"></script>
+<script>
+(function(){
+  try {
+    var s = JSON.parse(localStorage.getItem('carall_session_v1') || '{}');
+    var userLink = document.getElementById('headerUser');
+    var bnavProfile = document.querySelector('.bnav__item[href="profile.html"]');
+    if(s.loggedIn){
+      if(userLink){ userLink.href = 'profile.html'; userLink.setAttribute('aria-label','Profil'); }
+      if(bnavProfile){ bnavProfile.href = 'profile.html'; }
+    }
+  } catch(e){}
+})();
+</script>
 </body>
 </html>

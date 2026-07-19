@@ -45,7 +45,7 @@
 </a>
 
 
-  <a class="bnav__item" href="#contact" aria-label="Profile">
+  <a class="bnav__item" href="profile.html" aria-label="Profile">
     <svg class="bnav__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="12" cy="8" r="3"></circle>
       <path d="M4 21c1.5-4 14.5-4 16 0"></path>
@@ -155,6 +155,19 @@
   <script src="js/paper.js"></script>
   <script src="js/script.js"></script>
   <script src="js/vip.js"></script>
+<script>
+(function(){
+  try {
+    var s = JSON.parse(localStorage.getItem('carall_session_v1') || '{}');
+    var userLink = document.getElementById('headerUser');
+    var bnavProfile = document.querySelector('.bnav__item[href="profile.html"]');
+    if(s.loggedIn){
+      if(userLink){ userLink.href = 'profile.html'; userLink.setAttribute('aria-label','Profil'); }
+      if(bnavProfile){ bnavProfile.href = 'profile.html'; }
+    }
+  } catch(e){}
+})();
+</script>
 </body>
 </html>
 

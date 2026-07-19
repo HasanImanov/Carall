@@ -140,6 +140,19 @@
   <script src="js/carsdata.js"></script>
   <script src="js/verify.js?v=13  "></script>
   <script src="js/script.js"></script>
+<script>
+(function(){
+  try {
+    var s = JSON.parse(localStorage.getItem('carall_session_v1') || '{}');
+    var userLink = document.getElementById('headerUser');
+    var bnavProfile = document.querySelector('.bnav__item[href="profile.html"]');
+    if(s.loggedIn){
+      if(userLink){ userLink.href = 'profile.html'; userLink.setAttribute('aria-label','Profil'); }
+      if(bnavProfile){ bnavProfile.href = 'profile.html'; }
+    }
+  } catch(e){}
+})();
+</script>
 </body>
 </html>
 
