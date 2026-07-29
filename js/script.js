@@ -363,23 +363,23 @@
       transmissionIds: arr(document.getElementById("qGearbox")?.value),
       typeOfRoofIds: arr(document.getElementById("qCondition")?.value),
       accessoryIds: selectedAccessories,
-      minPrice: qMinPrice?.value ? Number(qMinPrice.value) : 0,
-      maxPrice: qMaxPrice?.value ? Number(qMaxPrice.value) : 0,
-      minYear: qYear?.value ? Number(qYear.value) : 0,
-      maxYear: qYearMax?.value ? Number(qYearMax.value) : 0,
-      minOwnersCount: 0, maxOwnersCount: 0,
+      minPrice: qMinPrice?.value ? Number(qMinPrice.value) : null,
+      maxPrice: qMaxPrice?.value ? Number(qMaxPrice.value) : null,
+      minYear: qYear?.value ? Number(qYear.value) : null,
+      maxYear: qYearMax?.value ? Number(qYearMax.value) : null,
+      minOwnersCount: null, maxOwnersCount: null,
       driveType: null,
-      minOdometerReading: 0, maxOdometerReading: 0,
-      minDoor: 0, maxDoor: 0,
-      minNoOfPassenger: 0, maxNoOfPassenger: 0,
-      minEnginePower: 0, maxEnginePower: 0,
+      minOdometerReading: null, maxOdometerReading: null,
+      minDoor: null, maxDoor: null,
+      minNoOfPassenger: null, maxNoOfPassenger: null,
+      minEnginePower: null, maxEnginePower: null,
       assembledForIds: [],
       statuses: [],
       valutas: [],
       isVip: null, isPremium: null,
       isCredit: null, isBarter: null, isShowroom: null,
       createdFrom: null, createdTo: null,
-      sort: sortBy?.value || "new",
+      sort: sortBy?.value || "date_desc",
       page,
       pageSize,
       includeTotalCount: true
@@ -708,7 +708,7 @@
     if (qMaxPrice) qMaxPrice.value = "";
     if (qYear) qYear.value = "";
     if (qYearMax) qYearMax.value = "";
-    if (sortBy) sortBy.value = "new";
+    if (sortBy) sortBy.value = "date_desc";
     ["qColor","qBody","qFuel","qDrive","qGearbox","qOwners","qSeats","qAssembled","qCondition"].forEach((id) => {
       const el = $(id); if (el) el.value = "";
     });
