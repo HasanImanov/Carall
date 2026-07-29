@@ -19,19 +19,7 @@
         return;
       }
 
-      // MÜVƏQQƏTİ admin şifrəsi — backend admin rol sistemi hazır olanda BU HİSSƏ SİLİNMƏLİDİR.
-      // Parolu dəyişmək üçün aşağıdaki ADMIN_PASS dəyərini redaktə edin.
-      var ADMIN_PASS = "Carall2026!";
-      var unlocked = sessionStorage.getItem('admin_unlocked') === '1';
-      if (!unlocked) {
-        var entered = window.prompt("Admin panel şifrəsi:");
-        if (entered !== ADMIN_PASS) {
-          alert("Yanlış şifrə.");
-          window.location.href = '../index.html';
-          return;
-        }
-        sessionStorage.setItem('admin_unlocked', '1');
-      }
+      // Admin şifrə yoxlanışı müvəqqəti deaktiv edilib
     })();
   </script>
 </head>
