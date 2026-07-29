@@ -92,8 +92,8 @@
       };
       const logoFile = document.getElementById('rc_logo')?.files?.[0];
       const fd = new FormData();
-      fd.append('Data', JSON.stringify(data));
-      if (logoFile) fd.append('Images', logoFile);
+      fd.append('data', JSON.stringify(data));
+      if (logoFile) fd.append('images', logoFile);
 
       try {
         const res = await apiFetch('/RentCars', { method: 'POST', body: fd });
@@ -150,8 +150,8 @@
       };
       const logoFile = document.getElementById('sr_logo')?.files?.[0];
       const fd = new FormData();
-      fd.append('Data', JSON.stringify(data));
-      if (logoFile) fd.append('Logo', logoFile);
+      fd.append('data', JSON.stringify(data));
+      if (logoFile) fd.append('logo', logoFile);
 
       try {
         const res = await apiFetch('/Showrooms', { method: 'POST', body: fd });
@@ -211,8 +211,8 @@
       };
       const imgFile = document.getElementById('sp_image')?.files?.[0];
       const fd = new FormData();
-      fd.append('Data', JSON.stringify(data));
-      if (imgFile) fd.append('Image', imgFile);
+      fd.append('data', JSON.stringify(data));
+      if (imgFile) fd.append('image', imgFile);
 
       try {
         const res = await apiFetch('/SpareParts', { method: 'POST', body: fd });
