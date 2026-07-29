@@ -338,7 +338,7 @@
       } else {
         // Listings filter ilə cəhd et
         const res = await fetch(
-          'https://carall.az/api/Listings/filter',
+          'https://carall.az/api/Listings/full_filter',
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

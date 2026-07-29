@@ -476,42 +476,33 @@ async function loadModels(makeId) {
     const phoneVal = document.querySelector('input[name="phone"]').value.trim();
 
     const payload = {
-      Name: fullnameVal,
-      name: fullnameVal,
-      fullName: fullnameVal,
-      userAccountName: fullnameVal,
-      sellerName: fullnameVal,
-      contactName: fullnameVal,
-      ownerName: fullnameVal,
+      userName:        fullnameVal,
+      phoneNumber:     phoneVal,
+      email:           emailVal,
 
-      email: emailVal,
-      Email: emailVal,
-      phone: phoneVal,
-      Phone: phoneVal,
+      modelId:         Number(document.getElementById("modelValue").value),
+      modelYear:       Number(document.getElementById("yearValue").value),
 
-      makeId: Number(document.getElementById("makeValue").value),
-      modelId: Number(document.getElementById("modelValue").value),
-      year: Number(document.getElementById("yearValue").value),
+      colorId:         Number(document.getElementById("colorSelect").value) || null,
+      vehicleTypeId:   Number(document.querySelector('select[name="body"]').value) || null,
+      fuelTypeId:      Number(document.querySelector('select[name="fuel"]').value) || null,
+      transmissionId:  Number(document.querySelector('select[name="gear"]').value) || null,
 
-      colorId: Number(document.getElementById("colorSelect").value) || null,
-      bodyTypeId: Number(document.querySelector('select[name="body"]').value) || null,
-      fuelTypeId: Number(document.querySelector('select[name="fuel"]').value),
-      transmissionId: Number(document.querySelector('select[name="gear"]').value),
+      odometerReading: Number(document.querySelector('input[name="km"]').value) || 0,
+      price:           Number(document.querySelector('input[name="price"]').value),
+      valuta:          document.querySelector('select[name="currency"]').value || "AZN",
 
-      mileage: Number(document.querySelector('input[name="km"]').value),
-      price: Number(document.querySelector('input[name="price"]').value),
-      currency: document.querySelector('select[name="currency"]').value || "AZN",
+      description:     document.querySelector('textarea[name="desc"]').value || "",
 
-      description: document.querySelector('textarea[name="desc"]').value || "",
+      cityId:          document.getElementById("citySelect")?.value
+                         ? Number(document.getElementById("citySelect").value)
+                         : null,
 
-      cityId: document.getElementById("citySelect")?.value
-        ? Number(document.getElementById("citySelect").value)
-        : null,
-
-      credit: !!document.querySelector('input[name="credit"]')?.checked,
-      barter: !!document.querySelector('input[name="barter"]')?.checked,
-      urgent: !!document.querySelector('input[name="urgent"]')?.checked,
-      whatsapp: !!document.querySelector('input[name="whatsapp"]')?.checked
+      isCredit:  !!document.querySelector('input[name="credit"]')?.checked,
+      isBarter:  !!document.querySelector('input[name="barter"]')?.checked,
+      isNew:     false,
+      status:    "used",
+      ownersCount: 1
     };
 
     // Avtosalon istifadəçisidirsə, showroomId əlavə et
@@ -528,10 +519,10 @@ async function loadModels(makeId) {
     } catch { /* ignore */ }
 
     const fd = new FormData();
-    fd.append("Data", JSON.stringify(payload));
+    fd.append("data", JSON.stringify(payload));
 
     photos.forEach(p => {
-      fd.append("Images", p.file);
+      fd.append("images", p.file);
     });
 
     const res = await fetch("https://carall.az/api/Listings", {
