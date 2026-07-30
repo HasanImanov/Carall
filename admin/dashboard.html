@@ -7,20 +7,8 @@
 
   <link rel="stylesheet" href="./css/admin.css?v=6">
   <script>
-    // Giriş qoruması: token/sessiya yoxdursa, login səhifəsinə yönləndir.
-    // QEYD: Bu yalnız frontend tərəfdə müvəqqəti qorumadır — əsl təhlükəsizlik
-    // üçün backend tərəfdə admin rolu yoxlanışı (authorization) tələb olunur.
-    (function () {
-      var token = localStorage.getItem('access_token');
-      var session = null;
-      try { session = JSON.parse(localStorage.getItem('carall_session_v1')); } catch (e) {}
-      if (!token || !session || !session.loggedIn) {
-        window.location.href = '../login.html?return=' + encodeURIComponent(window.location.pathname);
-        return;
-      }
-
-      // Admin şifrə yoxlanışı müvəqqəti deaktiv edilib
-    })();
+    // Giriş qoruması müvəqqəti deaktiv edilib
+    // (production-da yenidən aktiv ediləcək)
   </script>
 </head>
 
