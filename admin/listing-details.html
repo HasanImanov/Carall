@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elan Detalı — Admin</title>
-  <link rel="stylesheet" href="./css/admin.css?v=14">
+  <link rel="stylesheet" href="./css/admin.css?v=15">
   <style>
     .ld-wrap { max-width: 900px; margin: 32px auto; padding: 0 16px; }
     .ld-back { display:inline-flex; align-items:center; gap:6px; color:#1B3A6B; text-decoration:none; font-weight:600; margin-bottom:20px; }
@@ -113,16 +113,22 @@
     document.getElementById('ldContent').style.display = '';
 
     // Şəkillər
-    const images = Array.isArray(car.images) ? car.images : [];
     const getImgUrl = img => typeof img === 'string' ? img
-      : (img.large || img.original || img.small || '');
+      : (img.large || img.original || img.small || img.url || '');
+
+    // full_filter-dən gələndə images string massivi, GET /{id}-dən gələndə obyekt massivi ola bilər
+    let images = [];
+    if (Array.isArray(car.images) && car.images.length) {
+      images = car.images;
+    } else if (car.mainImage) {
+      images = [car.mainImage];
+    }
 
     const mainImg = document.getElementById('ldMainImg');
     const gallery = document.getElementById('ldGallery');
 
     if (images.length) {
-      const firstUrl = getImgUrl(images[0]);
-      mainImg.src = firstUrl || '../images/no-image.png';
+      mainImg.src = getImgUrl(images[0]) || '../images/no-image.png';
       mainImg.onerror = () => mainImg.src = '../images/no-image.png';
 
       if (images.length > 1) {
