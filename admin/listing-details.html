@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elan Detalı — Admin</title>
-  <link rel="stylesheet" href="./css/admin.css?v=12">
+  <link rel="stylesheet" href="./css/admin.css?v=13">
   <style>
     .ld-wrap { max-width: 900px; margin: 32px auto; padding: 0 16px; }
     .ld-back { display:inline-flex; align-items:center; gap:6px; color:#1B3A6B; text-decoration:none; font-weight:600; margin-bottom:20px; }
@@ -82,11 +82,27 @@
     if (!id) { document.getElementById('ldLoading').textContent = 'ID tapılmadı'; return; }
 
     // Elanı çək
+    // full_filter ilə çək (pending elanlar da görünsün)
     let car;
     try {
+      // Əvvəl birbaşa cəhd et
       const res = await fetch(`${API}/Listings/${id}`);
-      if (!res.ok) throw new Error(res.status);
-      car = await res.json();
+      if (res.ok) {
+        car = await res.json();
+      } else {
+        // 404 olarsa full_filter ilə tap
+        const r2 = await fetch(`${API}/Listings/full_filter`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ page:1, pageSize:200, includeTotalCount:false })
+        });
+        if (r2.ok) {
+          const data = await r2.json();
+          const list = Array.isArray(data) ? data : (data.data || data.items || []);
+          car = list.find(x => String(x.id) === String(id));
+        }
+      }
+      if (!car) throw new Error('Elan tapılmadı');
     } catch(e) {
       document.getElementById('ldLoading').textContent = 'Elan yüklənmədi: ' + e;
       return;
