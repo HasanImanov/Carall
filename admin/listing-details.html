@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="az">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Elan Detalı — Admin</title>
+  <link rel="stylesheet" href="./css/admin.css?v=11">
+  <style>
+    .ld-wrap { max-width: 900px; margin: 32px auto; padding: 0 16px; }
+    .ld-back { display:inline-flex; align-items:center; gap:6px; color:#1B3A6B; text-decoration:none; font-weight:600; margin-bottom:20px; }
+    .ld-card { background:#fff; border-radius:12px; box-shadow:0 1px 6px rgba(0,0,0,.08); overflow:hidden; }
+    .ld-gallery { display:flex; gap:8px; padding:16px; overflow-x:auto; background:#f8fafc; }
+    .ld-gallery img { height:180px; border-radius:8px; object-fit:cover; cursor:pointer; flex-shrink:0; }
+    .ld-gallery img.active { border:3px solid #1B3A6B; }
+    .ld-main-img { width:100%; max-height:420px; object-fit:cover; display:block; }
+    .ld-body { padding:24px; }
+    .ld-title { font-size:22px; font-weight:800; margin:0 0 4px; }
+    .ld-sub { color:#64748b; margin:0 0 20px; }
+    .ld-price { font-size:26px; font-weight:800; color:#1B3A6B; margin-bottom:20px; }
+    .ld-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin-bottom:20px; }
+    .ld-field { background:#f8fafc; border-radius:8px; padding:10px 14px; }
+    .ld-field__label { font-size:11px; color:#94a3b8; text-transform:uppercase; letter-spacing:.5px; margin-bottom:2px; }
+    .ld-field__val { font-weight:600; font-size:14px; }
+    .ld-desc { background:#f8fafc; border-radius:8px; padding:14px; margin-bottom:20px; line-height:1.6; }
+    .ld-actions { display:flex; gap:12px; padding:20px 24px; border-top:1px solid #e2e8f0; background:#fff; }
+    .ld-approve { flex:1; padding:12px; background:#16a34a; color:#fff; border:none; border-radius:8px; font-size:15px; font-weight:700; cursor:pointer; }
+    .ld-approve:hover { background:#15803d; }
+    .ld-reject  { flex:1; padding:12px; background:#dc2626; color:#fff; border:none; border-radius:8px; font-size:15px; font-weight:700; cursor:pointer; }
+    .ld-reject:hover { background:#b91c1c; }
+    .ld-approve:disabled, .ld-reject:disabled { opacity:.6; cursor:not-allowed; }
+    .ld-msg { padding:12px 24px; font-weight:600; display:none; }
+    .ld-status-badge { display:inline-block; padding:4px 12px; border-radius:20px; font-size:13px; font-weight:600; }
+    .ld-status-badge.s0 { background:#fef3c7; color:#d97706; }
+    .ld-status-badge.s1 { background:#dcfce7; color:#16a34a; }
+    .ld-status-badge.s2 { background:#dcfce7; color:#16a34a; }
+    .ld-status-badge.s3 { background:#fee2e2; color:#dc2626; }
+  </style>
+</head>
+<body class="admin-body">
+
+  <div class="ld-wrap">
+    <a class="ld-back" href="dashboard.html">← Geri</a>
+
+    <div id="ldLoading" style="text-align:center;padding:60px;color:#64748b;">Yüklənir...</div>
+    <div id="ldContent" style="display:none">
+
+      <div class="ld-card">
+        <img id="ldMainImg" class="ld-main-img" src="" alt="">
+
+        <div class="ld-gallery" id="ldGallery"></div>
+
+        <div class="ld-body">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <h1 class="ld-title" id="ldTitle"></h1>
+            <span class="ld-status-badge" id="ldStatusBadge"></span>
+          </div>
+          <p class="ld-sub" id="ldSub"></p>
+          <div class="ld-price" id="ldPrice"></div>
+
+          <div class="ld-grid" id="ldGrid"></div>
+
+          <div class="ld-desc" id="ldDesc" style="display:none"></div>
+        </div>
+
+        <div class="ld-msg" id="ldMsg"></div>
+
+        <div class="ld-actions">
+          <button class="ld-approve" id="btnApprove">✅ Təsdiqlə</button>
+          <button class="ld-reject"  id="btnReject" >❌ İmtina et</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+  (async () => {
+    const API   = 'https://carall.az/api';
+    const TOKEN = localStorage.getItem('access_token') || '';
+    const id    = new URLSearchParams(location.search).get('id');
+
+    if (!id) { document.getElementById('ldLoading').textContent = 'ID tapılmadı'; return; }
+
+    // Elanı çək
+    let car;
+    try {
+      const res = await fetch(`${API}/Listings/${id}`);
+      if (!res.ok) throw new Error(res.status);
+      car = await res.json();
+    } catch(e) {
+      document.getElementById('ldLoading').textContent = 'Elan yüklənmədi: ' + e;
+      return;
+    }
+
+    // Yükləmə bitdi
+    document.getElementById('ldLoading').style.display = 'none';
+    document.getElementById('ldContent').style.display = '';
+
+    // Şəkillər
+    const images = Array.isArray(car.images) ? car.images : [];
+    const getImgUrl = img => typeof img === 'string' ? img
+      : (img.large || img.original || img.small || '');
+
+    const mainImg = document.getElementById('ldMainImg');
+    const gallery = document.getElementById('ldGallery');
+
+    if (images.length) {
+      mainImg.src = getImgUrl(images[0]);
+      mainImg.onerror = () => mainImg.src = '../images/no-image.png';
+      images.forEach((img, i) => {
+        const el = document.createElement('img');
+        el.src = getImgUrl(img);
+        el.onerror = () => el.src = '../images/no-image.png';
+        if (i === 0) el.classList.add('active');
+        el.addEventListener('click', () => {
+          mainImg.src = el.src;
+          gallery.querySelectorAll('img').forEach(x => x.classList.remove('active'));
+          el.classList.add('active');
+        });
+        gallery.appendChild(el);
+      });
+    } else {
+      mainImg.src = '../images/no-image.png';
+      gallery.style.display = 'none';
+    }
+
+    // Başlıq
+    const brand = car.brand || '';
+    const model = car.model || '';
+    document.getElementById('ldTitle').textContent = `${brand} ${model}`.trim() || 'Avtomobil';
+    document.getElementById('ldSub').textContent   = [car.modelYear, car.city].filter(Boolean).join(' • ');
+    document.getElementById('ldPrice').textContent = car.price ? `${Number(car.price).toLocaleString('az-AZ')} ${car.valuta || 'AZN'}` : '—';
+
+    // Status badge
+    const badge = document.getElementById('ldStatusBadge');
+    const statusMap = { 0:'Pending', 1:'Təsdiqlənmiş', 2:'Aktiv', 3:'Rədd edilmiş' };
+    const statusClass = { 0:'s0', 1:'s1', 2:'s2', 3:'s3' };
+    const st = car.status !== undefined ? Number(car.status) : 0;
+    badge.textContent  = statusMap[st] || 'Naməlum';
+    badge.className    = 'ld-status-badge ' + (statusClass[st] || '');
+
+    // Xüsusiyyətlər
+    const fields = [
+      ['Marka',        car.brand],
+      ['Model',        car.model],
+      ['İl',           car.modelYear],
+      ['Şəhər',        car.city],
+      ['Yanacaq',      car.fuelType],
+      ['Transmissiya', car.transmission],
+      ['Rəng',         car.color],
+      ['Motor',        car.engineVolume],
+      ['Yürüş',        car.odometerReading ? car.odometerReading + ' km' : null],
+      ['Qapı',         car.door],
+      ['Növ',          car.vehicleType],
+      ['Satıcı',       car.user?.name || car.user?.phoneNumber],
+      ['Telefon',      car.user?.phoneNumber],
+      ['Kredit',       car.isCredit ? 'Var' : null],
+      ['Barter',       car.isBarter ? 'Var' : null],
+      ['VIN',          car.vin],
+    ].filter(([,v]) => v);
+
+    document.getElementById('ldGrid').innerHTML = fields.map(([label, val]) => `
+      <div class="ld-field">
+        <div class="ld-field__label">${label}</div>
+        <div class="ld-field__val">${val}</div>
+      </div>`).join('');
+
+    if (car.description) {
+      const desc = document.getElementById('ldDesc');
+      desc.style.display = '';
+      desc.textContent   = car.description;
+    }
+
+    // Təsdiqlə / İmtina et
+    const btnApprove = document.getElementById('btnApprove');
+    const btnReject  = document.getElementById('btnReject');
+    const msgEl      = document.getElementById('ldMsg');
+
+    function showMsg(text, ok) {
+      msgEl.textContent   = text;
+      msgEl.style.color   = ok ? '#16a34a' : '#dc2626';
+      msgEl.style.display = '';
+    }
+
+    async function changeStatus(status) {
+      btnApprove.disabled = true;
+      btnReject.disabled  = true;
+      try {
+        const res = await fetch(`${API}/Listings/${id}/status`, {
+          method:  'PATCH',
+          headers: {
+            'Content-Type':  'application/json',
+            'Authorization': `Bearer ${TOKEN}`
+          },
+          body: JSON.stringify(status)
+        });
+        if (res.ok) {
+          showMsg(status === 2 ? '✅ Elan təsdiqləndi!' : '❌ Elan rədd edildi.', status === 2);
+          badge.textContent = status === 2 ? 'Aktiv' : 'Rədd edilmiş';
+          badge.className   = 'ld-status-badge ' + (status === 2 ? 's2' : 's3');
+        } else {
+          showMsg('Xəta: ' + res.status, false);
+          btnApprove.disabled = false;
+          btnReject.disabled  = false;
+        }
+      } catch(e) {
+        showMsg('Bağlantı xətası', false);
+        btnApprove.disabled = false;
+        btnReject.disabled  = false;
+      }
+    }
+
+    btnApprove.addEventListener('click', () => changeStatus(2));
+    btnReject.addEventListener('click',  () => changeStatus(3));
+
+  })();
+  </script>
+</body>
+</html>
