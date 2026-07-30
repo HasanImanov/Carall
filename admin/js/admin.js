@@ -274,7 +274,7 @@ function renderListings() {
         </td>
 
         <td>
-          <a class="admin-btn small" href="listing-details.html?id=${id}"" target="_blank">
+          <a class="admin-btn small" href="listing-details.html?id=${id}" target="_blank">
             Bax
           </a>
         </td>
