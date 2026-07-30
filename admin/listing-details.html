@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elan Detalı — Admin</title>
-  <link rel="stylesheet" href="./css/admin.css?v=13">
+  <link rel="stylesheet" href="./css/admin.css?v=14">
   <style>
     .ld-wrap { max-width: 900px; margin: 32px auto; padding: 0 16px; }
     .ld-back { display:inline-flex; align-items:center; gap:6px; color:#1B3A6B; text-decoration:none; font-weight:600; margin-bottom:20px; }
@@ -121,20 +121,26 @@
     const gallery = document.getElementById('ldGallery');
 
     if (images.length) {
-      mainImg.src = getImgUrl(images[0]);
+      const firstUrl = getImgUrl(images[0]);
+      mainImg.src = firstUrl || '../images/no-image.png';
       mainImg.onerror = () => mainImg.src = '../images/no-image.png';
-      images.forEach((img, i) => {
-        const el = document.createElement('img');
-        el.src = getImgUrl(img);
-        el.onerror = () => el.src = '../images/no-image.png';
-        if (i === 0) el.classList.add('active');
-        el.addEventListener('click', () => {
-          mainImg.src = el.src;
-          gallery.querySelectorAll('img').forEach(x => x.classList.remove('active'));
-          el.classList.add('active');
+
+      if (images.length > 1) {
+        images.forEach((img, i) => {
+          const el = document.createElement('img');
+          el.src = getImgUrl(img) || '../images/no-image.png';
+          el.onerror = () => el.src = '../images/no-image.png';
+          if (i === 0) el.classList.add('active');
+          el.addEventListener('click', () => {
+            mainImg.src = el.src;
+            gallery.querySelectorAll('img').forEach(x => x.classList.remove('active'));
+            el.classList.add('active');
+          });
+          gallery.appendChild(el);
         });
-        gallery.appendChild(el);
-      });
+      } else {
+        gallery.style.display = 'none';
+      }
     } else {
       mainImg.src = '../images/no-image.png';
       gallery.style.display = 'none';
