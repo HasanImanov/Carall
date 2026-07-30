@@ -113,19 +113,18 @@ function getStatus(x) {
   if (x.status !== undefined && x.status !== null) {
     return Number(x.status);
   }
-
-  if (x.statusName === "Approved") return 1;
-  if (x.statusName === "Rejected") return 2;
-  if (x.statusName === "Pending") return 0;
-
-  return 1;
+  return 1; // default: pending
 }
 
 function statusText(status) {
-  if (status === 0) return "Pending";
-  if (status === 1) return "Təsdiqlənmiş";
-  if (status === 2) return "İmtina edilmiş";
+  if (status === 1) return "Gözləyir";
+  if (status === 2) return "Təsdiqlənmiş";
+  if (status === 3) return "İmtina edilmiş";
   return "Bilinmir";
+}
+
+function isPending(x) {
+  return getStatus(x) === 1;
 }
 
 function renderUsersPlaceholder() {
@@ -185,18 +184,18 @@ async function loadListings() {
 }
 
 function renderStats() {
-  const total = ALL_LISTINGS.length;
-  const pending = ALL_LISTINGS.filter(x => getStatus(x) === 0).length;
-  const approved = ALL_LISTINGS.filter(x => getStatus(x) === 1).length;
+  const total    = ALL_LISTINGS.length;
+  const pending  = ALL_LISTINGS.filter(x => getStatus(x) === 1).length;
+  const approved = ALL_LISTINGS.filter(x => getStatus(x) === 2).length;
 
-  if (statUsers) statUsers.textContent = "0";
+  if (statUsers)    statUsers.textContent    = "0";
   if (statListings) statListings.textContent = total;
-  if (statPending) statPending.textContent = pending;
+  if (statPending)  statPending.textContent  = pending;
   if (statApproved) statApproved.textContent = approved;
 
   if (notifCount) {
     if (pending > 0) {
-      notifCount.hidden = false;
+      notifCount.hidden      = false;
       notifCount.textContent = pending;
     } else {
       notifCount.hidden = true;
