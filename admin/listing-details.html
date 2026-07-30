@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elan Detalı — Admin</title>
-  <link rel="stylesheet" href="./css/admin.css?v=11">
+  <link rel="stylesheet" href="./css/admin.css?v=12">
   <style>
     .ld-wrap { max-width: 900px; margin: 32px auto; padding: 0 16px; }
     .ld-back { display:inline-flex; align-items:center; gap:6px; color:#1B3A6B; text-decoration:none; font-weight:600; margin-bottom:20px; }
@@ -133,8 +133,8 @@
 
     // Status badge
     const badge = document.getElementById('ldStatusBadge');
-    const statusMap = { 0:'Pending', 1:'Təsdiqlənmiş', 2:'Aktiv', 3:'Rədd edilmiş' };
-    const statusClass = { 0:'s0', 1:'s1', 2:'s2', 3:'s3' };
+    const statusMap   = { 1:'Gözləyir', 2:'Təsdiqlənmiş', 3:'Rədd edilmiş' };
+    const statusClass = { 1:'s0',       2:'s2',           3:'s3' };
     const st = car.status !== undefined ? Number(car.status) : 0;
     badge.textContent  = statusMap[st] || 'Naməlum';
     badge.className    = 'ld-status-badge ' + (statusClass[st] || '');
