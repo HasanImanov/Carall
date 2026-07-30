@@ -4,244 +4,284 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elan Detalı — Admin</title>
-  <link rel="stylesheet" href="./css/admin.css?v=15">
+  <link rel="stylesheet" href="./css/admin.css?v=14">
   <style>
-    .ld-wrap { max-width: 900px; margin: 32px auto; padding: 0 16px; }
-    .ld-back { display:inline-flex; align-items:center; gap:6px; color:#1B3A6B; text-decoration:none; font-weight:600; margin-bottom:20px; }
-    .ld-card { background:#fff; border-radius:12px; box-shadow:0 1px 6px rgba(0,0,0,.08); overflow:hidden; }
-    .ld-gallery { display:flex; gap:8px; padding:16px; overflow-x:auto; background:#f8fafc; }
-    .ld-gallery img { height:180px; border-radius:8px; object-fit:cover; cursor:pointer; flex-shrink:0; }
-    .ld-gallery img.active { border:3px solid #1B3A6B; }
-    .ld-main-img { width:100%; max-height:420px; object-fit:cover; display:block; }
-    .ld-body { padding:24px; }
-    .ld-title { font-size:22px; font-weight:800; margin:0 0 4px; }
-    .ld-sub { color:#64748b; margin:0 0 20px; }
-    .ld-price { font-size:26px; font-weight:800; color:#1B3A6B; margin-bottom:20px; }
-    .ld-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin-bottom:20px; }
-    .ld-field { background:#f8fafc; border-radius:8px; padding:10px 14px; }
-    .ld-field__label { font-size:11px; color:#94a3b8; text-transform:uppercase; letter-spacing:.5px; margin-bottom:2px; }
-    .ld-field__val { font-weight:600; font-size:14px; }
-    .ld-desc { background:#f8fafc; border-radius:8px; padding:14px; margin-bottom:20px; line-height:1.6; }
-    .ld-actions { display:flex; gap:12px; padding:20px 24px; border-top:1px solid #e2e8f0; background:#fff; }
-    .ld-approve { flex:1; padding:12px; background:#16a34a; color:#fff; border:none; border-radius:8px; font-size:15px; font-weight:700; cursor:pointer; }
-    .ld-approve:hover { background:#15803d; }
-    .ld-reject  { flex:1; padding:12px; background:#dc2626; color:#fff; border:none; border-radius:8px; font-size:15px; font-weight:700; cursor:pointer; }
-    .ld-reject:hover { background:#b91c1c; }
-    .ld-approve:disabled, .ld-reject:disabled { opacity:.6; cursor:not-allowed; }
-    .ld-msg { padding:12px 24px; font-weight:600; display:none; }
-    .ld-status-badge { display:inline-block; padding:4px 12px; border-radius:20px; font-size:13px; font-weight:600; }
-    .ld-status-badge.s0 { background:#fef3c7; color:#d97706; }
-    .ld-status-badge.s1 { background:#dcfce7; color:#16a34a; }
-    .ld-status-badge.s2 { background:#dcfce7; color:#16a34a; }
-    .ld-status-badge.s3 { background:#fee2e2; color:#dc2626; }
+    body { background:#f1f5f9; }
+    .ld-wrap { max-width:960px; margin:24px auto; padding:0 16px; }
+    .ld-back { display:inline-flex;align-items:center;gap:6px;color:#1B3A6B;text-decoration:none;font-weight:600;margin-bottom:16px;font-size:15px; }
+    .ld-back:hover { text-decoration:underline; }
+
+    /* Gallery */
+    .ld-gallery-wrap { background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.08);margin-bottom:16px; }
+    .ld-main-img-wrap { position:relative;background:#f8fafc; }
+    .ld-main-img { width:100%;max-height:460px;object-fit:cover;display:block; }
+    .ld-nav { position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.85);border:none;border-radius:50%;width:40px;height:40px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center; }
+    .ld-nav-l { left:12px; }
+    .ld-nav-r { right:12px; }
+    .ld-count { position:absolute;bottom:12px;right:12px;background:rgba(0,0,0,.5);color:#fff;font-size:13px;padding:2px 10px;border-radius:20px; }
+    .ld-thumbs { display:flex;gap:8px;padding:12px;overflow-x:auto; }
+    .ld-thumbs img { height:72px;width:108px;object-fit:cover;border-radius:6px;cursor:pointer;flex-shrink:0;border:2px solid transparent;transition:.15s; }
+    .ld-thumbs img.active { border-color:#1B3A6B; }
+
+    /* Info */
+    .ld-info { background:#fff;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,.08);padding:24px;margin-bottom:16px; }
+    .ld-head { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px; }
+    .ld-title { font-size:22px;font-weight:800;margin:0; }
+    .ld-sub { color:#64748b;margin:0 0 16px;font-size:14px; }
+    .ld-price { font-size:28px;font-weight:800;color:#1B3A6B;margin-bottom:20px; }
+    .ld-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-bottom:20px; }
+    .ld-field { background:#f8fafc;border-radius:8px;padding:10px 14px; }
+    .ld-field__label { font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px; }
+    .ld-field__val { font-weight:600;font-size:14px; }
+    .ld-desc { background:#f8fafc;border-radius:8px;padding:14px;line-height:1.6;font-size:14px;margin-bottom:0; }
+
+    /* Status badge */
+    .ld-badge { display:inline-block;padding:4px 14px;border-radius:20px;font-size:13px;font-weight:600; }
+    .ld-badge.s1 { background:#fef3c7;color:#d97706; }
+    .ld-badge.s2 { background:#dcfce7;color:#16a34a; }
+    .ld-badge.s3 { background:#fee2e2;color:#dc2626; }
+
+    /* Actions */
+    .ld-actions { background:#fff;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,.08);padding:20px;display:flex;gap:12px; }
+    .ld-btn-approve { flex:1;padding:13px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer; }
+    .ld-btn-approve:hover { background:#15803d; }
+    .ld-btn-reject  { flex:1;padding:13px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer; }
+    .ld-btn-reject:hover { background:#b91c1c; }
+    .ld-btn-approve:disabled,.ld-btn-reject:disabled { opacity:.5;cursor:not-allowed; }
+    .ld-msg { padding:10px 20px;font-weight:600;border-radius:8px;display:none;margin-top:10px; }
+    .ld-msg.ok  { background:#dcfce7;color:#16a34a; }
+    .ld-msg.err { background:#fee2e2;color:#dc2626; }
+
+    .ld-loading { text-align:center;padding:80px;color:#64748b;font-size:16px; }
   </style>
 </head>
-<body class="admin-body">
-
+<body>
   <div class="ld-wrap">
     <a class="ld-back" href="dashboard.html">← Geri</a>
 
-    <div id="ldLoading" style="text-align:center;padding:60px;color:#64748b;">Yüklənir...</div>
+    <div id="ldLoading" class="ld-loading">Yüklənir...</div>
+
     <div id="ldContent" style="display:none">
 
-      <div class="ld-card">
-        <img id="ldMainImg" class="ld-main-img" src="" alt="">
-
-        <div class="ld-gallery" id="ldGallery"></div>
-
-        <div class="ld-body">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-            <h1 class="ld-title" id="ldTitle"></h1>
-            <span class="ld-status-badge" id="ldStatusBadge"></span>
-          </div>
-          <p class="ld-sub" id="ldSub"></p>
-          <div class="ld-price" id="ldPrice"></div>
-
-          <div class="ld-grid" id="ldGrid"></div>
-
-          <div class="ld-desc" id="ldDesc" style="display:none"></div>
+      <!-- Gallery -->
+      <div class="ld-gallery-wrap">
+        <div class="ld-main-img-wrap">
+          <img id="ldMainImg" class="ld-main-img" src="" alt="Avtomobil">
+          <button class="ld-nav ld-nav-l" id="ldPrev">&#8249;</button>
+          <button class="ld-nav ld-nav-r" id="ldNext">&#8250;</button>
+          <div class="ld-count" id="ldCount">1 / 1</div>
         </div>
-
-        <div class="ld-msg" id="ldMsg"></div>
-
-        <div class="ld-actions">
-          <button class="ld-approve" id="btnApprove">✅ Təsdiqlə</button>
-          <button class="ld-reject"  id="btnReject" >❌ İmtina et</button>
-        </div>
+        <div class="ld-thumbs" id="ldThumbs"></div>
       </div>
+
+      <!-- Info -->
+      <div class="ld-info">
+        <div class="ld-head">
+          <div>
+            <h1 class="ld-title" id="ldTitle"></h1>
+            <p class="ld-sub" id="ldSub"></p>
+          </div>
+          <span class="ld-badge" id="ldBadge"></span>
+        </div>
+        <div class="ld-price" id="ldPrice"></div>
+        <div class="ld-grid" id="ldGrid"></div>
+        <div class="ld-desc" id="ldDesc" style="display:none"></div>
+      </div>
+
+      <!-- Actions -->
+      <div class="ld-actions">
+        <button class="ld-btn-approve" id="ldApprove">✅ Təsdiqlə</button>
+        <button class="ld-btn-reject"  id="ldReject">❌ İmtina et</button>
+      </div>
+      <div class="ld-msg" id="ldMsg"></div>
 
     </div>
   </div>
 
-  <script>
-  (async () => {
-    const API   = 'https://carall.az/api';
-    const TOKEN = localStorage.getItem('access_token') || '';
-    const id    = new URLSearchParams(location.search).get('id');
+<script>
+(async () => {
+  const API   = 'https://carall.az/api';
+  const TOKEN = localStorage.getItem('access_token') || '';
+  const id    = new URLSearchParams(location.search).get('id');
 
-    if (!id) { document.getElementById('ldLoading').textContent = 'ID tapılmadı'; return; }
+  const $ = s => document.getElementById(s);
 
-    // Elanı çək
-    // full_filter ilə çək (pending elanlar da görünsün)
-    let car;
-    try {
-      // Əvvəl birbaşa cəhd et
-      const res = await fetch(`${API}/Listings/${id}`);
-      if (res.ok) {
-        car = await res.json();
-      } else {
-        // 404 olarsa full_filter ilə tap
-        const r2 = await fetch(`${API}/Listings/full_filter`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ page:1, pageSize:200, includeTotalCount:false })
-        });
-        if (r2.ok) {
-          const data = await r2.json();
-          const list = Array.isArray(data) ? data : (data.data || data.items || []);
-          car = list.find(x => String(x.id) === String(id));
-        }
-      }
-      if (!car) throw new Error('Elan tapılmadı');
-    } catch(e) {
-      document.getElementById('ldLoading').textContent = 'Elan yüklənmədi: ' + e;
-      return;
-    }
+  if (!id) { $('ldLoading').textContent = 'ID tapılmadı'; return; }
 
-    // Yükləmə bitdi
-    document.getElementById('ldLoading').style.display = 'none';
-    document.getElementById('ldContent').style.display = '';
+  // ── Helper: şəkil URL-i al ──
+  function imgUrl(img) {
+    if (!img) return '';
+    if (typeof img === 'string') return img;
+    return img.original || img.Original ||
+           img.large    || img.Large    ||
+           img.small    || img.Small    ||
+           img.url      || img.imageUrl || '';
+  }
 
-    // Şəkillər
-    const getImgUrl = img => typeof img === 'string' ? img
-      : (img.large || img.original || img.small || img.url || '');
-
-    // full_filter-dən gələndə images string massivi, GET /{id}-dən gələndə obyekt massivi ola bilər
-    let images = [];
-    if (Array.isArray(car.images) && car.images.length) {
-      images = car.images;
-    } else if (car.mainImage) {
-      images = [car.mainImage];
-    }
-
-    const mainImg = document.getElementById('ldMainImg');
-    const gallery = document.getElementById('ldGallery');
-
-    if (images.length) {
-      mainImg.src = getImgUrl(images[0]) || '../images/no-image.png';
-      mainImg.onerror = () => mainImg.src = '../images/no-image.png';
-
-      if (images.length > 1) {
-        images.forEach((img, i) => {
-          const el = document.createElement('img');
-          el.src = getImgUrl(img) || '../images/no-image.png';
-          el.onerror = () => el.src = '../images/no-image.png';
-          if (i === 0) el.classList.add('active');
-          el.addEventListener('click', () => {
-            mainImg.src = el.src;
-            gallery.querySelectorAll('img').forEach(x => x.classList.remove('active'));
-            el.classList.add('active');
-          });
-          gallery.appendChild(el);
-        });
-      } else {
-        gallery.style.display = 'none';
-      }
+  // ── Elanı çək ──
+  let car = null;
+  try {
+    // 1. Birbaşa cəhd
+    const r1 = await fetch(`${API}/Listings/${id}`);
+    if (r1.ok) {
+      car = await r1.json();
     } else {
-      mainImg.src = '../images/no-image.png';
-      gallery.style.display = 'none';
+      // 2. full_filter ilə tap
+      const r2 = await fetch(`${API}/Listings/full_filter`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ page:1, pageSize:200, includeTotalCount:false })
+      });
+      if (r2.ok) {
+        const data = await r2.json();
+        const list = Array.isArray(data) ? data : (data.data || data.items || []);
+        car = list.find(x => String(x.id) === String(id)) || null;
+      }
     }
+  } catch(e) { car = null; }
 
-    // Başlıq
-    const brand = car.brand || '';
-    const model = car.model || '';
-    document.getElementById('ldTitle').textContent = `${brand} ${model}`.trim() || 'Avtomobil';
-    document.getElementById('ldSub').textContent   = [car.modelYear, car.city].filter(Boolean).join(' • ');
-    document.getElementById('ldPrice').textContent = car.price ? `${Number(car.price).toLocaleString('az-AZ')} ${car.valuta || 'AZN'}` : '—';
+  if (!car) {
+    $('ldLoading').textContent = 'Elan tapılmadı';
+    return;
+  }
 
-    // Status badge
-    const badge = document.getElementById('ldStatusBadge');
-    const statusMap   = { 1:'Gözləyir', 2:'Təsdiqlənmiş', 3:'Rədd edilmiş' };
-    const statusClass = { 1:'s0',       2:'s2',           3:'s3' };
-    const st = car.status !== undefined ? Number(car.status) : 0;
-    badge.textContent  = statusMap[st] || 'Naməlum';
-    badge.className    = 'ld-status-badge ' + (statusClass[st] || '');
+  $('ldLoading').style.display = 'none';
+  $('ldContent').style.display = '';
 
-    // Xüsusiyyətlər
-    const fields = [
-      ['Marka',        car.brand],
-      ['Model',        car.model],
-      ['İl',           car.modelYear],
-      ['Şəhər',        car.city],
-      ['Yanacaq',      car.fuelType],
-      ['Transmissiya', car.transmission],
-      ['Rəng',         car.color],
-      ['Motor',        car.engineVolume],
-      ['Yürüş',        car.odometerReading ? car.odometerReading + ' km' : null],
-      ['Qapı',         car.door],
-      ['Növ',          car.vehicleType],
-      ['Satıcı',       car.user?.name || car.user?.phoneNumber],
-      ['Telefon',      car.user?.phoneNumber],
-      ['Kredit',       car.isCredit ? 'Var' : null],
-      ['Barter',       car.isBarter ? 'Var' : null],
-      ['VIN',          car.vin],
-    ].filter(([,v]) => v);
+  // ── Şəkillər ──
+  const rawImgs = Array.isArray(car.images) ? car.images : [];
+  const imgs = rawImgs.map(imgUrl).filter(Boolean);
+  if (!imgs.length) imgs.push('../images/no-image.png');
 
-    document.getElementById('ldGrid').innerHTML = fields.map(([label, val]) => `
-      <div class="ld-field">
-        <div class="ld-field__label">${label}</div>
-        <div class="ld-field__val">${val}</div>
-      </div>`).join('');
+  let cur = 0;
+  const mainImg  = $('ldMainImg');
+  const countEl  = $('ldCount');
+  const thumbsEl = $('ldThumbs');
 
-    if (car.description) {
-      const desc = document.getElementById('ldDesc');
-      desc.style.display = '';
-      desc.textContent   = car.description;
-    }
+  function showImg(i) {
+    cur = Math.max(0, Math.min(imgs.length - 1, i));
+    mainImg.src = imgs[cur];
+    mainImg.onerror = () => { mainImg.src = '../images/no-image.png'; mainImg.onerror = null; };
+    countEl.textContent = `${cur + 1} / ${imgs.length}`;
+    thumbsEl.querySelectorAll('img').forEach((t, j) => t.classList.toggle('active', j === cur));
+  }
 
-    // Təsdiqlə / İmtina et
-    const btnApprove = document.getElementById('btnApprove');
-    const btnReject  = document.getElementById('btnReject');
-    const msgEl      = document.getElementById('ldMsg');
+  // Thumbnails
+  imgs.forEach((url, i) => {
+    const t = document.createElement('img');
+    t.src = url;
+    t.onerror = () => t.src = '../images/no-image.png';
+    if (i === 0) t.classList.add('active');
+    t.addEventListener('click', () => showImg(i));
+    thumbsEl.appendChild(t);
+  });
 
-    function showMsg(text, ok) {
-      msgEl.textContent   = text;
-      msgEl.style.color   = ok ? '#16a34a' : '#dc2626';
-      msgEl.style.display = '';
-    }
+  if (imgs.length <= 1) thumbsEl.style.display = 'none';
 
-    async function changeStatus(status) {
-      btnApprove.disabled = true;
-      btnReject.disabled  = true;
-      try {
-        const res = await fetch(`${API}/Listings/${id}/status`, {
-          method:  'PATCH',
-          headers: {
-            'Content-Type':  'application/json',
-            'Authorization': `Bearer ${TOKEN}`
-          },
-          body: JSON.stringify(status)
-        });
-        if (res.ok) {
-          showMsg(status === 2 ? '✅ Elan təsdiqləndi!' : '❌ Elan rədd edildi.', status === 2);
-          badge.textContent = status === 2 ? 'Aktiv' : 'Rədd edilmiş';
-          badge.className   = 'ld-status-badge ' + (status === 2 ? 's2' : 's3');
-        } else {
-          showMsg('Xəta: ' + res.status, false);
-          btnApprove.disabled = false;
-          btnReject.disabled  = false;
-        }
-      } catch(e) {
-        showMsg('Bağlantı xətası', false);
+  showImg(0);
+  $('ldPrev').addEventListener('click', () => showImg(cur - 1));
+  $('ldNext').addEventListener('click', () => showImg(cur + 1));
+
+  // Keyboard navigation
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft')  showImg(cur - 1);
+    if (e.key === 'ArrowRight') showImg(cur + 1);
+  });
+
+  // ── Info ──
+  const brand = car.brand || car.makeName || '';
+  const model = car.model || car.modelName || '';
+  $('ldTitle').textContent = [brand, model].filter(Boolean).join(' ') || 'Avtomobil';
+  $('ldSub').textContent   = [car.modelYear || car.year, car.city].filter(Boolean).join(' • ');
+  $('ldPrice').textContent = car.price
+    ? `${Number(car.price).toLocaleString('az-AZ')} ${car.valuta || 'AZN'}`
+    : '—';
+
+  // Status badge
+  const badge = $('ldBadge');
+  const st = Number(car.status ?? 1);
+  const stMap   = { 1:'Gözləyir', 2:'Təsdiqlənmiş', 3:'Rədd edilmiş' };
+  const stClass = { 1:'s1',       2:'s2',           3:'s3' };
+  badge.textContent = stMap[st] || 'Naməlum';
+  badge.className   = 'ld-badge ' + (stClass[st] || '');
+
+  // Fields
+  const fields = [
+    ['Marka',        brand],
+    ['Model',        model],
+    ['İl',           car.modelYear || car.year],
+    ['Şəhər',        car.city],
+    ['Yanacaq',      car.fuelType || car.fuelTypeName],
+    ['Transmissiya', car.transmission || car.transmissionName],
+    ['Rəng',         car.color || car.colorName],
+    ['Motor',        car.engineVolume],
+    ['Yürüş',        car.odometerReading ? car.odometerReading.toLocaleString('az-AZ') + ' km' : null],
+    ['Qapı',         car.door],
+    ['Nəqliyyat növü', car.vehicleType || car.vehicleTypeName],
+    ['Satıcı',       car.user?.name],
+    ['Telefon',      car.user?.phoneNumber],
+    ['Kredit',       car.isCredit ? 'Var' : null],
+    ['Barter',       car.isBarter ? 'Var' : null],
+    ['VIN',          car.vin],
+  ].filter(([, v]) => v !== null && v !== undefined && v !== '' && v !== '—');
+
+  $('ldGrid').innerHTML = fields.map(([label, val]) => `
+    <div class="ld-field">
+      <div class="ld-field__label">${label}</div>
+      <div class="ld-field__val">${val}</div>
+    </div>`).join('');
+
+  if (car.description) {
+    const desc = $('ldDesc');
+    desc.style.display = '';
+    desc.textContent   = car.description;
+  }
+
+  // ── Əməliyyatlar ──
+  const btnApprove = $('ldApprove');
+  const btnReject  = $('ldReject');
+  const msgEl      = $('ldMsg');
+
+  function showMsg(text, ok) {
+    msgEl.textContent = text;
+    msgEl.className   = 'ld-msg ' + (ok ? 'ok' : 'err');
+    msgEl.style.display = '';
+  }
+
+  async function setStatus(status) {
+    btnApprove.disabled = true;
+    btnReject.disabled  = true;
+    try {
+      const res = await fetch(`${API}/Listings/${id}/status`, {
+        method:  'PATCH',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': `Bearer ${TOKEN}`
+        },
+        body: JSON.stringify(status)
+      });
+      if (res.ok) {
+        const label = status === 2 ? 'Təsdiqlənmiş' : 'Rədd edilmiş';
+        showMsg(`✅ Elan ${label}!`, status === 2);
+        badge.textContent = stMap[status] || label;
+        badge.className   = 'ld-badge ' + (stClass[status] || '');
+      } else {
+        const txt = await res.text().catch(() => '');
+        showMsg('Xəta: ' + (txt || res.status), false);
         btnApprove.disabled = false;
         btnReject.disabled  = false;
       }
+    } catch(e) {
+      showMsg('Bağlantı xətası', false);
+      btnApprove.disabled = false;
+      btnReject.disabled  = false;
     }
+  }
 
-    btnApprove.addEventListener('click', () => changeStatus(2));
-    btnReject.addEventListener('click',  () => changeStatus(3));
+  btnApprove.addEventListener('click', () => setStatus(2));
+  btnReject.addEventListener('click',  () => setStatus(3));
 
-  })();
-  </script>
+})();
+</script>
 </body>
 </html>
