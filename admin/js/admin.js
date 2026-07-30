@@ -1,5 +1,5 @@
 const API_BASE = "https://carall.az/api";
-const LISTINGS_API = `${API_BASE}/Listings/cards`;
+const LISTINGS_API = `${API_BASE}/Listings/full_filter`;
 
 let ALL_LISTINGS = [];
 
@@ -149,10 +149,16 @@ async function loadListings() {
 
   try {
     const res = await fetch(LISTINGS_API, {
-      method: "GET",
+      method: "POST",
       headers: {
-        "Accept": "application/json"
-      }
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        page: 1,
+        pageSize: 200,
+        includeTotalCount: true
+      })
     });
 
     if (!res.ok) {
