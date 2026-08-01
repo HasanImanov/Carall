@@ -5,10 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Admin Dashboard – CarAll</title>
 
-  <link rel="stylesheet" href="./css/admin.css?v=28">
+  <link rel="stylesheet" href="./css/admin.css?v=29">
   <script>
-    // Giriş qoruması müvəqqəti deaktiv edilib
-    // (production-da yenidən aktiv ediləcək)
+    // Giriş qoruması: token/sessiya yoxdursa, login səhifəsinə yönləndir.
+    (function () {
+      var token = localStorage.getItem('access_token');
+      var session = null;
+      try { session = JSON.parse(localStorage.getItem('carall_session_v1')); } catch (e) {}
+      if (!token || !session || !session.loggedIn) {
+        window.location.href = '../login.html?return=' + encodeURIComponent(window.location.pathname);
+      }
+    })();
   </script>
 </head>
 
@@ -255,7 +262,7 @@
     </section>
   </main>
 
-  <script src="./js/admin.js?v=39"></script>
-  <script src="./js/admin-extra.js?v=29"></script>
+  <script src="./js/admin.js?v=40"></script>
+  <script src="./js/admin-extra.js?v=30"></script>
 </body>
 </html>
