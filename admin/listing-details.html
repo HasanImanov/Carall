@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elan Detalı — Admin</title>
-  <link rel="stylesheet" href="./css/admin.css?v=27">
+  <link rel="stylesheet" href="./css/admin.css?v=30">
   <style>
     body { background:#f1f5f9; }
     .ld-wrap { max-width:960px; margin:24px auto; padding:0 16px; }
@@ -121,12 +121,14 @@
   // ── Elanı çək ──
   let car = null;
   try {
-    // 1. Birbaşa cəhd
-    const r1 = await fetch(`${API}/Listings/${id}`);
+    // 1. Birbaşa cəhd (admin token ilə — status məhdudiyyətini keçə bilər)
+    const r1 = await fetch(`${API}/Listings/${id}`, {
+      headers: TOKEN ? { 'Authorization': `Bearer ${TOKEN}` } : {}
+    });
     if (r1.ok) {
       car = await r1.json();
     } else {
-      // 2. full_filter ilə tap
+      // 2. full_filter ilə tap (fallback, amma şəkillər natamam ola bilər)
       const r2 = await fetch(`${API}/Listings/full_filter`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -220,7 +222,17 @@
 
   // Status badge
   const badge = $('ldBadge');
-  const st = Number(car.status ?? 1);
+  function parseStatus(s) {
+    if (s === undefined || s === null) return 1;
+    if (typeof s === 'number') return s;
+    if (typeof s === 'string' && /^\d+$/.test(s.trim())) return Number(s);
+    const t = String(s).trim().toLowerCase();
+    if (['pending', 'gözləyir', 'gozleyir', 'waiting'].includes(t)) return 1;
+    if (['approved', 'active', 'təsdiqlənmiş', 'tesdiqlenmis'].includes(t)) return 2;
+    if (['rejected', 'reddedilmis', 'rədd edilmiş', 'declined'].includes(t)) return 3;
+    return 1;
+  }
+  const st = parseStatus(car.status);
   const stMap   = { 1:'Gözləyir', 2:'Təsdiqlənmiş', 3:'Rədd edilmiş' };
   const stClass = { 1:'s1',       2:'s2',           3:'s3' };
   badge.textContent = stMap[st] || 'Naməlum';
@@ -283,11 +295,15 @@
       });
       if (res.ok) {
         const label = status === 2 ? 'Təsdiqlənmiş' : 'Rədd edilmiş';
+        alert(status === 2 ? '✅ Elan uğurla təsdiqləndi!' : '❌ Elan rədd edildi.');
         showMsg(`✅ Elan ${label}!`, status === 2);
         badge.textContent = stMap[status] || label;
         badge.className   = 'ld-badge ' + (stClass[status] || '');
+        btnApprove.style.display = 'none';
+        btnReject.style.display  = 'none';
       } else {
         const txt = await res.text().catch(() => '');
+        alert('Xəta: ' + (txt || res.status));
         showMsg('Xəta: ' + (txt || res.status), false);
         btnApprove.disabled = false;
         btnReject.disabled  = false;

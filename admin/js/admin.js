@@ -61,7 +61,20 @@ function getDate(x)     {
 }
 
 function getStatus(x) {
-  return x.status !== undefined && x.status !== null ? Number(x.status) : 1;
+  let s = x.status;
+  if (s === undefined || s === null) return 1;
+
+  // Əgər rəqəmdirsə (və ya rəqəm kimi mətn)
+  if (typeof s === 'number') return s;
+  if (typeof s === 'string' && /^\d+$/.test(s.trim())) return Number(s);
+
+  // Mətn adları ilə gələ bilər
+  const t = String(s).trim().toLowerCase();
+  if (['pending', 'gözləyir', 'gozleyir', 'waiting'].includes(t)) return 1;
+  if (['approved', 'active', 'təsdiqlənmiş', 'tesdiqlenmis'].includes(t)) return 2;
+  if (['rejected', 'reddedilmis', 'rədd edilmiş', 'declined'].includes(t)) return 3;
+
+  return 1; // naməlum halda pending say
 }
 
 function statusText(s) {
@@ -254,6 +267,14 @@ window.hardDeleteL = async (id) => {
 
 if (listingSearch) listingSearch.addEventListener("input", renderListings);
 if (statusFilter)  statusFilter.addEventListener("change", renderListings);
+
+// Tab yenidən aktiv olanda (məs. listing-details-dən geri qayıdanda) yenilə
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    loadStats();
+    loadListings();
+  }
+});
 
 document.addEventListener("DOMContentLoaded", async () => {
   await loadStats();
