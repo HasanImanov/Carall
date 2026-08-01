@@ -5,10 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Admin Dashboard – CarAll</title>
 
-  <link rel="stylesheet" href="./css/admin.css?v=26">
+  <link rel="stylesheet" href="./css/admin.css?v=27">
   <script>
-    // Giriş qoruması müvəqqəti deaktiv edilib
-    // (production-da yenidən aktiv ediləcək)
+    // MÜVƏQQƏTİ admin şifrəsi — backend admin rol sistemi tam işə düşənə qədər.
+    (function () {
+      var ADMIN_PASS = "Carall2026!";
+      var unlocked = sessionStorage.getItem('admin_unlocked') === '1';
+      if (!unlocked) {
+        var entered = window.prompt("Admin panel şifrəsi:");
+        if (entered !== ADMIN_PASS) {
+          alert("Yanlış şifrə.");
+          window.location.href = '../index.html';
+          return;
+        }
+        sessionStorage.setItem('admin_unlocked', '1');
+      }
+    })();
   </script>
 </head>
 
@@ -255,7 +267,7 @@
     </section>
   </main>
 
-  <script src="./js/admin.js?v=37"></script>
-  <script src="./js/admin-extra.js?v=27"></script>
+  <script src="./js/admin.js?v=38"></script>
+  <script src="./js/admin-extra.js?v=28"></script>
 </body>
 </html>
