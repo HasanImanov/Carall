@@ -242,6 +242,27 @@ body.admin-body{
   font-weight:800;
 }
 
+.admin-btn-delete{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:36px;
+  height:36px;
+  border:none;
+  border-radius:9px;
+  background:#fee2e2;
+  color:#dc2626;
+  cursor:pointer;
+  transition:background .15s,color .15s,transform .1s;
+}
+.admin-btn-delete:hover{
+  background:#dc2626;
+  color:#fff;
+}
+.admin-btn-delete:active{
+  transform:scale(.93);
+}
+
 @media(max-width:900px){
   .admin-topbar{
     height:auto;
