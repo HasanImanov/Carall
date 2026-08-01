@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elan Detalı — Admin</title>
-  <link rel="stylesheet" href="./css/admin.css?v=20">
+  <link rel="stylesheet" href="./css/admin.css?v=21">
   <style>
     body { background:#f1f5f9; }
     .ld-wrap { max-width:960px; margin:24px auto; padding:0 16px; }
@@ -161,7 +161,12 @@
   function showImg(i) {
     cur = Math.max(0, Math.min(imgs.length - 1, i));
     mainImg.src = imgs[cur];
-    mainImg.onerror = () => { mainImg.src = '../images/no-image.png'; mainImg.onerror = null; };
+    mainImg.onerror = () => {
+      mainImg.onerror = null;
+      mainImg.style.background = '#e5e7eb';
+      mainImg.alt = 'Şəkil yoxdur';
+      mainImg.removeAttribute('src');
+    };
     countEl.textContent = `${cur + 1} / ${imgs.length}`;
     thumbsEl.querySelectorAll('img').forEach((t, j) => t.classList.toggle('active', j === cur));
   }
@@ -170,7 +175,11 @@
   imgs.forEach((url, i) => {
     const t = document.createElement('img');
     t.src = url;
-    t.onerror = () => t.src = '../images/no-image.png';
+    t.onerror = () => {
+      t.onerror = null;
+      t.style.background = '#e5e7eb';
+      t.removeAttribute('src');
+    };
     if (i === 0) t.classList.add('active');
     t.addEventListener('click', () => showImg(i));
     thumbsEl.appendChild(t);
