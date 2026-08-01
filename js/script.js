@@ -163,7 +163,7 @@
       brand: x.brand || x.makeName || x.brandName || x.make?.name || "—",
       model: x.model || x.modelName || x.model?.name || "—",
       price: x.price || 0,
-      year: x.year || "—",
+      year: x.year || x.modelYear || "—",
       city: x.city || x.cityName || x.city?.name || "—",
       img:
   x.img || x.image || x.mainImage || x.mainPhotoUrl || x.imageUrl ||
@@ -230,10 +230,12 @@
             <div class="card__body">
               <div class="card__title">${car.brand} ${car.model}</div>
               <div class="card__meta">
-                <span>${car.year}</span><span>•</span>
-                <span>${Number(car.mileage || 0).toLocaleString("az-AZ")} km</span><span>•</span>
-                <span>${car.fuel || ""}</span><span>•</span>
-                <span>${car.gearbox || ""}</span>
+                ${[
+                  car.year !== "—" ? `<span>${car.year}</span>` : "",
+                  `<span>${Number(car.mileage || 0).toLocaleString("az-AZ")} km</span>`,
+                  car.fuel ? `<span>${car.fuel}</span>` : "",
+                  car.gearbox ? `<span>${car.gearbox}</span>` : ""
+                ].filter(Boolean).join('<span>•</span>')}
               </div>
               <div class="card__bottom">
                 <div class="card__price-row">
