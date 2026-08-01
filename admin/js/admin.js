@@ -125,6 +125,9 @@ async function loadListings() {
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({ page: 1, pageSize: 200, includeTotalCount: true })
     });
+    // Pending elanların id-sini normallaşdır (listingId varsa onu istifadə et)
+    list = list.map(x => ({ ...x, id: x.listingId || x.id }));
+
     if (r2.ok) {
       const d2 = await r2.json();
       const all = normalize(d2);
@@ -183,7 +186,7 @@ function renderListings() {
   }
 
   listingsTbody.innerHTML = list.map(x => {
-    const id = x.id || x.listingId;
+    const id = x.listingId || x.id;
     const status = getStatus(x);
     return `
       <tr>
