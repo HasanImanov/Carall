@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elan Detalı — Admin</title>
-  <link rel="stylesheet" href="./css/admin.css?v=31">
+  <link rel="stylesheet" href="./css/admin.css?v=32">
   <style>
     body { background:#f1f5f9; }
     .ld-wrap { max-width:960px; margin:24px auto; padding:0 16px; }
@@ -122,25 +122,51 @@
   let car = null;
   let moderationStatus = null; // Ayrıca: admin təsdiq statusu (1/2/3)
 
-  // Əvvəlcə full_filter/pending siyahısından moderasiya statusunu tap
+  // 0. Əvvəlcə lokal yaddaşda saxlanmış statusu yoxla (bu brauzerdə əvvəl
+  //    təsdiqlənib/rədd edilibsə, backend-in cavabından asılı olmadan bunu istifadə et)
+  const LOCAL_KEY = 'carall_admin_status_' + id;
+  const localOverride = localStorage.getItem(LOCAL_KEY);
+  if (localOverride) {
+    moderationStatus = Number(localOverride);
+  }
+
+  // 1. Əvvəlcə pending siyahısından axtar (full_filter yalnız aktiv/təsdiqlənmiş elanları qaytarır)
   try {
-    const rl = await fetch(`${API}/Listings/full_filter`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ page:1, pageSize:200, includeTotalCount:false })
+    const rp = await fetch(`${API}/admin/listings/pending?page=1&pageSize=200`, {
+      headers: TOKEN ? { 'Authorization': `Bearer ${TOKEN}` } : {}
     });
-    if (rl.ok) {
-      const data = await rl.json();
+    if (rp.ok) {
+      const data = await rp.json();
       const list = Array.isArray(data) ? data : (data.data || data.items || []);
-      const found = list.find(x => String(x.id) === String(id));
+      const found = list.find(x => String(x.listingId || x.id) === String(id));
       if (found) {
-        moderationStatus = found.status;
-        car = found; // ehtiyat üçün, əgər detail fetch uğursuz olsa
+        if (!localOverride) moderationStatus = found.status ?? 1; // pending siyahısındadırsa, status=1 say
+        car = found;
       }
     }
   } catch(e) { /* ignore */ }
 
-  // Sonra tam detalı (şəkillər üçün) çək — bu endpoint-in "status" sahəsi
+  // 2. full_filter-dən də axtar (təsdiqlənmiş/rədd edilmiş elanlar üçün)
+  if (moderationStatus === null) {
+    try {
+      const rl = await fetch(`${API}/Listings/full_filter`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ page:1, pageSize:200, includeTotalCount:false })
+      });
+      if (rl.ok) {
+        const data = await rl.json();
+        const list = Array.isArray(data) ? data : (data.data || data.items || []);
+        const found = list.find(x => String(x.id) === String(id));
+        if (found) {
+          moderationStatus = found.status;
+          car = found;
+        }
+      }
+    } catch(e) { /* ignore */ }
+  }
+
+  // 3. Tam detalı (şəkillər üçün) çək — bu endpoint-in "status" sahəsi
   // avtomobilin vəziyyətini (used/new) bildirir, moderasiya statusunu YOX
   try {
     const r1 = await fetch(`${API}/Listings/${id}`, {
@@ -314,6 +340,7 @@
       });
       if (res.ok) {
         const label = status === 2 ? 'Təsdiqlənmiş' : 'Rədd edilmiş';
+        localStorage.setItem(LOCAL_KEY, String(status));
         alert(status === 2 ? '✅ Elan uğurla təsdiqləndi!' : '❌ Elan rədd edildi.');
         showMsg(`✅ Elan ${label}!`, status === 2);
         badge.textContent = stMap[status] || label;

@@ -61,6 +61,11 @@ function getDate(x)     {
 }
 
 function getStatus(x) {
+  // Lokal override (bu brauzerdə əvvəl təsdiqlənib/rədd edilibsə)
+  const id = x.listingId || x.id;
+  const override = localStorage.getItem('carall_admin_status_' + id);
+  if (override) return Number(override);
+
   let s = x.status;
   if (s === undefined || s === null) return 1;
 
@@ -231,6 +236,7 @@ window.approveL = async (id) => {
     body: JSON.stringify(2)
   });
   if (res.ok) {
+    localStorage.setItem('carall_admin_status_' + id, '2');
     alert('✅ Elan uğurla təsdiqləndi!');
     const x = ALL_LISTINGS.find(x => x.id === id);
     if (x) x.status = 2;
@@ -247,6 +253,7 @@ window.rejectL = async (id) => {
     body: JSON.stringify(3)
   });
   if (res.ok) {
+    localStorage.setItem('carall_admin_status_' + id, '3');
     alert('❌ Elan rədd edildi.');
     const x = ALL_LISTINGS.find(x => x.id === id);
     if (x) x.status = 3;
