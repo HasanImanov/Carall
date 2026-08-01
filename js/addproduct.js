@@ -487,6 +487,11 @@ async function loadModels(makeId) {
       vehicleTypeId:   Number(document.querySelector('select[name="body"]').value) || null,
       fuelTypeId:      Number(document.querySelector('select[name="fuel"]').value) || null,
       transmissionId:  Number(document.querySelector('select[name="gear"]').value) || null,
+      engineVolumeId:  Number(document.getElementById('engineVolumeSelect')?.value) || null,
+      door:            Number(document.querySelector('select[name="door"]')?.value) || null,
+      noOfPassenger:   Number(document.querySelector('select[name="noOfPassenger"]')?.value) || null,
+      enginePower:     Number(document.querySelector('input[name="enginePower"]')?.value) || null,
+      vin:             (document.querySelector('input[name="vin"]')?.value || '').trim().toUpperCase() || null,
 
       odometerReading: Number(document.querySelector('input[name="km"]').value) || 0,
       price:           Number(document.querySelector('input[name="price"]').value),
@@ -684,6 +689,7 @@ async function loadModels(makeId) {
   fillSelect('select[name="body"]', "https://carall.az/api/lookups/vehicle-types");
   fillSelect('select[name="fuel"]', "https://carall.az/api/lookups/fuel-types");
   fillSelect('select[name="gear"]', "https://carall.az/api/lookups/transmissions", "type");
+  fillSelect('#engineVolumeSelect', "https://carall.az/api/lookups/engine-volumes", "value");
 loadCities(); 
 
   initPhoneMask();
