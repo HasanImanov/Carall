@@ -250,7 +250,9 @@ if (typeof injectSimilarAdsFromBackend === "function") {
 }
 if (typeof renderSellerFromOwner === "function") renderSellerFromOwner(car);
 if (typeof initPromoteButtons === "function") initPromoteButtons(car);
-if (typeof injectOwnerActions === "function") injectOwnerActions(car);
+if (typeof injectOwnerActions === "function" && isCurrentUserOwner(car)) {
+  injectOwnerActions(car);
+}
   // ===== LOOP buttons (main) =====
   btnPrev.addEventListener("click", () => {
   idx = (idx - 1 + imgs.length) % imgs.length;
@@ -1455,6 +1457,26 @@ function escapeHtml(str) {
 //   }
 // }
 
+function getCurrentUserId(){
+  try{
+    const token = localStorage.getItem("access_token");
+    if (!token) return null;
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const idClaim = payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
+    return idClaim ? String(idClaim) : null;
+  }catch{
+    return null;
+  }
+}
+
+function isCurrentUserOwner(car){
+  const myId = getCurrentUserId();
+  if (!myId) return false;
+  const ownerId = car?.user?.id ?? car?.ownerId ?? car?.userId;
+  if (ownerId === undefined || ownerId === null) return false;
+  return String(ownerId) === myId;
+}
+
 function verifyAdPassword(car, inputPw){
   // 🚧 DEMO MODE — hamı üçün eyni şifrə
   return String(inputPw || "").trim() === "1234";
@@ -1748,116 +1770,63 @@ bar.innerHTML = `
   <button class="btnOwner btnDanger" id="btnDelOwner" type="button">Sil</button>
 `;
 
-
 // ✅ Avadanlıqlar bitəndən SONRA əlavə et
 featuresBlock.parentNode.insertBefore(bar, featuresBlock.nextSibling);
 
-
-  // password modal
-  const back = document.createElement("div");
-  back.className = "pwbackdrop";
-  back.id = "pwBackdrop";
-  back.innerHTML = `
-    <div class="pwmodal" role="dialog" aria-modal="true" aria-label="Şifrə təsdiqi">
-      <div class="pwhead">
-        <div class="pwtitle" id="pwTitle">Şifrəni daxil edin</div>
-        <button class="pwclose" id="pwClose" type="button" aria-label="Bağla">×</button>
-      </div>
-
-      <div class="pwfield">
-        <label>Elan şifrəsi</label>
-        <input id="pwInput" type="password" autocomplete="off" placeholder="••••" />
-        <div class="pwerr" id="pwErr">Şifrə yanlışdır.</div>
-      </div>
-
-      <div help="" style="margin-top:10px; font-size:12px; color:#6b7280; font-weight:650;">
-        *Şifrə elan yerləşdiriləndən sonra göndəriləcək.
-      </div>
-
-      <div class="pwactions">
-        <button class="pwbtn pwbtnCancel" id="pwCancel" type="button">Ləğv et</button>
-        <button class="pwbtn pwbtnOk" id="pwOk" type="button">Təsdiqlə</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(back);
-
   const btnEdit = document.getElementById("btnEditOwner");
   const btnDel  = document.getElementById("btnDelOwner");
-  const inp     = document.getElementById("pwInput");
-  const err     = document.getElementById("pwErr");
 
-  let pending = null; // "edit" | "delete"
+  // Bu düymələr artıq yalnız real sahibə göstərilir (isCurrentUserOwner
+  // yoxlaması ilə çağırılıb), ona görə əlavə client-side şifrəyə ehtiyac
+  // yoxdur — backend özü token vasitəsilə sahibliyi yoxlayır.
 
-  const openPw = (action) => {
-    pending = action;
-    document.getElementById("pwTitle").textContent =
-      action === "delete" ? "Silmək üçün şifrəni daxil edin" : "Düzəliş üçün şifrəni daxil edin";
-
-    if (inp) inp.value = "";
-    if (err) err.style.display = "none";
-    back.classList.add("is-open");
-    setTimeout(() => inp?.focus(), 0);
-  };
-
-  const closePw = () => {
-    back.classList.remove("is-open");
-    pending = null;
-  };
-
-  btnEdit?.addEventListener("click", () => openPw("edit"));
-  btnDel?.addEventListener("click", () => openPw("delete"));
-
-  back.addEventListener("click", (e) => { if (e.target === back) closePw(); });
-  document.getElementById("pwClose")?.addEventListener("click", closePw);
-  document.getElementById("pwCancel")?.addEventListener("click", closePw);
-
-  document.getElementById("pwOk")?.addEventListener("click", () => {
-    const ok = verifyAdPassword(car, inp?.value);
-    if (!ok){
-      if (err) err.style.display = "block";
-      inp?.focus();
-      return;
+  btnEdit?.addEventListener("click", () => {
+    injectEditUI(car);
+    const panel = document.getElementById("editPanel");
+    if (panel) {
+      panel.hidden = false;
+      panel.scrollIntoView({ behavior: "smooth", block: "start" });
     }
+  });
 
-    const action = pending;
-    closePw();
+  btnDel?.addEventListener("click", async () => {
+    const yes = confirm("Elanı silmək istədiyinizə əminsiniz?");
+    if (!yes) return;
 
-   if (action === "edit") {
-  injectEditUI(car);
+    btnDel.disabled = true;
+    btnDel.textContent = "Silinir...";
 
-  const panel = document.getElementById("editPanel");
-  if (panel) {
-    panel.hidden = false;
-    panel.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-  return;
+    const token = localStorage.getItem("access_token") || "";
+    try {
+      const res = await fetch(`https://carall.az/api/Listings/${car.id}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        alert("Silinmə xətası: " + (txt || res.status));
+        btnDel.disabled = false;
+        btnDel.textContent = "Sil";
+        return;
+      }
+
+      const ownerBar = document.getElementById("ownerBar");
+      const editPanel = document.getElementById("editPanel");
+      ownerBar?.remove();
+      editPanel?.remove();
+
+      openCarallModal("deleted", {
+        primaryText: "Elanlarıma bax",
+        primaryHref: "profile.html"
+      });
+    } catch (err) {
+      alert("Bağlantı xətası: " + err.message);
+      btnDel.disabled = false;
+      btnDel.textContent = "Sil";
+    }
+  });
 }
-
-    if (action === "delete") {
-  const yes = confirm("Elanı silmək istədiyinizə əminsiniz?");
-  if (!yes) return;
-
-  const ownerBar = document.getElementById("ownerBar");
-  const editPanel = document.getElementById("editPanel");
-
-  ownerBar?.remove();
-  editPanel?.remove();
-
-  openCarallModal("deleted", {
-    primaryText: "Elanlarıma bax",
-    primaryHref: "profile.html"
-  });
-
-  return;
-}
-  });
-
-  inp?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") document.getElementById("pwOk")?.click();
-    if (e.key === "Escape") closePw();
-  });
-  /* ===================== ƏLAVƏ JS (private vs dealer + phone mask + promote buttons) ===================== */
 
 function maskAzPhone(p){
   if(!p) return "+994 *** ** **";
@@ -2001,8 +1970,6 @@ function initPromoteButtons(car){
    initPromoteButtons(car);
 */
 
-  
-}
 function maskAzPhone(p){
   if(!p) return "+994 *** ** **";
   const clean = String(p).replace(/\s+/g, "");
