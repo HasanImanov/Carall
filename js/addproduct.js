@@ -355,7 +355,10 @@ async function loadModels(makeId) {
 
       select.innerHTML =
         `<option value="">Seç</option>` +
-        data.map(x => `<option value="${x.id}">${x[mapText]}</option>`).join("");
+        data.map(x => {
+          const label = x[mapText] ?? x.name ?? x.value ?? x.title ?? x.id;
+          return `<option value="${x.id}">${label}</option>`;
+        }).join("");
 
     } catch (err) {
       console.error("LOOKUP ERROR:", selector, err);
@@ -702,7 +705,7 @@ async function loadModels(makeId) {
   fillSelect('select[name="body"]', "https://carall.az/api/lookups/vehicle-types");
   fillSelect('select[name="fuel"]', "https://carall.az/api/lookups/fuel-types");
   fillSelect('select[name="gear"]', "https://carall.az/api/lookups/transmissions", "type");
-  fillSelect('#engineVolumeSelect', "https://carall.az/api/lookups/engine-volumes", "value");
+  fillSelect('#engineVolumeSelect', "https://carall.az/api/lookups/engine-volumes", "name");
 loadCities(); 
 
   initPhoneMask();
