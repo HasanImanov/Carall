@@ -355,7 +355,10 @@ async function loadModels(makeId) {
 
       select.innerHTML =
         `<option value="">Seç</option>` +
-        data.map(x => `<option value="${x.id}">${x[mapText]}</option>`).join("");
+        data.map(x => {
+          const label = x[mapText] ?? x.name ?? x.value ?? x.title ?? x.id;
+          return `<option value="${x.id}">${label}</option>`;
+        }).join("");
 
     } catch (err) {
       console.error("LOOKUP ERROR:", selector, err);
@@ -544,12 +547,25 @@ async function loadModels(makeId) {
 
     const data = await res.json();
 
+    // Müvəqqəti həll: login olmadan elan yerləşdirildisə, şifrə təyinetmə
+    // email-ini avtomatik tetiklə (backend bunu POST /Listings-də özü etmir)
+    try {
+      const alreadyLoggedIn = !!localStorage.getItem("access_token");
+      if (!alreadyLoggedIn && phoneVal) {
+        await fetch("https://carall.az/api/auth/resend-set-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: phoneVal })
+        });
+      }
+    } catch (e) { /* email göndərilməsə belə, elan onsuz da yerləşdirilib */ }
+
     openCarallModal("created", {
-      text: "Elanınız uğurla yerləşdirildi. Yoxlanışdan sonra saytda dərc olunacaq.",
-      primaryText: "Elanlarıma bax",
-      primaryHref: "profile.html",
-      secondaryText: "Ana səhifəyə qayıt",
-      secondaryHref: "index.html"
+      text: "Elanınız uğurla yerləşdirildi. Elanınızı idarə etmək üçün email-inizə göndərilən link vasitəsilə şifrənizi təyin edib daxil olun.",
+      primaryText: "Ana səhifəyə qayıt",
+      primaryHref: "index.html",
+      secondaryText: "Daxil ol",
+      secondaryHref: "login.html"
     });
 
   } catch (err) {
@@ -689,7 +705,7 @@ async function loadModels(makeId) {
   fillSelect('select[name="body"]', "https://carall.az/api/lookups/vehicle-types");
   fillSelect('select[name="fuel"]', "https://carall.az/api/lookups/fuel-types");
   fillSelect('select[name="gear"]', "https://carall.az/api/lookups/transmissions", "type");
-  fillSelect('#engineVolumeSelect', "https://carall.az/api/lookups/engine-volumes", "value");
+  fillSelect('#engineVolumeSelect', "https://carall.az/api/lookups/engine-volumes", "name");
 loadCities(); 
 
   initPhoneMask();
