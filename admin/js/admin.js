@@ -196,12 +196,13 @@ function renderListings() {
         <td>${safe(getUserName(x))}</td>
         <td>${getDate(x)}</td>
         <td><span class="admin-status status-${status}">${statusText(status)}</span></td>
-        <td style="display:flex;gap:6px;flex-wrap:wrap;">
+        <td style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
           <a class="admin-btn small" href="listing-details.html?id=${id}" target="_blank">Bax</a>
           ${status === 1 ? `
-            <button class="btn-approve" onclick="approveL(${id})">✅</button>
-            <button class="btn-reject"  onclick="rejectL(${id})">❌</button>` : ''}
-          <button class="btn-reject" onclick="hardDeleteL(${id})" title="Tam sil">🗑</button>
+            <button class="btn-approve" onclick="approveL(${id})" title="Təsdiqlə">✅</button>
+            <button class="btn-reject"  onclick="rejectL(${id})"  title="Rədd et">❌</button>` : ''}
+          ${status !== 1 ? `
+            <button class="btn-reject" onclick="hardDeleteL(${id})" title="Tam sil">🗑</button>` : ''}
         </td>
       </tr>`;
   }).join('');
