@@ -216,6 +216,7 @@ window.approveL = async (id) => {
     body: JSON.stringify(2)
   });
   if (res.ok) {
+    alert('✅ Elan uğurla təsdiqləndi!');
     const x = ALL_LISTINGS.find(x => x.id === id);
     if (x) x.status = 2;
     renderListings();
@@ -231,6 +232,7 @@ window.rejectL = async (id) => {
     body: JSON.stringify(3)
   });
   if (res.ok) {
+    alert('❌ Elan rədd edildi.');
     const x = ALL_LISTINGS.find(x => x.id === id);
     if (x) x.status = 3;
     renderListings();
