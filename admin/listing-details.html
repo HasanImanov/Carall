@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Elan Detalı — Admin</title>
-  <link rel="stylesheet" href="./css/admin.css?v=23">
+  <link rel="stylesheet" href="./css/admin.css?v=24">
   <style>
     body { background:#f1f5f9; }
     .ld-wrap { max-width:960px; margin:24px auto; padding:0 16px; }
@@ -150,8 +150,13 @@
 
   // ── Şəkillər ──
   const rawImgs = Array.isArray(car.images) ? car.images : [];
-  const imgs = rawImgs.map(imgUrl).filter(Boolean);
-  if (!imgs.length) imgs.push('../images/no-image.png');
+  let imgs = rawImgs.map(imgUrl).filter(Boolean);
+
+  // admin.js kimi əlavə fallback-lar (mainImage, imageUrl, image)
+  if (!imgs.length) {
+    const fallback = car.mainImage || car.imageUrl || car.image;
+    if (fallback) imgs = [fallback];
+  }
 
   let cur = 0;
   const mainImg  = $('ldMainImg');
@@ -159,6 +164,13 @@
   const thumbsEl = $('ldThumbs');
 
   function showImg(i) {
+    if (!imgs.length) {
+      mainImg.removeAttribute('src');
+      mainImg.style.background = '#e5e7eb';
+      mainImg.alt = 'Şəkil yoxdur';
+      countEl.textContent = '0 / 0';
+      return;
+    }
     cur = Math.max(0, Math.min(imgs.length - 1, i));
     mainImg.src = imgs[cur];
     mainImg.onerror = () => {
