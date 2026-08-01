@@ -178,7 +178,9 @@
       gearbox: x.gearbox || x.transmissionType || x.transmissionName || x.transmission?.type || "",
       country: x.country || x.countryCode || "AZ",
       adType: x.adType || x.listingType || 1,
-      createdAt: x.createdAt || x.createdDate || x.postedAt
+      createdAt: x.createDate || x.createdAt || x.createdDate || x.postedAt,
+      enginePower: x.enginePower || null,
+      engineVolume: x.engineVolume || null,
     };
   }
 
@@ -233,8 +235,10 @@
                 ${[
                   car.year !== "—" ? `<span>${car.year}</span>` : "",
                   `<span>${Number(car.mileage || 0).toLocaleString("az-AZ")} km</span>`,
+                  car.engineVolume ? `<span>${car.engineVolume} L</span>` : "",
                   car.fuel ? `<span>${car.fuel}</span>` : "",
-                  car.gearbox ? `<span>${car.gearbox}</span>` : ""
+                  car.gearbox ? `<span>${car.gearbox}</span>` : "",
+                  car.enginePower ? `<span>${car.enginePower} a.g.</span>` : ""
                 ].filter(Boolean).join('<span>•</span>')}
               </div>
               <div class="card__bottom">
