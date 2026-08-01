@@ -1578,7 +1578,7 @@ function injectEditUI(car){
   </div>
 
   <div class="editnote">
-    *Hələlik UI preview. Sabah SQL/back-end qoşulanda real yadda saxlanacaq.
+    Dəyişikliklər yadda saxlanandan sonra dərhal tətbiq olunacaq.
   </div>
 `;
 
@@ -1590,7 +1590,7 @@ function injectEditUI(car){
     panel.hidden = true;
   });
 
-  document.getElementById("eSave")?.addEventListener("click", () => {
+  document.getElementById("eSave")?.addEventListener("click", async () => {
     const price   = String(document.getElementById("ePrice")?.value ?? "").trim();
 const city    = document.getElementById("eCity")?.value ?? "";
 const country = document.getElementById("eCountry")?.value ?? "";
@@ -1602,6 +1602,46 @@ const engine  = document.getElementById("eEngine")?.value ?? "";
 const desc    = document.getElementById("eDesc")?.value ?? "";
 const feats   = document.getElementById("eFeatures")?.value ?? "";
 
+    // ── Real API-yə göndər ──
+    const saveBtn = document.getElementById("eSave");
+    const token = localStorage.getItem("access_token") || "";
+    const payload = {
+      price: price ? Number(price) : null,
+      description: desc || null,
+      modelYear: year ? Number(year) : null,
+      odometerReading: mileage ? Number(mileage) : null,
+      cityId: city ? Number(city) : null,
+    };
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = "Yadda saxlanılır...";
+
+    try {
+      const fd = new FormData();
+      fd.append("data", JSON.stringify(payload));
+
+      const res = await fetch(`https://carall.az/api/users/listings/${car.id}`, {
+        method: "PUT",
+        headers: { "Authorization": `Bearer ${token}` },
+        body: fd
+      });
+
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        alert("Xəta baş verdi: " + (txt || res.status));
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Yadda saxla";
+        return;
+      }
+    } catch (err) {
+      alert("Bağlantı xətası: " + err.message);
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Yadda saxla";
+      return;
+    }
+
+    saveBtn.disabled = false;
+    saveBtn.textContent = "Yadda saxla";
 
     // car obyektini yenilə (UI üçün)
     car.price = price;
