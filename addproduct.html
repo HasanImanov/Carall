@@ -12,8 +12,8 @@
   <meta property="og:description" content="CarAll-da avtomobil elanı yerləşdir. Sürətli, asan, pulsuz. Şəkil əlavə et, qiymət təyin et, minlərlə alıcıya çat." />
   <meta property="og:image" content="https://carall.az/images/Logo.png" />
   <meta property="og:url" content="https://carall.az/" />
-  <link rel="stylesheet" href="css/style.css?v=16" />
-  <link rel="stylesheet" href="css/addproduct.css?v=16" />
+  <link rel="stylesheet" href="css/style.css?v=17" />
+  <link rel="stylesheet" href="css/addproduct.css?v=17" />
 
 </head>
 <!-- Mobile Bottom Nav -->
@@ -257,6 +257,44 @@
           <small class="field__err"></small>
         </label>
 
+        <label class="field">
+          <span class="field__lbl">Qapı sayı</span>
+          <select class="field__inp" name="door">
+            <option value="">Seç</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+          <small class="field__err"></small>
+        </label>
+
+        <label class="field">
+          <span class="field__lbl">Sərnişin sayı</span>
+          <select class="field__inp" name="noOfPassenger">
+            <option value="">Seç</option>
+            <option value="2">2</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+          </select>
+          <small class="field__err"></small>
+        </label>
+
+        <label class="field">
+          <span class="field__lbl">Mühərrik gücü (at)</span>
+          <input class="field__inp" name="enginePower" type="number" min="0" placeholder="Məs: 150" />
+          <small class="field__err"></small>
+        </label>
+
+        <label class="field">
+          <span class="field__lbl">VIN nömrəsi</span>
+          <input class="field__inp" name="vin" type="text" maxlength="17" placeholder="17 simvol" style="text-transform:uppercase" />
+          <small class="field__err"></small>
+        </label>
+
       </div>
     </section>
 
@@ -444,9 +482,9 @@
       </div>
     </div>
   </footer>
-  <script src="js/carsdata.js?v=16"></script>
-  <script src="js/addproduct.js?v=33"></script>
-  <script src="js/script.js?v=16"></script>
+  <script src="js/carsdata.js?v=17"></script>
+  <script src="js/addproduct.js?v=34"></script>
+  <script src="js/script.js?v=17"></script>
 <script>
 (function(){
   try {

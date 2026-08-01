@@ -488,6 +488,10 @@ async function loadModels(makeId) {
       fuelTypeId:      Number(document.querySelector('select[name="fuel"]').value) || null,
       transmissionId:  Number(document.querySelector('select[name="gear"]').value) || null,
       engineVolumeId:  Number(document.getElementById('engineVolumeSelect')?.value) || null,
+      door:            Number(document.querySelector('select[name="door"]')?.value) || null,
+      noOfPassenger:   Number(document.querySelector('select[name="noOfPassenger"]')?.value) || null,
+      enginePower:     Number(document.querySelector('input[name="enginePower"]')?.value) || null,
+      vin:             (document.querySelector('input[name="vin"]')?.value || '').trim().toUpperCase() || null,
 
       odometerReading: Number(document.querySelector('input[name="km"]').value) || 0,
       price:           Number(document.querySelector('input[name="price"]').value),
