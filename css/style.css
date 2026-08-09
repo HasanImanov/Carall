@@ -1527,6 +1527,10 @@ img { max-width: 100%; }
    ========================= */
 .tsel{ position:relative; width:100%;  z-index: 5;
  }
+ .tsel.is-open{
+  z-index: 99999 !important;
+  position: relative;
+ }
  .field:has(.tsel.is-open) {
   z-index: 99999 !important;
   position: relative;
