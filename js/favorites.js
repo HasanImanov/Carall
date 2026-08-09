@@ -51,7 +51,7 @@ function mapListing(x) {
       x.images?.[0]?.original || x.images?.[0]?.Original ||
       x.images?.[0]?.large || x.images?.[0]?.Large ||
       x.images?.[0]?.small || x.images?.[0]?.Small ||
-      "images/no-image.png",
+      "assets/no-image.png",
     images: x.images || x.imageUrls || x.photos || [],
     link: `details.html?id=${encodeURIComponent(x.id)}`
   };
@@ -99,7 +99,7 @@ function renderCars(list) {
   carsGrid.innerHTML = list.map(car => {
     const id = car.id;
     const href = car.link || `details.html?id=${encodeURIComponent(id)}`;
-    const img = car.img || "images/no-image.png";
+    const img = car.img || "assets/no-image.png";
     const title = `${car.brand || ""} ${car.model || ""}`.trim() || "Elan";
     const favOn = favIds.has(String(id));
 
@@ -112,7 +112,7 @@ function renderCars(list) {
                  alt="${title}"
                  loading="lazy"
                  referrerpolicy="no-referrer"
-                 onerror="this.onerror=null; this.src='images/no-image.png'">
+                 onerror="this.onerror=null; this.src='assets/no-image.png'">
 
             <button class="fav-btn ${favOn ? "is-on" : ""}"
                     type="button"

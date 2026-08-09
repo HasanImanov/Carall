@@ -360,7 +360,7 @@
       img: c.img || c.image || c.mainImage ||
         (typeof c.images?.[0] === 'string' ? c.images[0] : null) ||
         c.images?.[0]?.original || c.images?.[0]?.large ||
-        'images/no-image.png'
+        'assets/no-image.png'
     }));
 
     initPager(allList);

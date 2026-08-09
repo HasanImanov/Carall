@@ -172,7 +172,7 @@
   x.images?.[0]?.large || x.images?.[0]?.Large ||
   x.images?.[0]?.small || x.images?.[0]?.Small ||
   x.images?.[0]?.url || x.images?.[0]?.imageUrl ||
-  "images/no-image.png",
+  "assets/no-image.png",
       mileage: x.mileage || x.odometerReading || 0,
       fuel: x.fuel || x.fuelTypeName || x.fuelType?.name || "",
       gearbox: x.gearbox || x.transmissionType || x.transmissionName || x.transmission?.type || "",
@@ -211,7 +211,7 @@
         <a class="cardlink" href="details.html?id=${car.id}" aria-label="${car.brand} ${car.model}">
           <article class="card">
             <div class="card__imgwrap">
-              <img class="card__img" src="${car.img}" alt="${car.brand} ${car.model}" onerror="this.onerror=null; this.src='images/no-image.png';">
+              <img class="card__img" src="${car.img}" alt="${car.brand} ${car.model}" onerror="this.onerror=null; this.src='assets/no-image.png';">
               <div class="card__top">
                 <button class="fav-btn ${favOn ? "is-on" : ""}" type="button" data-id="${car.id}" aria-label="Favorit">
                   <svg class="fav-ic ic-off" viewBox="0 0 24 24" aria-hidden="true">

@@ -184,7 +184,7 @@ if (!car.seller) {
 
   push(car.img);
   if (Array.isArray(car.images)) car.images.forEach(push);
-  if (!imgs.length) imgs.push("images/Logo.png");
+  if (!imgs.length) imgs.push("assets/Logo.png");
 
   const fallbackSvg =
     "data:image/svg+xml;charset=utf-8," +
@@ -1280,7 +1280,7 @@ function injectSimilarAdsStrict(currentCar, allCars){
   info2.parentNode.insertBefore(sec, info2.nextSibling);
 
   const grid = sec.querySelector("#simGrid");
-  const fallback = "images/Logo.png";
+  const fallback = "assets/Logo.png";
 
   grid.innerHTML = list.map(car => {
     const img = (car.img || (Array.isArray(car.images) ? car.images[0] : "") || fallback);
@@ -1407,7 +1407,7 @@ async function injectSimilarAdsFromBackend(currentCar) {
           x.images?.[0]?.original || x.images?.[0]?.Original ||
           x.images?.[0]?.large || x.images?.[0]?.Large ||
           x.images?.[0]?.small || x.images?.[0]?.Small ||
-          "images/no-image.png",
+          "assets/no-image.png",
         images: x.images || x.imageUrls || x.photos || [],
         mileage: x.mileage || x.odometerReading || 0,
         engine: x.engine || x.engineVolume || ""
@@ -1938,7 +1938,7 @@ function renderSellerBlock(car){
       <img src="${url}"
            alt="${s.name || "Salon"}"
            referrerpolicy="no-referrer"
-           onerror="this.onerror=null; this.src='images/Logo.png';">
+           onerror="this.onerror=null; this.src='assets/Logo.png';">
     `;
   }
 }
@@ -2108,7 +2108,7 @@ function renderSellerFromOwner(car){
             url
               ? `<img src="${url}" alt="${name}"
                       referrerpolicy="no-referrer"
-                      onerror="this.onerror=null; this.src='images/Logo.png';">`
+                      onerror="this.onerror=null; this.src='assets/Logo.png';">`
               : `<span class="s-logo__txt">${(name || "?").trim().charAt(0).toUpperCase()}</span>`
           }
         </a>

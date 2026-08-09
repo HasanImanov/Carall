@@ -51,7 +51,7 @@
     return x.img || x.image || x.mainImage || x.mainPhotoUrl ||
       (typeof x.images?.[0] === 'string' ? x.images[0] : null) ||
       x.images?.[0]?.original || x.images?.[0]?.large || x.images?.[0]?.small ||
-      'images/no-image.png';
+      'assets/no-image.png';
   }
 
   function renderCards(cars) {
@@ -80,7 +80,7 @@
       card.style.cursor = 'pointer';
       card.innerHTML = `
         <img src="${src}" alt="${title}" style="width:100%;height:160px;object-fit:cover;border-radius:8px;"
-             onerror="this.onerror=null;this.src='images/no-image.png'">
+             onerror="this.onerror=null;this.src='assets/no-image.png'">
         <div class="car-info" style="padding:8px 4px">
           <h3 style="margin:4px 0;font-size:15px">${title}</h3>
           <div style="font-size:13px;color:#64748b">${[year, city].filter(Boolean).join(' • ')}</div>

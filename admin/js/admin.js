@@ -44,9 +44,9 @@ function getImg(x) {
   if (Array.isArray(x.images) && x.images.length) {
     const first = x.images[0];
     if (typeof first === 'string') return first;
-    return first.large || first.original || first.small || first.url || first.imageUrl || '../images/no-image.png';
+    return first.large || first.original || first.small || first.url || first.imageUrl || '../assets/no-image.png';
   }
-  return '../images/no-image.png';
+  return '../assets/no-image.png';
 }
 
 function getBrand(x)    { return x.brand    || x.brandName  || x.make     || ""; }
@@ -208,7 +208,7 @@ function renderListings() {
     const status = getStatus(x);
     return `
       <tr>
-        <td><img class="admin-car-img" src="${getImg(x)}" alt="${safe(getBrand(x))}" onerror="this.src='../images/no-image.png'"></td>
+        <td><img class="admin-car-img" src="${getImg(x)}" alt="${safe(getBrand(x))}" onerror="this.src='../assets/no-image.png'"></td>
         <td>
           <strong>${safe(getBrand(x))} ${safe(getModel(x))}</strong>
           <small style="display:block;color:#6b7280;margin-top:4px;">${safe(getYear(x))} • ${safe(getCity(x))}</small>
