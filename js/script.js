@@ -1047,6 +1047,7 @@
 
     // ===== Events =====
     btnSearch?.addEventListener("click", applyFilters);
+    sortBy?.addEventListener("change", applyFilters);
     btnReset?.addEventListener("click", resetAll);
 
     qBrand?.addEventListener("change", () => loadModelsFromApi(qBrand.value));
