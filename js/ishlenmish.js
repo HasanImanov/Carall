@@ -40,7 +40,7 @@
                      alt="${esc(name)}"
                      loading="lazy"
                      referrerpolicy="no-referrer"
-                     onerror="this.onerror=null;this.src='images/Logo.png'">
+                     onerror="this.onerror=null;this.src='assets/Logo.png?v=2'">
               </div>
 
               <div class="brand-info">

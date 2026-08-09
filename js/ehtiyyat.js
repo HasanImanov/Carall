@@ -18,7 +18,7 @@
   function imgSrc(item) {
     return item.imageUrl || item.image || item.img ||
       (typeof item.images?.[0] === 'string' ? item.images[0] : null) ||
-      'images/no-image.png';
+      'assets/no-image.png';
   }
 
   // ── Kategoriya siyahısını çək ──
@@ -83,7 +83,7 @@
               src="${esc(imgSrc(item))}"
               alt="${esc(item.name || item.title || '')}"
               loading="lazy"
-              onerror="this.onerror=null;this.src='images/no-image.png';"
+              onerror="this.onerror=null;this.src='assets/no-image.png';"
             />
             <span class="part-card__badge">${esc(catLabel)}</span>
           </div>
@@ -215,7 +215,7 @@
             <img
               src="${esc(imgSrc(item))}"
               alt="${esc(name)}"
-              onerror="this.onerror=null;this.src='images/no-image.png';"
+              onerror="this.onerror=null;this.src='assets/no-image.png';"
             />
           </div>
         </div>

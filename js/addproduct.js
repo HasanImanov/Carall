@@ -547,25 +547,12 @@ async function loadModels(makeId) {
 
     const data = await res.json();
 
-    // Müvəqqəti həll: login olmadan elan yerləşdirildisə, şifrə təyinetmə
-    // email-ini avtomatik tetiklə (backend bunu POST /Listings-də özü etmir)
-    try {
-      const alreadyLoggedIn = !!localStorage.getItem("access_token");
-      if (!alreadyLoggedIn && phoneVal) {
-        await fetch("https://carall.az/api/auth/resend-set-password", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone: phoneVal })
-        });
-      }
-    } catch (e) { /* email göndərilməsə belə, elan onsuz da yerləşdirilib */ }
-
     openCarallModal("created", {
-      text: "Elanınız uğurla yerləşdirildi. Elanınızı idarə etmək üçün email-inizə göndərilən link vasitəsilə şifrənizi təyin edib daxil olun.",
-      primaryText: "Ana səhifəyə qayıt",
-      primaryHref: "index.html",
-      secondaryText: "Daxil ol",
-      secondaryHref: "login.html"
+      text: "Elanınız uğurla yerləşdirildi. Yoxlanışdan sonra saytda dərc olunacaq.",
+      primaryText: "Elanlarıma bax",
+      primaryHref: "profile.html",
+      secondaryText: "Ana səhifəyə qayıt",
+      secondaryHref: "index.html"
     });
 
   } catch (err) {

@@ -86,7 +86,7 @@
     if (car?.img) return car.img;
     const imgs = car?.images || car?.imgs || car?.photos || [];
     if (Array.isArray(imgs) && imgs.length) return imgs[0];
-    return car?.image || car?.imgUrl || "images/no-image.png";
+    return car?.image || car?.imgUrl || "assets/no-image.png";
   }
 
   function getDemoSalonId(carId, salonsCount) {
@@ -146,7 +146,7 @@
   }
 
   function getSalonLogo(s) {
-    return s?.logo || s?.logo_url || s?.image || "images/biz-logo.png";
+    return s?.logo || s?.logo_url || s?.image || "assets/biz-logo.png";
   }
 
   function getSalonCover(s) {
@@ -156,7 +156,7 @@
     s?.coverImage ||
     s?.image ||
     s?.img ||
-    "images/biz-cover.jpg"
+    "assets/biz-cover.jpg"
     );
   }
 
@@ -554,7 +554,7 @@
       img: c.img || c.image || c.mainImage ||
         (typeof c.images?.[0] === 'string' ? c.images[0] : null) ||
         c.images?.[0]?.original || c.images?.[0]?.large ||
-        'images/no-image.png'
+        'assets/no-image.png'
     }));
 
     initPager(allList);

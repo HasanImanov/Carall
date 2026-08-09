@@ -3035,3 +3035,88 @@ body.modal-open{
   border: 1px solid #e5e7eb;
   box-shadow: 0 6px 18px rgba(0,0,0,.07);
 }
+/* ═══════ Owner Actions (Düzəliş et / Sil) ═══════ */
+.ownerbar{
+  display:flex;
+  gap:12px;
+  margin:16px 0;
+}
+.btnOwner{
+  flex:1;
+  padding:12px 20px;
+  border:none;
+  border-radius:10px;
+  font-weight:700;
+  font-size:15px;
+  cursor:pointer;
+  background:#1B3A6B;
+  color:#fff;
+  transition:background .15s,transform .1s;
+}
+.btnOwner:hover{ background:#15305a; }
+.btnOwner:active{ transform:scale(.97); }
+.btnOwner.btnDanger{ background:#fee2e2; color:#dc2626; }
+.btnOwner.btnDanger:hover{ background:#dc2626; color:#fff; }
+.btnOwner:disabled{ opacity:.6; cursor:not-allowed; }
+
+/* ═══════ Edit Panel (Elanı düzəlt) ═══════ */
+.editpanel{
+  background:#fff;
+  border-radius:12px;
+  box-shadow:0 1px 6px rgba(0,0,0,.08);
+  padding:20px;
+  margin:16px 0;
+}
+.editgrid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:14px;
+  margin-bottom:16px;
+}
+.editfield{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.editfield label{
+  font-size:12px;
+  font-weight:700;
+  color:#64748b;
+  text-transform:uppercase;
+  letter-spacing:.3px;
+}
+.editfield input,
+.editfield select,
+.editfield textarea{
+  padding:10px 12px;
+  border:1px solid #e2e8f0;
+  border-radius:8px;
+  font-size:14px;
+  font-family:inherit;
+}
+.editfield textarea{ resize:vertical; min-height:80px; }
+.editnote{
+  font-size:13px;
+  color:#64748b;
+  background:#f8fafc;
+  padding:10px 14px;
+  border-radius:8px;
+  margin-bottom:16px;
+}
+.editactions{
+  display:flex;
+  justify-content:flex-end;
+}
+.btnSave{
+  padding:12px 28px;
+  border:none;
+  border-radius:10px;
+  background:#16a34a;
+  color:#fff;
+  font-weight:700;
+  font-size:15px;
+  cursor:pointer;
+  transition:background .15s;
+}
+.btnSave:hover{ background:#15803d; }
+.btnSave:disabled{ opacity:.6; cursor:not-allowed; }

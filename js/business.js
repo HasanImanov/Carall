@@ -11,8 +11,8 @@
   };
 
   const DEMO = {
-    logo: "images/biz-logo.png",
-    car: "images/no-image.png"
+    logo: "assets/biz-logo.png",
+    car: "assets/no-image.png"
   };
 
   function fmtNumber(n) {
@@ -308,7 +308,7 @@
               class="bd-carCell__img"
               src="${escapeHtml(car.img)}"
               alt="${escapeHtml(car.brand)} ${escapeHtml(car.model)}"
-              onerror="this.onerror=null; this.src='images/no-image.png'"
+              onerror="this.onerror=null; this.src='assets/no-image.png'"
             />
             <div class="bd-carCell__body">
               <div class="bd-carCell__title">${escapeHtml(car.brand)} ${escapeHtml(car.model)}</div>
