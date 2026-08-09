@@ -286,6 +286,14 @@ max-width: 100%;
   align-items:center;
   gap: 10px;
 }
+.meta__right .tsel{
+  width: 220px;
+  min-width: 220px;
+  flex-shrink: 0;
+}
+@media(max-width:480px){
+  .meta__right .tsel{ width: 160px; min-width: 160px; }
+}
 .meta__label{
   color: var(--muted);
   font-weight: 800;
