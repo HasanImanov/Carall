@@ -23,15 +23,33 @@
   const sentinelEl = () => document.getElementById("vipSentinel");
   const textEl = () => document.getElementById("vipSentinelText");
 
-  function getAllCars() {
-    if (Array.isArray(window.cars) && window.cars.length) return window.cars;
-    if (Array.isArray(window.ALL_CARS) && window.ALL_CARS.length) return window.ALL_CARS;
-    if (Array.isArray(window.CARS) && window.CARS.length) return window.CARS;
-    return [];
+  const API_BASE = "https://carall.az/api";
+
+  async function fetchVipFromApi() {
+    try {
+      const res = await fetch(`${API_BASE}/Listings/full_filter`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          page: 1,
+          pageSize: 100,
+          includeTotalCount: false,
+          isVip: true,
+          sort: "date_desc"
+        })
+      });
+      if (!res.ok) return [];
+      const data = await res.json();
+      const raw = Array.isArray(data) ? data : (data.data || data.items || []);
+      const mapFn = typeof window.mapListing === "function" ? window.mapListing : (x) => x;
+      return raw.map(mapFn);
+    } catch (e) {
+      return [];
+    }
   }
 
   function vipPremium(all) {
-    return (all || []).filter((c) => c && (Number(c.adType) === 2 || Number(c.adType) === 3));
+    return (all || []).slice();
   }
   
 
@@ -109,28 +127,27 @@
     io.observe(s);
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
     ensureSentinelVisible();
 
-    const start = Date.now();
-    (function waitData() {
-      const all = getAllCars();
-      const canRender = typeof window.renderCars === "function";
-      const g = gridEl();
-      const s = sentinelEl();
+    const g = gridEl();
+    const s = sentinelEl();
+    if (!g || !s) return;
 
-      if (all.length && canRender && g && s) {
-        list = vipPremium(all);
-        const resultInfo = document.getElementById("resultInfo");
-        if (resultInfo) resultInfo.textContent = `${list.length} nəticə tapıldı.`;
+    setText("Yüklənir...");
 
-        renderFirst();
-        setupObserver();
-        return;
-      }
+    const all = await fetchVipFromApi();
 
-      if (Date.now() - start > TIMEOUT) return;
-      setTimeout(waitData, 50);
-    })();
+    if (typeof window.renderCars !== "function") {
+      setText("Xəta baş verdi.");
+      return;
+    }
+
+    list = vipPremium(all);
+    const resultInfo = document.getElementById("resultInfo");
+    if (resultInfo) resultInfo.textContent = `${list.length} nəticə tapıldı.`;
+
+    renderFirst();
+    setupObserver();
   });
 })();
