@@ -30,14 +30,28 @@
   const textEl = () => document.getElementById("sentinelText");
   const resultInfoEl = () => document.getElementById("resultInfo");
 
-  function getAllCars() {
-    // ✅ səndə bridge var: window.cars / window.ALL_CARS / window.CARS
-    const a =
-      (Array.isArray(window.ALL_CARS) && window.ALL_CARS) ||
-      (Array.isArray(window.cars) && window.cars) ||
-      (Array.isArray(window.CARS) && window.CARS) ||
-      [];
-    return a;
+  const API_BASE = "https://carall.az/api";
+
+  async function fetchLatestFromApi() {
+    try {
+      const res = await fetch(`${API_BASE}/Listings/full_filter`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          page: 1,
+          pageSize: 100,
+          includeTotalCount: false,
+          sort: "date_desc"
+        })
+      });
+      if (!res.ok) return [];
+      const data = await res.json();
+      const raw = Array.isArray(data) ? data : (data.data || data.items || []);
+      const mapFn = typeof window.mapListing === "function" ? window.mapListing : (x) => x;
+      return raw.map(mapFn);
+    } catch (e) {
+      return [];
+    }
   }
 
   function toTime(v) {
@@ -62,10 +76,7 @@
   }
 
   function onlyType1(all) {
-    return (all || [])
-      .filter((c) => c && Number(c.adType) === 1)
-      .slice()
-      .sort(sortNewest);
+    return (all || []).slice();
   }
 
   function setText(msg) {
@@ -166,33 +177,27 @@
     io.observe(s);
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
-    // Əgər page flag istifadə edirsənsə, latest-də işləsin:
-    // (flag yoxdursa, problem yaratmır)
+  document.addEventListener("DOMContentLoaded", async () => {
     const page = document.body?.dataset?.page;
     if (page && page !== "latest") return;
 
     ensureSentinelVisible();
 
-    const start = Date.now();
-    (function waitData() {
-      const all = getAllCars();
-      const canRender = typeof window.renderCars === "function";
-      const g = gridEl();
-      const s = sentinelEl();
+    const g = gridEl();
+    const s = sentinelEl();
+    if (!g || !s) return;
 
-      if (all.length && canRender && g && s) {
-        list = onlyType1(all);
-        renderFirst();
-        setupObserver();
-        return;
-      }
+    setText("Yüklənir...");
 
-      if (Date.now() - start > TIMEOUT) {
-        // heç nə yazmırıq, sadəcə sakit çıxır
-        return;
-      }
-      setTimeout(waitData, 50);
-    })();
+    const all = await fetchLatestFromApi();
+
+    if (typeof window.renderCars !== "function") {
+      setText("Xəta baş verdi.");
+      return;
+    }
+
+    list = onlyType1(all);
+    renderFirst();
+    setupObserver();
   });
 })();

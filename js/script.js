@@ -257,6 +257,9 @@
     else grid.innerHTML = html;
   }
 
+  window.renderCars = renderCars;
+  window.mapListing = mapListing;
+
   // ===== emptyFilter helper — schema-ya uyğun =====
   function emptyFilter() {
     return {
