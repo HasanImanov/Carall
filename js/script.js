@@ -854,7 +854,7 @@
   }
 
   function initTurboSelects() {
-    document.querySelectorAll("#advPanel select, .filters select, select.sort")
+    document.querySelectorAll("#advPanel select, .filters select, select.sort, #listingForm select")
       .forEach((sel) => makeTurboSelect(sel, { searchable: true, placeholder: "Yazın...", clearText: "Sıfırla" }));
   }
 

@@ -61,9 +61,9 @@ async function loadCarFromBackend(id) {
   description: x.description || "",
   features: x.features || x.accessories || [],
   ownerType: x.ownerType || x.sellerType || "private",
-  ownerId: x.ownerId || x.sellerId || null,
-  ownerName: x.ownerName || x.sellerName || x.contactName || "Satıcı",
-  ownerPhone: x.ownerPhone || x.sellerPhone || x.phone || ""
+  ownerId: x.ownerId || x.sellerId || x.user?.id || null,
+  ownerName: x.ownerName || x.sellerName || x.contactName || x.user?.name || "Satıcı",
+  ownerPhone: x.ownerPhone || x.sellerPhone || x.phone || x.user?.phoneNumber || ""
 };
   } catch (err) {
     console.error("DETAIL BACKEND ERROR:", err);
@@ -2134,8 +2134,8 @@ function renderSellerFromOwner(car){
     }
 
   } else {
-    name = car.sellerName || "Satıcı";
-    phone = car.sellerPhone || "";
+    name = car.sellerName || car.ownerName || "Satıcı";
+    phone = car.sellerPhone || car.ownerPhone || "";
     sinceText = car.sellerSince ? `Satıcı ${car.sellerSince} tarixindən` : "";
 
     if (sinceEl) sinceEl.textContent = sinceText || "";
