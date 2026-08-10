@@ -102,6 +102,24 @@ document.addEventListener("DOMContentLoaded", () => {
         setErrForEl(km, "Yürüş mütləqdir.");
         return false;
       }
+
+      const engineVolumeEl = document.getElementById("engineVolumeSelect");
+      if (!engineVolumeEl?.value) {
+        setErrForEl(engineVolumeEl, "Motor həcmi mütləqdir.");
+        return false;
+      }
+
+      const fuelEl = form?.elements?.fuel;
+      if (!fuelEl?.value) {
+        setErrForEl(fuelEl, "Yanacaq növü mütləqdir.");
+        return false;
+      }
+
+      const gearEl = form?.elements?.gear;
+      if (!gearEl?.value) {
+        setErrForEl(gearEl, "Sürətlər qutusu mütləqdir.");
+        return false;
+      }
     }
 
     if (step === 2) {
@@ -508,6 +526,8 @@ async function loadModels(makeId) {
 
       isCredit:  !!document.querySelector('input[name="credit"]')?.checked,
       isBarter:  !!document.querySelector('input[name="barter"]')?.checked,
+      isUrgent:  !!document.querySelector('input[name="urgent"]')?.checked,
+      whatsappEnabled: !!document.querySelector('input[name="whatsapp"]')?.checked,
       isNew:     false,
       status:    "used",
       ownersCount: 1
