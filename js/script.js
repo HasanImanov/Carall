@@ -446,40 +446,6 @@
     }
   }
 
-  async function loadAllListings({ reset = false } = {}) {
-  if (isLoading || (!hasMore && !reset)) return;
-  isLoading = true;
-
-  if (reset) {
-    currentPage = 1;
-    hasMore = true;
-  }
-
-  try {
-    const res = await fetch(`${API_BASE}/Listings/cards?page=${currentPage}&pageSize=${pageSize}`);
-
-    if (!res.ok) {
-      console.error("LISTINGS GET ERROR:", res.status);
-      return;
-    }
-
-    const result = await res.json();
-    const raw = result.data || result.items || result || [];
-    const mapped = raw.map(mapListing);
-
-    const grid = latestGrid || document.getElementById("carsGrid");
-    renderCars(mapped, grid, !reset);
-
-    if (mapped.length < pageSize) hasMore = false;
-    else currentPage++;
-
-  } catch (err) {
-    console.error("GET LISTINGS ERROR:", err);
-  } finally {
-    isLoading = false;
-  }
-}
-
   async function applyFilters() {
     await loadListingsFromBackend({ reset: true });
   }
@@ -1032,7 +998,9 @@
 
     // ✅ Əvvəl page 1 yüklə, bitəndən sonra infinite scroll aktiv et
     // Race condition fix: sentinel görünürsə eyni anda 2x page 1 olmasın
-    loadAllListings({ reset: true }).then(() => {
+    // Qeyd: eyni endpoint (full_filter) istifadə olunur ki, ilk səhifə ilə
+    // sonrakı (infinite scroll) səhifələr arasında sıralama tutarlı olsun.
+    loadListingsFromBackend({ reset: true }).then(() => {
      initInfiniteScroll();
     });
 

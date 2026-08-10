@@ -32,20 +32,33 @@
     } catch { return []; }
   }
 
-  // ── Məhsulları çək ──
+  // ── Məhsulları çək (bütün səhifələri, təhlükəsiz limitlə) ──
   async function fetchParts(params = {}) {
-    const url = new URL(`${API}/SpareParts`);
-    Object.entries(params).forEach(([k, v]) => {
-      if (v !== null && v !== undefined && v !== '') url.searchParams.set(k, v);
-    });
+    const all = [];
+    let page = 1;
+    const pageSize = 50;
     try {
-      const res = await fetch(url);
-      if (!res.ok) return [];
-      const data = await res.json();
-      return Array.isArray(data) ? data
-        : Array.isArray(data.data) ? data.data
-        : Array.isArray(data.items) ? data.items : [];
-    } catch { return []; }
+      while (true) {
+        const url = new URL(`${API}/SpareParts`);
+        Object.entries(params).forEach(([k, v]) => {
+          if (v !== null && v !== undefined && v !== '') url.searchParams.set(k, v);
+        });
+        url.searchParams.set('page', page);
+        url.searchParams.set('pageSize', pageSize);
+
+        const res = await fetch(url);
+        if (!res.ok) break;
+        const data = await res.json();
+        const items = Array.isArray(data) ? data
+          : Array.isArray(data.data) ? data.data
+          : Array.isArray(data.items) ? data.items : [];
+        all.push(...items);
+        if (items.length < pageSize) break;
+        page++;
+        if (page > 20) break; // təhlükəsizlik həddi (max 1000 nəticə)
+      }
+    } catch { /* şəbəkə xətası — indiyə qədər toplananları qaytar */ }
+    return all;
   }
 
   // ── Tək məhsul çək ──
